@@ -42,7 +42,9 @@
   ShLib
   ArmLib
   UartLib
-
+  CacheMaintenanceLib
+  DebugLib
+  
 [Packages]
   MdePkg/MdePkg.dec
   QcomPkg/QcomPkg.dec

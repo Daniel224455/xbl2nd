@@ -11,3 +11,5 @@ QcomPkg/Tools/sectools/ext/colorama/ansitowin32.pyc
 QcomPkg/Tools/sectools/ext/colorama/initialise.pyc
 QcomPkg/Tools/sectools/ext/colorama/win32.pyc
 QcomPkg/Tools/sectools/ext/colorama/winterm.pyc
+xbl2nd-*.img
+Resources/payload.bin

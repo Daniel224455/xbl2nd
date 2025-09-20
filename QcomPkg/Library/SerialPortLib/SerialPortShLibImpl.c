@@ -47,6 +47,47 @@
 /* Version 1.1 */
 #define CURRENT_SIO_LIB_VERSION  0x00010001
 
+// FB
+#include <Library/TimerLib.h>
+#include <Library/SerialPortLib.h>
+#include <Library/font5x12.h>
+#include <Library/CacheMaintenanceLib.h>
+#include "FrameBufferSerialPortLib.h"
+
+#define FB_BGRA8888_BLACK 0xff000000
+#define FB_BGRA8888_WHITE 0xffffffff
+#define FB_BGRA8888_CYAN 0xff00ffff
+#define FB_BGRA8888_BLUE 0xff0000ff
+#define FB_BGRA8888_SILVER 0xffc0c0c0
+#define FB_BGRA8888_YELLOW 0xffffff00
+#define FB_BGRA8888_ORANGE 0xffffa500
+#define FB_BGRA8888_RED 0xffff0000
+#define FB_BGRA8888_GREEN 0xff00ff00
+
+FBCON_POSITION m_Position;
+FBCON_POSITION m_MaxPosition;
+FBCON_COLOR    m_Color;
+BOOLEAN        m_Initialized = FALSE;
+
+UINTN gWidth = 1080;
+// Reserve half screen for output
+UINTN gHeight = 2280;
+UINTN gBpp    = 32;
+UINTN delay = 10000;
+
+// Module-used internal routine
+void FbConPutCharWithFactor(char c, int type, unsigned scale_factor);
+
+void FbConDrawglyph(
+    char *pixels, unsigned stride, unsigned bpp, UINTN *glyph,
+    unsigned scale_factor);
+
+void FbConReset(void);
+void FbConScrollUp(void);
+void FbConFlush(void);
+
+// FB end
+
 STATIC UINT8 *SerialPortBuffer;
 STATIC UINT8 *EnQPtr, *DeQPtr;
 STATIC UINT32 PortBufferSize = 0;
@@ -126,7 +167,7 @@ SerialPortDrain (VOID)
 {
   return DequeueSendBufferedData ();
 }
-
+/*
 UINTN
 SerialPortFlush (VOID)
 {
@@ -138,7 +179,7 @@ SerialPortFlush (VOID)
   }while (BytesSent);
 
   return TotalBytes;
-}
+}*/
 
 /*
  *   UART Buffering design
@@ -207,7 +248,7 @@ InternalEnqueueData (UINT8* SrcDataBuffer, UINTN BytesToQueue)
         
   return BytesToQueue;
 }
-
+/*
 EFI_STATUS EFIAPI
 SerialPortInitialize(void)
 {
@@ -225,34 +266,34 @@ SerialPortRead(OUT UINT8 *user_buffer, IN UINTN bytes_requested)
 {
   return uart_read (user_buffer, bytes_requested);
 }
-
-UINTN
-SerialPortWrite (UINT8* Buffer, UINTN Bytes)
-{
-  UINT8* MsgBuff;
-  UINTN BytesRemain, Sent;
-
-  /* If buffered layer is available then
-   * directly call into the driver layer
-   * This happens only in the SEC module */
-  if (SioLib.Write)
-    return SioLib.Write (Buffer, Bytes);
-
-  BytesRemain = Bytes;
-  MsgBuff = Buffer;
-
-  while (BytesRemain)
-  {
-    Sent = uart_write (MsgBuff, BytesRemain);
-#if 0 /* Enable if UART dirver not available */
-    Sent = BytesRemain;
-#endif    
-    MsgBuff += Sent;
-    BytesRemain -= Sent;
-  }
-
-  return Bytes;
-}
+*/
+//UINTN
+//SerialPortWrite (UINT8* Buffer, UINTN Bytes)
+//{
+//  UINT8* MsgBuff;
+//  UINTN BytesRemain, Sent;
+//
+//  /* If buffered layer is available then
+//   * directly call into the driver layer
+//   * This happens only in the SEC module */
+//  if (SioLib.Write)
+//    return SioLib.Write (Buffer, Bytes);
+//
+//  BytesRemain = Bytes;
+//  MsgBuff = Buffer;
+//
+//  while (BytesRemain)
+//  {
+//    Sent = uart_write (MsgBuff, BytesRemain);
+//#if 0 /* Enable if UART dirver not available */
+//    Sent = BytesRemain;
+//#endif    
+//    MsgBuff += Sent;
+//    BytesRemain -= Sent;
+//  }
+//
+//  return Bytes;
+//}
 
 /*
  *  This is going through additional layer to control the output options
@@ -310,12 +351,12 @@ SerialPortControl (IN UINTN Arg, IN UINTN Param)
 
   return 0;
 }
-
+/*
 VOID
 EnableSynchronousSerialPortIO (VOID)
 {
   SerialPortControl (SIO_CONTROL_SYNCHRONOUS_IO, TRUE);
-}
+}*/
 
 SioPortLibType SioLib =
 {
@@ -435,3 +476,347 @@ PrependLogsToBuffer(UINT64** LogPtr, UINT64* LogSizePtr,
   return Buffer;
 }
 
+//void setFBcolor(char b, char g, char r) {
+//    char* base = (char*)0x9D400000;
+//    for (int i = 0; i < 0x02400000; i += 4) {
+//        base[i] = b;      // Blue component
+//        base[i + 1] = g;  // Green component 
+//        base[i + 2] = r;  // Red component
+//        base[i + 3] = 255; // Full opacity
+//    }
+//}
+
+// I know it's bad
+RETURN_STATUS
+EFIAPI
+SerialPortInitialize(VOID)
+{
+  UINTN InterruptState = 0;
+
+  // Prevent dup initialization
+  if (m_Initialized)
+    return RETURN_SUCCESS;
+
+  // Interrupt Disable
+  InterruptState = ArmGetInterruptState();
+  ArmDisableInterrupts();
+
+  // Reset console
+  FbConReset();
+
+  // Set flag
+  m_Initialized = TRUE;
+
+  if (InterruptState)
+    ArmEnableInterrupts();
+  return RETURN_SUCCESS;
+}
+
+void ResetFb(void)
+{
+  // Clear current screen.
+  char *Pixels  = (void *)0x9D400000;
+  UINTN BgColor = FB_BGRA8888_BLACK;
+
+  // Set to black color.
+  for (UINTN i = 0; i < gWidth; i++) {
+    for (UINTN j = 0; j < gHeight; j++) {
+      BgColor = FB_BGRA8888_BLACK;
+      // Set pixel bit
+      for (UINTN p = 0; p < (gBpp / 8); p++) {
+        *Pixels = (unsigned char)BgColor;
+        BgColor = BgColor >> 8;
+        Pixels++;
+      }
+    }
+  }
+}
+
+void FbConReset(void)
+{
+  // Reset position.
+  m_Position.x = 0;
+  m_Position.y = 0;
+
+  // Calc max position.
+  m_MaxPosition.x = gWidth / (FONT_WIDTH + 1);
+  m_MaxPosition.y = (gHeight - 1) / FONT_HEIGHT;
+
+  // Reset color.
+  m_Color.Foreground = FB_BGRA8888_WHITE;
+  m_Color.Background = FB_BGRA8888_BLACK;
+}
+
+void FbConPutCharWithFactor(char c, int type, unsigned scale_factor)
+{
+  char *Pixels;
+
+  if (!m_Initialized)
+    return;
+
+paint:
+
+  if ((unsigned char)c > 127)
+    return;
+
+  if ((unsigned char)c < 32) {
+    if (c == '\n') {
+      goto newline;
+    }
+    else if (c == '\r') {
+      m_Position.x = 0;
+      return;
+    }
+    else {
+      return;
+    }
+  }
+
+  // Save some space
+  if (m_Position.x == 0 && (unsigned char)c == ' ' &&
+      type != FBCON_SUBTITLE_MSG && type != FBCON_TITLE_MSG)
+    return;
+
+  BOOLEAN intstate = ArmGetInterruptState();
+  ArmDisableInterrupts();
+
+  Pixels = (void *)0x9D400000;
+  Pixels += m_Position.y * ((gBpp / 8) * FONT_HEIGHT * gWidth);
+  Pixels += m_Position.x * scale_factor * ((gBpp / 8) * (FONT_WIDTH + 1));
+
+  FbConDrawglyph(
+      Pixels, (UINT32)gWidth, (gBpp / 8), (UINTN *)(font5x12 + (c - 32) * 2), scale_factor);
+
+  m_Position.x++;
+
+  if (m_Position.x >= (int)(m_MaxPosition.x / scale_factor))
+    goto newline;
+
+  if (intstate)
+    ArmEnableInterrupts();
+  return;
+
+newline:
+  MicroSecondDelay( delay ); 
+  m_Position.y += scale_factor;
+  m_Position.x = 0;
+  if (m_Position.y >= m_MaxPosition.y - scale_factor) {
+    FbConFlush();
+    m_Position.y = 0;
+
+    if (intstate)
+      ArmEnableInterrupts();
+    goto paint;
+  }
+  else {
+    Pixels = (void *)0x9D400000;
+    Pixels += m_Position.y * ((gBpp / 8) * FONT_HEIGHT * gWidth);
+    ZeroMem(Pixels, ((gBpp / 8) * FONT_HEIGHT * gWidth) * scale_factor);
+    FbConFlush();
+    if (intstate)
+      ArmEnableInterrupts();
+  }
+}
+
+void FbConDrawglyph(
+    char *pixels, unsigned stride, unsigned bpp, UINTN *glyph,
+    unsigned scale_factor)
+{
+  char *       bg_pixels = pixels;
+  unsigned     x, y, i, j, k;
+  UINTN       data, temp;
+  unsigned int fg_color = m_Color.Foreground;
+  unsigned int bg_color = m_Color.Background;
+  stride -= FONT_WIDTH * scale_factor;
+
+  for (y = 0; y < FONT_HEIGHT / 2; ++y) {
+    for (i = 0; i < scale_factor; i++) {
+      for (x = 0; x < FONT_WIDTH; ++x) {
+        for (j = 0; j < scale_factor; j++) {
+          bg_color = m_Color.Background;
+          for (k = 0; k < bpp; k++) {
+            *bg_pixels = (unsigned char)bg_color;
+            bg_color   = bg_color >> 8;
+            bg_pixels++;
+          }
+        }
+      }
+      bg_pixels += (stride * bpp);
+    }
+  }
+
+  for (y = 0; y < FONT_HEIGHT / 2; ++y) {
+    for (i = 0; i < scale_factor; i++) {
+      for (x = 0; x < FONT_WIDTH; ++x) {
+        for (j = 0; j < scale_factor; j++) {
+          bg_color = m_Color.Background;
+          for (k = 0; k < bpp; k++) {
+            *bg_pixels = (unsigned char)bg_color;
+            bg_color   = bg_color >> 8;
+            bg_pixels++;
+          }
+        }
+      }
+      bg_pixels += (stride * bpp);
+    }
+  }
+
+  data = glyph[0];
+  for (y = 0; y < FONT_HEIGHT / 2; ++y) {
+    temp = data;
+    for (i = 0; i < scale_factor; i++) {
+      data = temp;
+      for (x = 0; x < FONT_WIDTH; ++x) {
+        if (data & 1) {
+          for (j = 0; j < scale_factor; j++) {
+            fg_color = m_Color.Foreground;
+            for (k = 0; k < bpp; k++) {
+              *pixels  = (unsigned char)fg_color;
+              fg_color = fg_color >> 8;
+              pixels++;
+            }
+          }
+        }
+        else {
+          for (j = 0; j < scale_factor; j++) {
+            pixels = pixels + bpp;
+          }
+        }
+        data >>= 1;
+      }
+      pixels += (stride * bpp);
+    }
+  }
+
+  data = glyph[1];
+  for (y = 0; y < FONT_HEIGHT / 2; ++y) {
+    temp = data;
+    for (i = 0; i < scale_factor; i++) {
+      data = temp;
+      for (x = 0; x < FONT_WIDTH; ++x) {
+        if (data & 1) {
+          for (j = 0; j < scale_factor; j++) {
+            fg_color = m_Color.Foreground;
+            for (k = 0; k < bpp; k++) {
+              *pixels  = (unsigned char)fg_color;
+              fg_color = fg_color >> 8;
+              pixels++;
+            }
+          }
+        }
+        else {
+          for (j = 0; j < scale_factor; j++) {
+            pixels = pixels + bpp;
+          }
+        }
+        data >>= 1;
+      }
+      pixels += (stride * bpp);
+    }
+  }
+}
+
+/* TODO: Take stride into account */
+void FbConScrollUp(void)
+{
+  unsigned short *dst   = (void *)0x9D400000;
+  unsigned short *src   = dst + (gWidth * FONT_HEIGHT);
+  unsigned        count = gWidth * (gHeight - FONT_HEIGHT);
+
+  while (count--) {
+    *dst++ = *src++;
+  }
+
+  count = gWidth * FONT_HEIGHT;
+  while (count--) {
+    *dst++ = m_Color.Background;
+  }
+
+  FbConFlush();
+}
+
+void FbConFlush(void)
+{
+  unsigned total_x, total_y;
+  unsigned bytes_per_bpp;
+
+  total_x       = gWidth;
+  total_y       = gHeight;
+  bytes_per_bpp = (gBpp / 8);
+
+  WriteBackInvalidateDataCacheRange(
+      (void *)0x9D400000,
+      (total_x * total_y * bytes_per_bpp));
+}
+
+UINTN
+EFIAPI
+SerialPortWrite(IN UINT8 *Buffer, IN UINTN NumberOfBytes)
+{
+  UINT8 *CONST Final          = &Buffer[NumberOfBytes];
+  UINTN        InterruptState = ArmGetInterruptState();
+  ArmDisableInterrupts();
+
+  while (Buffer < Final) {
+    FbConPutCharWithFactor(*Buffer++, FBCON_COMMON_MSG, SCALE_FACTOR);
+  }
+
+  if (InterruptState)
+    ArmEnableInterrupts();
+  return NumberOfBytes;
+}
+
+UINTN
+EFIAPI
+SerialPortWriteCritical(IN UINT8 *Buffer, IN UINTN NumberOfBytes)
+{
+  UINT8 *CONST Final             = &Buffer[NumberOfBytes];
+  UINTN        CurrentForeground = m_Color.Foreground;
+  UINTN        InterruptState    = ArmGetInterruptState();
+
+  ArmDisableInterrupts();
+  m_Color.Foreground = FB_BGRA8888_YELLOW;
+
+  while (Buffer < Final) {
+    FbConPutCharWithFactor(*Buffer++, FBCON_COMMON_MSG, SCALE_FACTOR);
+  }
+
+  m_Color.Foreground = CurrentForeground;
+
+  if (InterruptState)
+    ArmEnableInterrupts();
+  return NumberOfBytes;
+}
+
+UINTN
+EFIAPI
+SerialPortRead(OUT UINT8 *Buffer, IN UINTN NumberOfBytes) { return 0; }
+
+BOOLEAN
+EFIAPI
+SerialPortPoll(VOID) { return FALSE; }
+
+RETURN_STATUS
+EFIAPI
+SerialPortSetControl(IN UINT32 Control) { return RETURN_UNSUPPORTED; }
+
+RETURN_STATUS
+EFIAPI
+SerialPortGetControl(OUT UINT32 *Control) { return RETURN_UNSUPPORTED; }
+
+RETURN_STATUS
+EFIAPI
+SerialPortSetAttributes(
+    IN OUT UINT64 *BaudRate, IN OUT UINT32 *ReceiveFifoDepth,
+    IN OUT UINT32 *Timeout, IN OUT EFI_PARITY_TYPE *Parity,
+    IN OUT UINT8 *DataBits, IN OUT EFI_STOP_BITS_TYPE *StopBits)
+{
+  return RETURN_UNSUPPORTED;
+}
+
+UINTN SerialPortFlush(VOID) { return 0; }
+
+VOID EnableSynchronousSerialPortIO(VOID)
+{
+  // Already synchronous
+}

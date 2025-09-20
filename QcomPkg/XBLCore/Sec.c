@@ -288,7 +288,7 @@ SerialPrint (IN  CONST CHAR8  *Format, ...)
   UINTN    CharCount;
   VA_LIST  Marker;
 
-  ASSERT (Format != NULL);
+  //ASSERT (Format != NULL);
 
   /* Convert the DEBUG() message to a Unicode String */
   VA_START (Marker, Format);
@@ -653,9 +653,24 @@ Main (IN  VOID  *StackBase, IN  UINTN StackSize)
   UefiFdBase = FixedPcdGet64(PcdEmbeddedFdBaseAddress);
   SecHeapMemBase = UefiFdBase + SEC_HEAP_MEM_OFFSET;
   HobStackSize = StackSize;
-  /* Start UART debug output */
-  UartInit();
+  /* Start debug output */
+  CHAR8  Buffer[100];
+  UINTN  CharCount;
+  
+  CharCount = AsciiSPrint (
+                Buffer,
+                sizeof (Buffer),
+                "\n\n\nProject XBL2nd - NAPALI - Version %s built at %a on %a\n", 
+                PcdGetPtr (PcdFirmwareVersionString), __TIME__, __DATE__,
+                "\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r"                           
+                );
 
+  // Because we are directly bit banging the serial port instead of going through the DebugLib, we need to make sure
+  // the serial port is initialized before we write to it
+  UartInit();
+  SerialPortInitialize ();
+  DEBUG((EFI_D_WARN, "\r\n"));
+  SerialPortWrite((UINT8 *)Buffer, CharCount);
   PrintUefiStartInfo();
 
   InitializeCpuExceptionHandlers (NULL);

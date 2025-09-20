@@ -17,3 +17,5 @@ Conf/
 *.log
 Build/
 QcomPkg/SDMPkg/1000/Bin/
+Resources/payload.bin
+xbl2nd-*.img

@@ -715,6 +715,16 @@ VOID PrintTimerDelta (VOID)
   }
 }
 
+void setFBcolor(char b, char g, char r) {
+    char* base = (char*)0x9C000000;
+    for (int i = 0; i < 0x02400000; i += 4) {
+        base[i]     = b;    // Blue component
+        base[i + 1] = g;    // Green component
+        base[i + 2] = r;    // Red component
+        base[i + 3] = (char)255;  // Full opacity
+    }
+}
+
 VOID
 Main (IN  VOID  *StackBase, IN  UINTN StackSize)
 {
@@ -1037,6 +1047,7 @@ CEntryPoint (
   IN  UINTN StackSize
   )
 {
+  setFBcolor(0, 255, 0);  // green screen
   UefiDebugModeEntry();
 
   TargetEarlyInit();

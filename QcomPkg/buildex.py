@@ -65,7 +65,7 @@ DEFAULT_VARIANT_REGEX = '^[A-Z][A-Z][A-Z0-9]?$'
 CHIP_NUM_REGEX = "\d.*\d"
 SKIP_REGEX = "QuestBinPkg"
 BUILDIT_BUILDINFO_TAG = "UserExtensions.Buildit.BuildInfo"
-BOOT_IMAGES_DIR = "boot_images"
+BOOT_IMAGES_DIR = "xbl2nd"
 QCOM_DIR = "QcomPkg"
 DEFAULT_COMPILER_ARCH = "AARCH64"
 COPY_IMAGES_AS_IS = ["jtagprogrammer"]
@@ -418,7 +418,7 @@ def main():
         variant = variants[index].upper()
       else:
         variant = ""
-      image_version_setup(os.environ["TARGETMSM"],variant,options.oem_environ)
+      #image_version_setup(os.environ["TARGETMSM"],variant,options.oem_environ)
       ARGUMENTS['$VAR'] = variant
       
       # get variant buildconfig json eg: buildconfig_LAA.json
@@ -457,7 +457,7 @@ def main():
             sys.exit("duplicate entry in "+k+" found")
       # if only variant json is present
       elif len(build_dirt_var) and len(build_dirt)==0:
-        images = var_images; print "sudheer"
+        images = var_images; print ""
         build_dirt = build_dirt_var      
       
       for release_mode in options.release.split(','):
@@ -1037,45 +1037,45 @@ def make_edk_tools():
 ##############################################################################
 # image_version_setup
 ##############################################################################
-def image_version_setup(target, variant, oem_environ):
-  image_version_dir = os.path.join(os.environ['WORKSPACE'], 'QcomPkg', 'Library', 'ImageVersionLib')
-  image_version_builder = os.path.join(os.environ['WORKSPACE'], 'QcomPkg', 'Tools', 'scripts', 'version_builder.py')
-  
-  version_files = [os.path.join(image_version_dir, 'oem_version.c'),
-                   os.path.join(image_version_dir, 'oem_uuid.c'),
-                   os.path.join(image_version_dir, 'qc_version.c')]
-                   
-  for vf in version_files:
-    if os.path.isfile(vf): os.remove(vf)
-  
-  version_build_cmd = ['python', image_version_builder, 
-                       '-t', image_version_dir,
-                       '-b', target + variant,
-                       '-O', oem_environ]
-  curr_dir = os.getcwd()
-  os.chdir(os.environ["WORKSPACE"])
-  print "[buildex.py] Generating image version file..."
-  
-  if platform.system() == "Windows":
-    print "\tPlease be patient. This step may take a while on Windows machines..."
-  
-  try:
-    subprocess.check_call(version_build_cmd)
-  except Exception as error:
-    if error.returncode == 1:
-      raise NameError("ERROR: buildex::image_version_setup:" + \
-                      "image version setup failed.")
-    elif error.returncode == 2:
-      raise NameError("ERROR: buildex::image_version_setup:" + \
-                      "image version setup failed with following error: " + \
-                      "manifest.xml not found!")
-  
-  for vf in version_files:
-    if not os.path.isfile(vf):
-      print "\nError: Image Version File not generated"
-      raise NameError("ERROR buildex::image_version_setup:" + \
-                      "image version setup failed to genearte file: " + vf)
-  print "Done"
+#def image_version_setup(target, variant, oem_environ):
+#  image_version_dir = os.path.join(os.environ['WORKSPACE'], 'QcomPkg', 'Library', 'ImageVersionLib')
+#  image_version_builder = os.path.join(os.environ['WORKSPACE'], 'QcomPkg', 'Tools', 'scripts', 'version_builder.py')
+#  
+#  version_files = [os.path.join(image_version_dir, 'oem_version.c'),
+#                   os.path.join(image_version_dir, 'oem_uuid.c'),
+#                   os.path.join(image_version_dir, 'qc_version.c')]
+#                   
+#  for vf in version_files:
+#    if os.path.isfile(vf): os.remove(vf)
+#  
+#  version_build_cmd = ['python', image_version_builder, 
+#                       '-t', image_version_dir,
+#                       '-b', target + variant,
+#                       '-O', oem_environ]
+#  curr_dir = os.getcwd()
+#  os.chdir(os.environ["WORKSPACE"])
+#  print "[buildex.py] Generating image version file..."
+#  
+#  if platform.system() == "Windows":
+#    print "\tPlease be patient. This step may take a while on Windows machines..."
+#  
+#  try:
+#    subprocess.check_call(version_build_cmd)
+#  except Exception as error:
+#    if error.returncode == 1:
+#      raise NameError("ERROR: buildex::image_version_setup:" + \
+#                      "image version setup failed.")
+#    elif error.returncode == 2:
+#      raise NameError("ERROR: buildex::image_version_setup:" + \
+#                      "image version setup failed with following error: " + \
+#                      "manifest.xml not found!")
+#  
+#  for vf in version_files:
+#    if not os.path.isfile(vf):
+#      print "\nError: Image Version File not generated"
+#      raise NameError("ERROR buildex::image_version_setup:" + \
+#                      "image version setup failed to genearte file: " + vf)
+#  print "Done"
 
 #####################################################################
 # search all target path

@@ -19,3 +19,5 @@ Build/
 QcomPkg/SDMPkg/1000/Bin/
 Resources/payload.bin
 xbl2nd-*.img
+BootShim/BootShim.bin
+BootShim/BootShim.elf

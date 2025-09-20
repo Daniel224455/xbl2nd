@@ -160,10 +160,11 @@ extern EFI_GUID gEfiSchedIntfGuid;
 
 void SchedIntfInit (void)
 {
-  UINTN Data = (UINTN)&SchedIntf;
-
+  //UINTN Data = (UINTN)&SchedIntf;
+  EFI_KERNEL_PROTOCOL *SchedIntfProtocol = (VOID *)0x9fc36620;
   /* Asserts on failure */
-  BuildGuidDataHob (&gEfiSchedIntfGuid, &Data, sizeof(Data));
+  //BuildGuidDataHob (&gEfiSchedIntfGuid, &Data, sizeof(Data));
+  BuildGuidDataHob (&gEfiSchedIntfGuid, &SchedIntfProtocol, sizeof (SchedIntfProtocol));
 }
 
 bool event_initialized(event_t *e)

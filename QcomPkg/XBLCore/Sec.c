@@ -310,7 +310,7 @@ SerialPrint (IN  CONST CHAR8  *Format, ...)
   UINTN    CharCount;
   VA_LIST  Marker;
 
-  ASSERT (Format != NULL);
+  //ASSERT (Format != NULL);
 
   /* Convert the DEBUG() message to a Unicode String */
   VA_START (Marker, Format);
@@ -715,16 +715,6 @@ VOID PrintTimerDelta (VOID)
   }
 }
 
-void setFBcolor(char b, char g, char r) {
-    char* base = (char*)0x9C000000;
-    for (int i = 0; i < 0x02400000; i += 4) {
-        base[i]     = b;    // Blue component
-        base[i + 1] = g;    // Green component
-        base[i + 2] = r;    // Red component
-        base[i + 3] = (char)255;  // Full opacity
-    }
-}
-
 VOID
 Main (IN  VOID  *StackBase, IN  UINTN StackSize)
 {
@@ -743,9 +733,24 @@ Main (IN  VOID  *StackBase, IN  UINTN StackSize)
 
   gStackBase = StackBase;
 
-  /* Start UART debug output */
-  UartInit();
+  /* Start debug output */
+  CHAR8  Buffer[100];
+  UINTN  CharCount;
+  
+  CharCount = AsciiSPrint (
+                Buffer,
+                sizeof (Buffer),
+                "\n\n\nProject XBL2nd - WP - Version %s built at %a on %a\n", 
+                PcdGetPtr (PcdFirmwareVersionString), __TIME__, __DATE__,
+                "\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r"                           
+                );
 
+  // Because we are directly bit banging the serial port instead of going through the DebugLib, we need to make sure
+  // the serial port is initialized before we write to it
+  UartInit();
+  SerialPortInitialize ();
+  DEBUG((EFI_D_WARN, "\r\n"));
+  SerialPortWrite((UINT8 *)Buffer, CharCount);
   PrintUefiStartInfo();
 
   /* Get nibble from random value to adjust SEC heap */
@@ -780,13 +785,13 @@ Main (IN  VOID  *StackBase, IN  UINTN StackSize)
 
   PrintInstalledSDRAMPartitionSize ();
   
-  Status = EarlyCacheInit (UefiFdBase, UEFI_FD_SIZE);
+  /*Status = EarlyCacheInit (UefiFdBase, UEFI_FD_SIZE);
   if (EFI_ERROR(Status))
   {
     DEBUG((EFI_D_ERROR, "EarlyCacheInit Failed\r\n"));
     ASSERT(Status == EFI_SUCCESS);
     CpuDeadLoop();
-  }
+  }*/
   
 
   /* Load and Parse platform cfg file, cache re-initialized per cfg file */
@@ -1047,7 +1052,6 @@ CEntryPoint (
   IN  UINTN StackSize
   )
 {
-  setFBcolor(0, 255, 0);  // green screen
   UefiDebugModeEntry();
 
   TargetEarlyInit();

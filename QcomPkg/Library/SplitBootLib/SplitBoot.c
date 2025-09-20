@@ -123,7 +123,7 @@ EFI_STATUS InitSplitBoot (BootContinueFnPtr BootContinueFn, VOID* Arg)
   power_sleep_init ();
 
   /* Launch Scheduler */
-  kern_init (BootContinueFn, 0, (void*)KernHeapMemInfo.MemBase, KernHeapMemInfo.MemSize, &_ModuleEntryPoint, MaxCoreCnt, EarlyInitCoreCnt);
+  //kern_init (BootContinueFn, 0, (void*)KernHeapMemInfo.MemBase, KernHeapMemInfo.MemSize, &_ModuleEntryPoint, MaxCoreCnt, EarlyInitCoreCnt);
 
   /* Doesn't return on success */
   return EFI_NOT_FOUND;

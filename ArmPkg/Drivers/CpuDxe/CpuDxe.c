@@ -276,9 +276,9 @@ CpuDxeInitialize (
   EFI_STATUS  Status;
   EFI_EVENT    IdleLoopEvent;
 
-  if (InitVirtCpu (ImageHandle, SystemTable) == EFI_SUCCESS)
+  /*if (InitVirtCpu (ImageHandle, SystemTable) == EFI_SUCCESS)
     VirtCpuAvailable = 1;
-  else
+  else*/
     InitializeExceptions (&mCpu);
 
   InitializeDma (&mCpu);

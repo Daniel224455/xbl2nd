@@ -41,6 +41,8 @@
   PcdLib
   ShLib
   UartLib
+  CacheMaintenanceLib
+  DebugLib
 
 [Packages]
   MdePkg/MdePkg.dec

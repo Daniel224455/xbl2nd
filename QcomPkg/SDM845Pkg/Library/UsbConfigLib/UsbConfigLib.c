@@ -598,7 +598,7 @@ UsbConfigInit (
       Status);
   }
 
-
+  /*
   //Setup SMMU Stage 1
   if (NULL == gHalIommuProtocol) {
     SmmuStatus = gBS->LocateProtocol(&gEfiHalIommuProtocolGuid, NULL, (void **)&gHalIommuProtocol);
@@ -626,7 +626,8 @@ UsbConfigInit (
       }
     }   
   }
-
+  */
+  (void)SmmuStatus; 
 
   // Check if we have Clamshell platform
   // We only support host mode for this platform

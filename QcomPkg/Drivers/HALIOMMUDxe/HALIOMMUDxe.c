@@ -77,9 +77,9 @@ static EFI_STATUS HAL_IOMMU_Dummy_Client(void)
     
     // Create Non-CCA Domains
     // MDP Domain Creation
-    if(HAL_IOMMU_ERR_OK != hal_iommu_domain_create(&p_mdp_domain)) {
+    /*if(HAL_IOMMU_ERR_OK != hal_iommu_domain_create(&p_mdp_domain)) {
         return EFI_NOT_READY;
-    }
+    }*/
     // SDC Domain Creation
     if(HAL_IOMMU_ERR_OK != hal_iommu_domain_create(&p_sdc_domain)) {
         return EFI_NOT_READY;
@@ -148,14 +148,14 @@ static EFI_STATUS HAL_IOMMU_Dummy_Client(void)
 */    
     /***  Attach Devices (for all ARIDs) to their domains ***/
     // attach MDP device first so it consumes SMR 0 / 1 (ARID 0x0, 0x4, with MASK as 0x8)
-    ret = hal_iommu_domain_attach_device(p_mdp_domain, (void *)"\\_SB_.MDP", 0x0, 0x8);
+    /*ret = hal_iommu_domain_attach_device(p_mdp_domain, (void *)"\\_SB_.MDP", 0x0, 0x8);
     if(ret != HAL_IOMMU_ERR_OK) {
         return EFI_NOT_READY;
     }
     ret = hal_iommu_domain_attach_device(p_mdp_domain, (void *)"\\_SB_.MDP", 0x4, 0x8);
     if(ret != HAL_IOMMU_ERR_OK) {
         return EFI_NOT_READY;
-    }
+    }*/
     
     // attach SDC devices
     ret = hal_iommu_domain_attach_device(p_sdc_domain, (void *)"\\_SB_.SDC2", 0x0, 0x0);

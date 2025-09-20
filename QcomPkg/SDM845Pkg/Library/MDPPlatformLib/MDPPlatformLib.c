@@ -3154,7 +3154,8 @@ static void Panel_IBBLAB_WaitForReady(EFI_QCOM_PMIC_IBB_PROTOCOL   *PmicIBBProto
       }
       else if (PMIC_IBBLAB_READYTIME == (uCount + 1))
       {
-        DEBUG((EFI_D_ERROR, "DisplayDxe: LAB/IBB GetStatus(LabVregOk) failed after %dms\n", PMIC_IBBLAB_READYTIME));
+        //DEBUG((EFI_D_ERROR, "DisplayDxe: LAB/IBB GetStatus(LabVregOk) failed after %dms\n", PMIC_IBBLAB_READYTIME));
+        break;
       }
 
       // Wait 1ms between checks

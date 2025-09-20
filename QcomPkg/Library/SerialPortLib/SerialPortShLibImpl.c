@@ -582,6 +582,7 @@ newline:
   m_Position.y += scale_factor;
   m_Position.x = 0;
   if (m_Position.y >= m_MaxPosition.y - scale_factor) {
+    ZeroMem ((VOID *)0x9D400000, 4 * gWidth * gHeight);
     FbConFlush();
     m_Position.y = 0;
 

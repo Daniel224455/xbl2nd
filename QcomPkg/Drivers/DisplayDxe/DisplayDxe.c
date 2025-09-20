@@ -314,7 +314,7 @@ DisplayDxeInitialize (
   {
     DEBUG((EFI_D_INFO, "DisplayDxe: Failed to initialize ABL!\n"));
   }
-
+  
   // Initialize the MDP 
   if (MDP_STATUS_OK != MDPInit(&sInitParam, 0x0))
   {
@@ -333,7 +333,7 @@ DisplayDxeInitialize (
         sPowerParams.bPowerOn = TRUE;
         sDisplayProp.bDisplayPwrState = TRUE;
 
-
+        
         //////////////////
         // Main Display //
         //////////////////
@@ -348,13 +348,13 @@ DisplayDxeInitialize (
             else
             {
                MDP_OSAL_MEMZERO(&sDetectParams, sizeof(MDP_DetectParamType));
-   
+
                // Default reporting of primary display
-               if (MDP_STATUS_OK != MDPDetect(MDP_DISPLAY_PRIMARY, &sDetectParams, 0x0))
-               {
-                  eStatus = EFI_DEVICE_ERROR;
-               }
-               else if (TRUE == sDetectParams.bDisplayDetected)
+               //if (MDP_STATUS_OK != MDPDetect(MDP_DISPLAY_PRIMARY, &sDetectParams, 0x0))
+               //{
+               //   eStatus = EFI_DEVICE_ERROR;
+               //}
+               if (TRUE == sDetectParams.bDisplayDetected)
                {
                   eStatus = DisplayDxeSelectMode(MDP_DISPLAY_PRIMARY, &sDetectParams);
 
@@ -366,8 +366,7 @@ DisplayDxeInitialize (
                }
             }
         }    
-
-
+        
         //////////////////////
         // External Display //
         //////////////////////
@@ -402,19 +401,19 @@ DisplayDxeInitialize (
                       // Set the external display to on 
                       if (MDP_STATUS_OK != MDPSetProperty(MDP_DISPLAY_EXTERNAL, MDP_DISPLAY_PROPERTY_POWER_STATE, &sDisplayProp))
                       {
-                        eStatus = EFI_DEVICE_ERROR; 
+                        //eStatus = EFI_DEVICE_ERROR; 
                       }
                    }
             }
         }
-
+        
         // If we not have detected a valid mode on both primary and external display report error
-        if ((0 == gModeInfo.uNumModes[MDP_DISPLAY_PRIMARY]) && (0 == gModeInfo.uNumModes[MDP_DISPLAY_EXTERNAL]))
+        /*if ((0 == gModeInfo.uNumModes[MDP_DISPLAY_PRIMARY]) && (0 == gModeInfo.uNumModes[MDP_DISPLAY_EXTERNAL]))
         {
            eStatus = EFI_DEVICE_ERROR;
         }
         else
-        {
+        {*/
            // Default at some dummy mode
            gModeInfo.sCurrentModeInfo.Version                       = GRAPHICS_OUTPUT_PROTOCOL_REVISION;
            gModeInfo.sCurrentModeInfo.PixelFormat                   = DISPLAYDXE_DEFAULT_PIXEL_FORMAT;
@@ -434,7 +433,7 @@ DisplayDxeInitialize (
 
            // Install display protocols only if panel is detected.
            // Make a new handle with EFI Graphics Protocol
-           if (EFI_SUCCESS != (eStatus = gBS->InstallMultipleProtocolInterfaces (&hUEFIDisplayHandle,
+           /*if (EFI_SUCCESS != (eStatus = */gBS->InstallMultipleProtocolInterfaces (&hUEFIDisplayHandle,
                                                                                  &gEfiDevicePathProtocolGuid,
                                                                                  &DisplayDevicePath,
                                                                                  &sOutputGUID,
@@ -445,11 +444,11 @@ DisplayDxeInitialize (
                                                                                  &gDisplayPwrProtocolImplementation,
                                                                                  &gQcomDisplayUtilsProtocolGuid,
                                                                                  &gQcomDisplayUtilsProtocolImplementation,
-                                                                                 NULL)))
-           {
-              DEBUG ((EFI_D_INFO, "DisplayDxe: InstallMultipleProtocolInterfaces failed!\n"));
-           }
-        } 
+                                                                                 NULL); /*))*/
+                             //{
+              //DEBUG ((EFI_D_INFO, "DisplayDxe: InstallMultipleProtocolInterfaces failed!\n"));
+           //}
+        //} 
   }
 
   return eStatus;

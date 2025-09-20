@@ -1013,7 +1013,8 @@ static void Panel_IBBLAB_WaitForReady()
       }
       else if (PMIC_IBBLAB_READYTIME == (uCount + 1))
       {
-        MDP_Log_Message(MDP_LOGLEVEL_ERROR, "DisplayLib: LAB/IBB GetStatus(LabVregOk) failed after %dms\n", PMIC_IBBLAB_READYTIME);
+        //MDP_Log_Message(MDP_LOGLEVEL_ERROR, "DisplayLib: LAB/IBB GetStatus(LabVregOk) failed after %dms\n", PMIC_IBBLAB_READYTIME);
+        break;
       }
 
       // Wait 1ms between checks

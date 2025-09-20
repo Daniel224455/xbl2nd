@@ -815,8 +815,8 @@
   #gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn|75
 
   # This PCD should be set to 0 then video resolution could be at highest resolution.
-  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|0
-  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|0
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|2240
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|1080
 
 
 ################################################################################

@@ -1,0 +1,46 @@
+#/*=============================================================================   
+#    @file  I2CApiLib.inf
+#    @brief I2C API Library INF file
+#   
+#    Copyright (c) 2014-2017 Qualcomm Technologies, Incorporated.
+#                        All rights reserved.
+#    Qualcomm Technologies, Confidential and Proprietary.
+#===============================================================================*/
+
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 11/13/17   ska     Updated Copyright
+# 08/18/14   unr     created
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = I2CApiLib
+  FILE_GUID                      = 390582D6-68ED-4DA4-8FF9-7CC57493E207
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = I2CApiLib
+
+[Sources.common]
+  I2cApi.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  UefiLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+
+[Protocols]
+  gQcomI2CProtocolGuid

@@ -1,0 +1,12 @@
+<driver name="NULL">
+  <global_def>
+    <var_seq name="PcieStructIncFile" type=DALPROP_DATA_TYPE_STRUCT_INC_FILE>
+      ./../PCIE/core/PcieBsp.c
+     </var_seq>
+  </global_def>
+  <device id="/core/hwengines/pcie">
+    <props name="PCIE_BSP" type=DALPROP_ATTR_TYPE_STRUCT_PTR>
+      PcieBsp
+    </props>
+  </device>
+</driver>

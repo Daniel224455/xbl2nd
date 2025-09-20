@@ -1,0 +1,42 @@
+#/** @file SdccLoaderTargetLib.inf
+#  
+#  SDCC BSP Target specific INF file
+#  
+#  Copyright (c) 2016 Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ---------------------------------------------------------
+# 2016-12-08   jt      Update source file
+# 2016-01-18   jt      Initial version. Branched from 8996 XBL
+#
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SdccLoaderTargetLib
+  FILE_GUID                      = 6FA38E6C-1035-447B-A070-619EB5B62083
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SdccTargetLib 
+
+[Sources.common]
+  ./../../Settings/SDCC/loader/SdccLoaderBspLib.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDM845Pkg/SDM845Pkg.dec
+  QcomPkg/XBLLoaderApi.dec
+
+[LibraryClasses]
+  ArmLib
+  SdccClockLib
+  LoaderCacheLib

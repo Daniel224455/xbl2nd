@@ -1,0 +1,28 @@
+#include "../../../Library/PmicLib/framework/inc/pm_dal_prop_ids.h"
+<driver name="NULL">
+
+
+   <global_def>
+        <var_seq name="PmicPAM_NPAStructIncFile" type=DALPROP_DATA_TYPE_STRUCT_INC_FILE>
+       pm_config_pam.c
+        </var_seq>
+    </global_def>
+
+  <device id="/pmic/target">
+#include "pm_config_target.xml"
+          <props id=PM_PROP_PRM_PAM_RSRCS type=DALPROP_ATTR_TYPE_STRUCT_PTR>
+pm_prm_pam_rsrcs
+       </props>
+       <props id=PM_PROP_PRM_PAM_RSRC_NUM type=DALPROP_ATTR_TYPE_STRUCT_PTR>
+num_of_pam_rsrcs
+       </props>
+       <props id=PM_PROP_PRM_DEVICE_RSRCS type=DALPROP_ATTR_TYPE_STRUCT_PTR>
+pm_prm_device_rsrcs
+        </props>
+	<props id=PM_PROP_RPMH_DRV_ID type=DALPROP_ATTR_TYPE_STRUCT_PTR>
+rpmh_drv_id
+        </props>
+
+  </device>
+</driver>
+

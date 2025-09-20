@@ -1,0 +1,10 @@
+<config>
+  <image_tree>
+    <name>BOOT.XF.2.0</name>
+    <build_id>BOOT.XF.2.0-00410-SDM845LZB-2</build_id>
+    <branch_point_revision/>
+    <revision>00410</revision>
+    <spin>2</spin>
+    <client>SDM845LZB</client>
+  </image_tree>
+</config>

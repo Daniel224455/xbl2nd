@@ -1,0 +1,44 @@
+#/** @file
+#                    VariablesHelperLibLA.inf
+#
+# Copyright (c) 2018-2019 Qualcomm Technologies, Inc. All rights reserved.
+#
+#
+#**/
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 03/08/18   ai      Load UefiSecApp TA from raw partition
+# 01/17/19   ai      Pick default varstore based on dynamic configuration
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = VariablesHelperLib
+  FILE_GUID                      = D1504D91-64FA-4CBD-858C-70DE7A294E9A
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = VariablesHelperLib
+
+[Sources]
+  LA/UefiSecAppLoad.c
+  LA/DefaultVarStore.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  DebugLib
+  BootConfigLib
+  QcomLib
+
+[Guids]
+
+[Protocols]
+  gQcomQseecomProtocolGuid       ## CONSUMES

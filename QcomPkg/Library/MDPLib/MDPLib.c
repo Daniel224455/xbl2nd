@@ -1,0 +1,1863 @@
+/*=============================================================================
+ 
+  File: MDPLIb.c
+ 
+  Source file for MDP functions
+  
+ 
+  Copyright (c) 2013-2021 Qualcomm Technologies, Inc.
+  All Rights Reserved.
+  Confidential and Proprietary - Qualcomm Technologies, Inc.
+=============================================================================*/
+#include <Library/PcdLib.h>
+#include "MDPLib.h"
+#include "MDPLib_i.h"
+#include "MDPSystem.h"
+#include "MDPPlatformLib.h"
+#include "DisplayUtils.h"
+#include "ExternalDisplayDriver.h"
+#include "DPInterface.h"
+
+
+/*=========================================================================
+     Default Defines
+==========================================================================*/
+#define MDSS_BASEADDRESSMAPINGS_MAX               10
+
+/* Default MDPInit Flags */
+#define DEAFAULT_MDP_INIT_FLAGS                  (HAL_MDP_INIT_FLAGS_VBIF_CONFIGURATION |\
+                                                  HAL_MDP_INIT_FLAGS_DISABLE_INTERRUPTS |\
+                                                  HAL_MDP_INIT_FLAGS_CLEAR_INTERRUPTS)
+
+/* Smart transfer time margin is 2ms for worst case */                                                
+#define MDP_SMART_TRANSFER_TIME_MARGIN           0.002
+
+
+/*=========================================================================
+     Local Static Variables
+==========================================================================*/
+
+
+/*=========================================================================
+     Local Static Functions
+==========================================================================*/
+
+
+/* Function to detect the presence of external display
+ */
+static bool32 MDPDetectExtPlugin(MDP_Display_IDType eDisplayId, MDP_Panel_AttrType  *pPanelInfo, uint32 Flags);
+
+
+/* Read UEFI variable DISABLEDISPLAY
+ */
+static bool32 MDPPlatformGetDisableDisplay(void);
+
+/* Set MDSS base address
+ */
+static MDP_Status MDPPlatformSetMdssBase(EFIChipInfoFamilyType sEFIChipSetFamily);
+
+/* Configuration parameters that are required to correctly setup the
+   DSC related configuration like topology flags and resolution info
+   for each compression encoder. 
+ */
+static void MDPSetupDSCProperty(MDP_Panel_AttrType *pPanelInfo);
+
+/* Configuration default GPIO states
+*/
+static MDP_Status MDPSetGPIOState(MDP_Panel_AttrType *pDisplayInfo);
+
+/*=========================================================================
+     Globals
+==========================================================================*/
+extern uint8         *gpDSIInitSequenceBuffer[MDP_DISPLAY_MAX];
+extern uint8         *gpDSITermSequenceBuffer[MDP_DISPLAY_MAX];
+extern uint8         *gpDSIDscPpsBuffer[MDP_DISPLAY_MAX];
+extern uint8         *gpI2CInitSequenceBuffer[MDP_DISPLAY_MAX];
+extern uint8         *gpI2CTermSequenceBuffer[MDP_DISPLAY_MAX];
+MDP_HwPrivateInfo     gsMDPHwPrivateInfo;
+MDP_Panel_AttrType    gDisplayInfo[MDP_DISPLAY_MAX];
+
+/*
+
+Mapping for mdss base address
+*/
+static const sMDSS_BaseAddressMappings asMDSS_BaseAddressMappings[MDSS_BASEADDRESSMAPINGS_MAX] = {  
+    {EFICHIPINFO_FAMILY_SDM855, 0x0AE00000}, //for SDM855 (Hana) family
+    {EFICHIPINFO_FAMILY_SDM900, 0x0AE00000}, //for SDM900 (Poipu) family
+};
+
+/*=========================================================================
+      Public APIs
+==========================================================================*/
+
+
+/****************************************************************************
+*
+** FUNCTION: MDPInit()
+*/
+/*!
+* \brief
+*   This function will perform the basic initialization and detection of the MDP core
+*
+* \param [out] pMDPInitParams   - Information regarding the hardware core
+*        [in]  uFlags           - Reserved
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+MDP_Status  MDPInit(MDP_InitParamsType *pMDPInitParams, uint32 uFlags)
+{
+  MDP_Status          eStatus             = MDP_STATUS_OK;
+  MDP_HwPrivateInfo  *psMDPHwPrivateInfo  = MDP_GETPRIVATEINFO();
+  uint8               uI                  = 0;
+
+  MDP_LOG_FUNC_ENTRY("MDPInit", 0x00);
+
+  MDP_OSAL_MEMZERO(psMDPHwPrivateInfo, sizeof(MDP_HwPrivateInfo));
+
+  psMDPHwPrivateInfo->sEFIChipSetId = EFICHIPINFO_ID_UNKNOWN;
+
+  if (NULL == pMDPInitParams)
+  {
+    MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: Invalid MDP Init Params!\n");
+    eStatus = MDP_STATUS_BAD_PARAM;
+  }
+  else
+  {
+    // Memory allocation for command and DSC PPS buffer
+    for (uI=0; uI < MDP_DISPLAY_MAX; uI++)
+    {
+      if (pMDPInitParams->aSupportedDisplays[uI])
+      {
+        // Initialize DSI command buffer
+        if ((NULL == gpDSIInitSequenceBuffer[uI]) ||
+            (NULL == gpDSITermSequenceBuffer[uI]))
+        {
+          if (NULL == (gpDSIInitSequenceBuffer[uI] = (uint8*)MDP_OSAL_CALLOC(MDP_DSI_COMMAND_BUFFER_SIZE)))
+          {
+            eStatus = MDP_STATUS_NO_RESOURCES;
+            break;
+          }
+
+          if (NULL == (gpDSITermSequenceBuffer[uI] = (uint8*)MDP_OSAL_CALLOC(MDP_DSI_COMMAND_BUFFER_SIZE)))
+          {
+            eStatus = MDP_STATUS_NO_RESOURCES;
+            break;
+          }
+        }
+
+        // Initialize DSI Dsc Pps buffer
+        if (NULL == gpDSIDscPpsBuffer[uI])
+        {
+          if (NULL == (gpDSIDscPpsBuffer[uI] = (uint8*)MDP_OSAL_CALLOC(MDP_DSI_DSC_PPS_TOTAL_PACKET_SIZE)))
+          {
+            eStatus = MDP_STATUS_NO_RESOURCES;
+            break;
+          }
+        }
+
+        // Initialize I2C command buffer
+        if ((NULL == gpI2CInitSequenceBuffer[uI]) ||
+            (NULL == gpI2CTermSequenceBuffer[uI]))
+        {
+          if (NULL == (gpI2CInitSequenceBuffer[uI] = (uint8*)MDP_OSAL_CALLOC(MDP_I2C_COMMAND_BUFFER_SIZE)))
+          {
+            eStatus = MDP_STATUS_NO_RESOURCES;
+            break;
+          }
+
+          if (NULL == (gpI2CTermSequenceBuffer[uI] = (uint8*)MDP_OSAL_CALLOC(MDP_I2C_COMMAND_BUFFER_SIZE)))
+          {
+            eStatus = MDP_STATUS_NO_RESOURCES;
+            break;
+          }
+        }
+      }
+    } //loop ends
+
+    if (MDP_STATUS_OK != eStatus)
+    {
+      //Not enough memory for allocation, Clean up all allocated buffers
+      for (uI=0; uI <MDP_DISPLAY_MAX; uI++)
+      {
+        if (NULL != gpDSIInitSequenceBuffer[uI])
+        {
+          MDP_OSAL_FREE(gpDSIInitSequenceBuffer[uI]);
+          gpDSIInitSequenceBuffer[uI] = NULL;
+        }
+
+        if (NULL != gpDSITermSequenceBuffer[uI])
+        {
+          MDP_OSAL_FREE(gpDSITermSequenceBuffer[uI]);
+          gpDSITermSequenceBuffer[uI] = NULL;
+        }
+
+        if (NULL != gpDSIDscPpsBuffer[uI])
+        {
+          MDP_OSAL_FREE(gpDSIDscPpsBuffer[uI]);
+          gpDSIDscPpsBuffer[uI] = NULL;
+        }
+
+        if (NULL != gpI2CInitSequenceBuffer[uI])
+        {
+          MDP_OSAL_FREE(gpI2CInitSequenceBuffer[uI]);
+          gpI2CInitSequenceBuffer[uI] = NULL;
+        }
+
+        if (NULL != gpI2CTermSequenceBuffer[uI])
+        {
+          MDP_OSAL_FREE(gpI2CTermSequenceBuffer[uI]);
+          gpI2CTermSequenceBuffer[uI] = NULL;
+        }
+      }
+    }
+    else
+    {
+      MDPPlatformParams     sPlatformParams;
+      bool32                bSWRender  = FALSE;
+      MDP_Display_IDType    eDisplayId = MDP_DISPLAY_PRIMARY;
+      uint32                uNumValidDisplays = 0;
+
+      if (MDP_INIT_FLAG_MINIMAL_INIT & uFlags)
+      {
+        //For minimal init do not clear the display context as it will be reused later.
+      }
+      else
+      {
+        // Default case is complete intialization, clear the display context.
+        MDP_OSAL_MEMZERO(&gDisplayInfo, sizeof(gDisplayInfo));
+      }
+
+      // Need to know if the platform is hardware accelerated first. If it is not then we have to skip initialization of all HW.
+      MDP_OSAL_MEMZERO(&sPlatformParams, sizeof(MDPPlatformParams));
+
+      for (eDisplayId = MDP_DISPLAY_PRIMARY; eDisplayId < MDP_DISPLAY_MAX; eDisplayId++)
+      {
+        if (FALSE == pMDPInitParams->aSupportedDisplays[eDisplayId])
+        {
+          continue;
+        }
+        else if (MDP_STATUS_OK != (eStatus = MDPPlatformConfigure(eDisplayId, MDPPLATFORM_CONFIG_SW_RENDERER, &sPlatformParams)))
+        {
+          MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDPPlatformConfigure(MDPPLATFORM_CONFIG_SW_RENDERER) failed!\n");
+          continue;
+        }
+        else
+        {
+          uNumValidDisplays++;
+        }
+      }
+
+      if ((0    == uNumValidDisplays)  ||
+          (TRUE == sPlatformParams.sPlatformInfo.bSWRender))
+      {
+        // Update SW Render flag
+        bSWRender = TRUE;
+      }
+
+      // 
+      // Start hardware initialization, fall back to SW renderer in this path if key hardware functions fail
+      //
+      if (FALSE == bSWRender)
+      {
+        //Get the platform Chip ID and catch in gsMDPHwPrivateInfo
+        if (MDP_STATUS_OK == (eStatus = MDPPlatformConfigure(MDP_DISPLAY_PRIMARY, MDPPLATFORM_CONFIG_GETPLATFORMINFO, &sPlatformParams)))
+        {
+          psMDPHwPrivateInfo->sEFIChipSetId     = sPlatformParams.sPlatformInfo.sEFIChipSetId;
+          psMDPHwPrivateInfo->sEFIChipSetFamily = sPlatformParams.sPlatformInfo.sEFIChipSetFamily;
+          psMDPHwPrivateInfo->eEFIPlatformInfo  = sPlatformParams.sPlatformInfo.sEFIPlatformType.platform;
+        }
+        
+        // Hardware path
+        //
+        if (MDP_STATUS_OK != eStatus)
+        {
+          // Platform detection failed, cannot continue propagate error to caller
+          MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: Failed to detect platform ID!\n");
+        } 
+        else if (TRUE == Display_Utils_CheckPanelSkip())
+        {
+          //Panel override was set, either skip is forced by override 
+          //or this panel is not supported in bootloader
+          //Fall back to SW render mode
+          bSWRender = TRUE;
+        }
+        else if (MDP_STATUS_OK != (eStatus = MDPSetCoreClock(0x0)))
+        {
+          MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: Failed to setup MDP core clocks!\n");
+
+          // Fall back to SW render mode
+          bSWRender = TRUE;            
+        }
+        //Set MDSS base address
+        else if (MDP_STATUS_OK != (eStatus = MDPPlatformSetMdssBase(sPlatformParams.sPlatformInfo.sEFIChipSetFamily)))
+        {
+          MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: MDPPlatformSetMdssBase() failed!\n");   
+            
+          // Fall back to SW render mode
+          bSWRender = TRUE;
+        }
+        else
+        {
+          if (HAL_MDSS_STATUS_SUCCESS != HAL_MDP_Init(NULL, DEAFAULT_MDP_INIT_FLAGS))
+          {
+            MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: HAL_MDP_Init() failed!\n");
+
+            // Fall back to SW render mode
+            bSWRender = TRUE;
+            eStatus = MDP_STATUS_HW_ERROR;
+          }
+          // Initialize the HW private info 
+          else if (MDP_STATUS_OK != (eStatus = MDPInitHwPrivateInfo(psMDPHwPrivateInfo)))
+          {
+            MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: MDPInitHwPrivateInfo() failed!\n");
+
+            // Fall back to SW render mode
+            bSWRender = TRUE;
+          }
+          else if (HAL_MDSS_STATUS_SUCCESS != HAL_MDP_TrafficCtrl_Init(NULL, 0))
+          {
+            MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: HAL_MDP_TrafficCtrl_Init() failed!\n");  
+
+            // Fall back to SW render mode
+            bSWRender = TRUE;
+            eStatus = MDP_STATUS_HW_ERROR;
+          }
+          else
+          {
+            // Hardware detected
+            // - Setup based on the hardware configuration
+              
+            ExtDisp_AttrType   sExtDispAttr;
+            
+            // Populate the input parameters
+            pMDPInitParams->uMDPVersionMajor    = psMDPHwPrivateInfo->sMDPVersionInfo.uMajorVersion;
+            pMDPInitParams->uMDPVersionMinor    = psMDPHwPrivateInfo->sMDPVersionInfo.uMinorVersion;
+            pMDPInitParams->uMDPVersionRevision = psMDPHwPrivateInfo->sMDPVersionInfo.uReleaseVersion;
+
+            //For continuous splash feature, since frame buffer memory is shared between UEFI
+            //and kernel, the MMU context need to be updated to enable sharing.
+            //Ensure MMU is initialized only once when the DisplayDxe is loaded
+            //to avoid multiple stream faults with dynamic SID programming.   
+            if (MDP_INIT_FLAG_MMU_INIT &  uFlags) 
+            {
+              if (MDP_STATUS_OK != MDP_SetupMMUSIDs())
+              {
+                MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: Failed to setup MMU SIDs!\n");
+              }
+            }
+              
+            // Check the external display configuration.
+            if (ExtDisp_SupportedByPlatform(&sExtDispAttr))
+            {
+              if (sExtDispAttr.ePhysConnect == MDP_DISPLAY_CONNECT_DP)
+              {
+                /* EXTERNAL use DP controller #0 */
+                gDisplayInfo[MDP_DISPLAY_EXTERNAL].ePhysConnect          = MDP_DISPLAY_CONNECT_DP_0;
+                /* both EXTERNAL2 and EXTERNAL3 use DP controller #1 */
+                gDisplayInfo[MDP_DISPLAY_EXTERNAL2].ePhysConnect          = MDP_DISPLAY_CONNECT_DP_1;
+                gDisplayInfo[MDP_DISPLAY_EXTERNAL3].ePhysConnect          = MDP_DISPLAY_CONNECT_DP_1;
+              }
+            }
+
+            // If DISABLEDISPLAY variable is set, then disable primary display
+            // Note: Make sure to check if external display is supported before proceeding
+            if(TRUE == pMDPInitParams->aSupportedDisplays[MDP_DISPLAY_EXTERNAL])
+            {
+              if(TRUE == MDPPlatformGetDisableDisplay())
+              {
+                // DISABLEDISPLAY variable is set. Disable primary display
+                pMDPInitParams->aSupportedDisplays[MDP_DISPLAY_PRIMARY]  = FALSE;
+              }
+            }
+          }
+        }
+      }
+
+      // Platform is configured for SW renderer, or hardware detection failed
+      if (TRUE == bSWRender)
+      {
+        // Populate the input parameters
+        pMDPInitParams->uMDPVersionMajor                          = 0;
+        pMDPInitParams->uMDPVersionMinor                          = 0;
+        pMDPInitParams->uMDPVersionRevision                       = 0;
+        pMDPInitParams->aSupportedDisplays[MDP_DISPLAY_EXTERNAL]  = FALSE;
+        pMDPInitParams->aSupportedDisplays[MDP_DISPLAY_EXTERNAL2] = FALSE;
+        pMDPInitParams->aSupportedDisplays[MDP_DISPLAY_EXTERNAL3] = FALSE;
+
+        // Tell platform layer we are in SW render mode to by pass any hardware configuration
+        MDP_OSAL_MEMZERO(&sPlatformParams, sizeof(MDPPlatformParams));
+        sPlatformParams.sPlatformInfo.bSWRenderOverrride = TRUE;
+
+        for (eDisplayId = MDP_DISPLAY_PRIMARY; eDisplayId < MDP_DISPLAY_MAX; eDisplayId++)
+        {
+          if (FALSE == pMDPInitParams->aSupportedDisplays[eDisplayId])
+          {
+            continue;
+          }
+          else if (MDP_STATUS_OK != (eStatus = MDPPlatformConfigure(eDisplayId, MDPPLATFORM_CONFIG_SW_RENDERER, &sPlatformParams)))
+          {
+            MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: MDPPlatformConfigure(MDPPLATFORM_CONFIG_SW_RENDERER) failed!\n");
+          }
+        }
+        
+        // Initialize MMU in SW renderer mode
+        // For continuous splash feature, since frame buffer memory is shared between UEFI
+        // and kernel, the MMU context need to be updated to enable sharing.
+        // Ensure MMU is initialized only once when the DisplayDxe is loaded
+        // to avoid multiple stream faults with dynamic SID programming.
+        if (MDP_INIT_FLAG_MMU_INIT &  uFlags) {
+          if (MDP_STATUS_OK != MDP_SetupMMUSIDs())
+          {
+            MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: Failed to setup MMU SIDs in SW renderer mode !\n");
+          }
+        }
+      }
+    }
+  }
+  MDP_LOG_FUNC_EXIT("MDPInit()");   
+
+  return eStatus;
+}
+
+
+/****************************************************************************
+*
+** FUNCTION: MDPPower()
+*/
+/*!
+* \brief
+*   This function will power up and initialize the interface needed for a particular display.
+*
+* \param [in] eDisplayId       - The display to initialize
+*        [in] pMDPPowerParams  - Power configuration
+*        [in] uFlags           - Reserved
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+MDP_Status  MDPPower(MDP_Display_IDType eDisplayId, MDP_PowerParamsType *pMDPPowerParams, uint32 uFlags)
+{
+    MDP_Status eStatus = MDP_STATUS_OK;
+
+    MDP_LOG_FUNC_ENTRY("MDPPower()", eDisplayId);    
+
+    if (NULL == pMDPPowerParams)
+    {
+      eStatus = MDP_STATUS_BAD_PARAM;
+    }
+    else if (TRUE == Display_Utils_CheckPanelSkip())
+    {
+      //Panel override was set, either skip is forced by override 
+      //or this panel is not supported in bootloader
+      // Fall back to SW render mode
+    }
+    else if (TRUE == pMDPPowerParams->bPowerOn)
+    {
+        MDPPlatformParams sPlatformParams;
+
+        MDP_OSAL_MEMZERO(&sPlatformParams, sizeof(MDPPlatformParams));
+
+        sPlatformParams.sPowerConfig.uFlags = uFlags;
+
+        // Power up the respective displays
+        if (MDP_STATUS_OK != (eStatus = MDPPlatformConfigure(eDisplayId, MDPPLATFORM_CONFIG_POWERUP, &sPlatformParams)))
+        {
+            MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDPPlatformConfigure(MDPPLATFORM_CONFIG_POWERUP) failed!\n");
+        }
+    }
+    else if (FALSE == pMDPPowerParams->bPowerOn)
+    {
+        MDPPlatformParams sPlatformParams;
+
+        MDP_OSAL_MEMZERO(&sPlatformParams, sizeof(MDPPlatformParams));
+
+        sPlatformParams.sPowerConfig.uFlags = uFlags;
+
+        // Power down the respective displays
+        if (MDP_STATUS_OK != (eStatus = MDPPlatformConfigure(eDisplayId, MDPPLATFORM_CONFIG_POWERDOWN, &sPlatformParams)))
+        {
+            MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDPPlatformConfigure(MDPPLATFORM_CONFIG_POWERDOWN) failed!\n");
+        }
+    }
+
+    MDP_LOG_FUNC_EXIT("MDPPower()");
+
+    return eStatus;
+}
+
+
+/****************************************************************************
+*
+** FUNCTION: MDPDetect()
+*/
+/*!
+* \brief
+*   This function will detect the presence of a display and supported modes.
+*
+* \param [in] eDisplayId       - The display to initialize
+*        [in] MDPDetectParams  - Information regarding the hardware core
+*        [in] uFlags           - Reserved
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+MDP_Status  MDPDetect(MDP_Display_IDType eDisplayId, MDP_DetectParamType *pMDPDetectParams, uint32 uFlags )
+{
+    MDP_Status           eStatus        = MDP_STATUS_OK;
+    MDPPlatformPanelType eSelectedPanel = MDPPLATFORM_PANEL_NONE;
+
+    MDP_LOG_FUNC_ENTRY("MDPDetect()", eDisplayId);
+    
+    if ((NULL == pMDPDetectParams) ||
+        (eDisplayId >= MDP_DISPLAY_MAX))
+    {
+      eStatus = MDP_STATUS_BAD_PARAM;
+    }
+    else
+    {
+        MDP_Panel_AttrType  *pDisplayInfo    = MDP_GET_DISPLAYINFO(eDisplayId);
+
+        // Handle each display
+        switch (eDisplayId)
+        {
+        case MDP_DISPLAY_PRIMARY:
+        case MDP_DISPLAY_SECONDARY:
+            {              
+              if (MDP_STATUS_OK == MDPDetectPanel(eDisplayId, pDisplayInfo))
+              {
+                 pMDPDetectParams->bDisplayDetected          = pDisplayInfo->bDetected;
+                 pMDPDetectParams->uSupportedModes           = 1; // Only 1 mode is supported
+                 pMDPDetectParams->aModeList[0].bInterlaced  = FALSE;
+                 pMDPDetectParams->aModeList[0].uModeIndex   = 0;
+                 pMDPDetectParams->aModeList[0].uWidth       = pDisplayInfo->uDisplayWidth;
+                 pMDPDetectParams->aModeList[0].uHeight      = pDisplayInfo->uDisplayHeight;
+                 eSelectedPanel                              = pDisplayInfo->eSelectedPanel;
+                 
+                 switch (pDisplayInfo->ePhysConnect)
+                 {
+                 case MDP_DISPLAY_CONNECT_PRIMARY_DSI_VIDEO:
+                 case MDP_DISPLAY_CONNECT_PRIMARY_DSI_CMD:
+                 case MDP_DISPLAY_CONNECT_SECONDARY_DSI_VIDEO:
+                 case MDP_DISPLAY_CONNECT_SECONDARY_DSI_CMD:                
+                    pMDPDetectParams->aModeList[0].uRefreshRate = pDisplayInfo->uAttrs.sDsi.uRefreshRate;
+
+                    /* If DSC is enable setup MDP structures for DSC */
+                    if (TRUE == pDisplayInfo->uAttrs.sDsi.bDSCEnable)
+                    {
+                      if (pDisplayInfo->uAttrs.sDsi.uDSCProfileID < MDP_DSC_PROFILEID_MAX)
+                      {
+                        MDPSetupDSCProperty(pDisplayInfo);
+                      }
+                      else
+                      {
+                        eStatus = MDP_STATUS_BAD_PARAM;
+                      }
+                    }
+                    break;
+                  case  MDP_DISPLAY_CONNECT_EDP:
+                  case  MDP_DISPLAY_CONNECT_DP:
+                    if (TRUE == pDisplayInfo->uAttrs.sDp.sBondedModeConfig.bEnabled)
+                    {
+                      // If bonded mode is enabled, scale horizontal timing parameters based on number of devices participating in bonded mode
+                      // Timing parameters specified in XML/ACPI defines timings per DP device
+                      DPDriver_UpdateBondedModeTimings(pDisplayInfo);
+                      
+                      pMDPDetectParams->aModeList[0].uWidth  = pDisplayInfo->uDisplayWidth;
+                      pMDPDetectParams->aModeList[0].uHeight = pDisplayInfo->uDisplayHeight;
+                    }
+                    
+                    if (MDP_STATUS_OK == (eStatus = DPDriver_Open(eDisplayId, uFlags)))
+                    {
+                      /*
+                       * both width and height are 0 means use timing from edid
+                       * here will assign both xx->aModeList[0].uWidth and xx->aModeList[0].uHeight
+                       * with correct value from edid so that both pMode->HorizontalResolution and
+                       * pMode->VerticalResolution can inherit correct value to set up frame buffer
+                       * correctly at DisplayDxe_SetMode later
+                       */
+                      if ((0 == pDisplayInfo->uDisplayWidth) && 
+                          (0 == pDisplayInfo->uDisplayHeight))
+                      {
+                         MDP_Panel_AttrType    sMode;
+
+                         MDP_OSAL_MEMZERO(&sMode, sizeof(MDP_Panel_AttrType));
+                         eStatus = DPDriver_GetModeInfo(&sMode);
+                         if (MDP_STATUS_OK == eStatus)
+                         {
+                            pMDPDetectParams->aModeList[0].uWidth  = sMode.uDisplayWidth;
+                            pMDPDetectParams->aModeList[0].uHeight = sMode.uDisplayHeight;
+                         }
+                      }
+                    }
+                    break;
+                 default:
+                    break;
+                 }
+              }
+
+              if (MDP_STATUS_OK != eStatus)
+              {
+                MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: Panel detection failed. Selecting SWRender mode!\n");
+
+                if (MDP_DISPLAY_CONNECT_EDP == pDisplayInfo->ePhysConnect)
+                {
+                  // Landscape mode
+                  pMDPDetectParams->aModeList[0].uWidth  = MDP_DEFAULT_RESOLUTION_WIDTH;
+                  pMDPDetectParams->aModeList[0].uHeight = MDP_DEFAULT_RESOLUTION_HEIGHT;
+                }
+                else
+                {
+                  // Portrait mode - swap width & height
+                  pMDPDetectParams->aModeList[0].uWidth  = MDP_DEFAULT_RESOLUTION_HEIGHT;
+                  pMDPDetectParams->aModeList[0].uHeight = MDP_DEFAULT_RESOLUTION_WIDTH;
+                }
+
+                pDisplayInfo->bSWRenderer              = TRUE;
+                eStatus                                = MDP_STATUS_OK;
+              }
+            }
+            break;
+
+        case MDP_DISPLAY_EXTERNAL:
+        case MDP_DISPLAY_EXTERNAL2:
+        case MDP_DISPLAY_EXTERNAL3:
+            {
+              if (!MDPDetectExtPlugin(eDisplayId, pDisplayInfo, uFlags))
+              {
+                MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: External monitor not detected!\n");
+              }
+              else
+              {
+                MDP_Panel_AttrType    sMode;
+                uint32                i;
+
+                // DP detected 
+                pDisplayInfo->bDetected            = TRUE;
+                pDisplayInfo->uNumInterfaces       = MDP_INTERFACE_SINGLE;
+                
+                pMDPDetectParams->bDisplayDetected = TRUE;
+                
+                // Enumerate all modes
+                for (i = 0; i < MDP_DISPLAY_MAX_MODES; i++)
+                {
+                  MDP_OSAL_MEMZERO(&sMode, sizeof(MDP_Panel_AttrType));
+                  sMode.eDisplayId  = eDisplayId;
+                  sMode.uModeId     = i;
+                  if (MDP_STATUS_OK == ExtDisp_GetModeInfo(&sMode))
+                  {
+                    pMDPDetectParams->aModeList[i].uModeIndex   = i;
+                    pMDPDetectParams->aModeList[i].uWidth       = sMode.uDisplayWidth;
+                    pMDPDetectParams->aModeList[i].uHeight      = sMode.uDisplayHeight;
+                    pMDPDetectParams->aModeList[i].uRefreshRate = sMode.uRefreshRate;
+                    pMDPDetectParams->aModeList[i].bInterlaced  = FALSE;
+                    pMDPDetectParams->uSupportedModes++;
+                    MDP_Log_Message(MDP_LOGLEVEL_INFO, "MDPDetect: index=%d w=%d h=%d frate=%x\n",i, sMode.uDisplayWidth, sMode.uDisplayHeight, sMode.uRefreshRate); 
+                  }
+                  else
+                  {
+                    break;
+                  }
+                }
+              }          
+            }
+            break;
+        default:
+            eStatus = MDP_STATUS_BAD_PARAM;
+            break;
+        }
+    }
+    
+    MDP_LOG_FUNC_EXIT("MDPDetect()");    
+
+    return eStatus;
+}
+
+
+
+/****************************************************************************
+*
+** FUNCTION: MDPSetMode()
+*/
+/*!
+* \brief
+*   This function setup the display for a particular mode.
+*
+* \param [in] eDisplayId       - The display to initialize
+*        [in] MDPSetModeParams - Mode setup parameters
+*        [in] uFlags           - Reserved
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+MDP_Status  MDPSetMode(MDP_Display_IDType eDisplayId, MDP_SetModeParamType *pMDPSetModeParams, uint32 uFlags )
+{
+  MDP_Status           eStatus      = MDP_STATUS_OK;
+  MDP_Panel_AttrType  *pDisplayInfo = NULL;
+
+  MDP_LOG_FUNC_ENTRY("MDPSetMode()", eDisplayId); 
+
+  if ((NULL == pMDPSetModeParams)     ||
+      (eDisplayId >= MDP_DISPLAY_MAX))
+  {
+    eStatus = MDP_STATUS_BAD_PARAM;
+  }
+  else if (TRUE == Display_Utils_CheckPanelSkip())
+  {
+    //Panel override was set, either skip is forced by override 
+    //or this panel is not supported in bootloader
+    // Fall back to SW render mode
+  }
+  else
+  {
+    pDisplayInfo = MDP_GET_DISPLAYINFO(eDisplayId);
+
+    if (TRUE != pDisplayInfo->bDetected)
+    {
+      eStatus = MDP_STATUS_NOT_SUPPORTED;
+    }
+    else if (TRUE == pDisplayInfo->bSWRenderer)
+    {
+      // Cache the current mode and surface information
+      pDisplayInfo->uModeId  = pMDPSetModeParams->uModeIndex;
+      MDP_OSAL_MEMCPY(&pDisplayInfo->sFrameBuffer, &pMDPSetModeParams->sSurfaceInfo, sizeof(MDPSurfaceInfo));
+
+      // Display is in software rendering mode, don't initialize hardware and continue
+      eStatus = MDP_STATUS_OK;
+    }
+    else
+    {
+      // Setup GPIOs (Low and high list)
+      if (MDP_STATUS_OK != (eStatus = MDPSetGPIOState(pDisplayInfo)))
+      {
+        MDP_Log_Message(MDP_LOGLEVEL_WARN, "DisplayDxe: MDPSetGPIOState Failed!\n");
+      }
+      
+      // Setup MDP control paths
+      /*
+       * For DP MDPPanleinit should be executed before MDPSetupPipe setup sicne some panel info  may
+       * need to be retrieved from panel's edid
+       */ 
+      if (MDP_STATUS_OK != (eStatus = MDPPanelInit(eDisplayId, pMDPSetModeParams->uModeIndex, pDisplayInfo)))
+      {
+        MDP_Log_Message(MDP_LOGLEVEL_WARN, "DisplayDxe: MDPPanelInit Failed!\n");
+      }
+      else if (MDP_STATUS_OK != (eStatus = MDPSetupPipe(pDisplayInfo, &pMDPSetModeParams->sSurfaceInfo)))
+      {
+        MDP_Log_Message(MDP_LOGLEVEL_WARN, "DisplayDxe: MDPSetupPipe Failed!\n");
+      }
+      else if (MDP_STATUS_OK != (eStatus = MDPStartPipe(pDisplayInfo))) // Kick start the displays
+      {
+        MDP_Log_Message(MDP_LOGLEVEL_WARN, "DisplayDxe: MDPStartPipe Failed!\n");
+      }
+      else
+      {
+        bool32 bSendInit = FALSE;
+        bool32 bSendPPS  = FALSE;
+
+        // Cache the current mode and surface information
+        pDisplayInfo->uModeId  = pMDPSetModeParams->uModeIndex;
+        pDisplayInfo->bModeSet = TRUE;
+        MDP_OSAL_MEMCPY(&pDisplayInfo->sFrameBuffer, &pMDPSetModeParams->sSurfaceInfo, sizeof(MDPSurfaceInfo));
+
+        switch (pDisplayInfo->ePhysConnect)
+        {
+           case MDP_DISPLAY_CONNECT_PRIMARY_DSI_VIDEO:
+           case MDP_DISPLAY_CONNECT_PRIMARY_DSI_CMD:
+           case MDP_DISPLAY_CONNECT_SECONDARY_DSI_VIDEO:
+           case MDP_DISPLAY_CONNECT_SECONDARY_DSI_CMD:
+                if (TRUE == pDisplayInfo->uAttrs.sDsi.bForceCmdInVideoHS)
+                {
+                   bSendInit = TRUE;
+                   bSendPPS  = pDisplayInfo->sDSCDesc.bDSCEnable;
+                }
+                break;
+           case MDP_DISPLAY_CONNECT_DP_0:
+           case MDP_DISPLAY_CONNECT_DP_1:
+                bSendPPS = pDisplayInfo->sDSCDesc.bDSCEnable;
+                break;
+           default:
+                break;
+        }
+                  
+        // If DSI video transfer should be on during DCS transactions then send command for sending the init sequence.
+        if (TRUE == bSendInit)
+        {
+          if (MDP_STATUS_OK != MDPPanelSendCommandSequence(pDisplayInfo, MDP_PANEL_COMMAND_INIT, NULL, 0))
+          {
+            MDP_Log_Message(MDP_LOGLEVEL_WARN, "DisplayDxe: MDPPanelSendCommandSequence() failed to send INIT sequence!\n");
+          }
+        }
+
+        if (TRUE == bSendPPS)
+        {
+          /* If DSC is enabled then send the PPS command to the panel */
+            if (MDP_STATUS_OK != MDPPanelSendCommandSequence(pDisplayInfo, MDP_PANEL_COMMAND_PPS, NULL, 0))
+            {
+              MDP_Log_Message (MDP_LOGLEVEL_WARN, "DisplayDxe: MDPPanelSendCommandSequence() failed to send INIT sequence!\n");
+            }
+        }
+     }
+   }
+ }
+
+  MDP_LOG_FUNC_EXIT("MDPSetMode()"); 
+
+  return eStatus;
+}
+
+
+/****************************************************************************
+*
+** FUNCTION: MDPSetProperty()
+*/
+/*!
+* \brief
+*   This function will configure a specific property of the display
+*
+* \param [in] eDisplayId       - The display to initialize
+*        [in] eProperty        - The particular property to set
+*        [in] MDPSetModeParams - Mode setup parameters
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+MDP_Status  MDPSetProperty(MDP_Display_IDType eDisplayId, MDP_Display_Property eProperty, MDP_PropertiesParamType *pMDPPropertiesParams)
+{
+  MDP_Status           eStatus      = MDP_STATUS_OK;
+
+  MDP_LOG_FUNC_ENTRY("MDPSetProperty()", eProperty);        
+    
+  if (eDisplayId >= MDP_DISPLAY_MAX)
+  {
+    eStatus = MDP_STATUS_BAD_PARAM;
+  }
+  else
+  {
+    MDP_Panel_AttrType  *pDisplayInfo = MDP_GET_DISPLAYINFO(eDisplayId);
+
+    switch (eProperty)
+    {
+    case MDP_DISPLAY_PROPERTY_BACKLIGHT:
+      {
+        MDPPlatformParams  sPlatformParams;
+        uint32             uDefaultBacklightLevel = pMDPPropertiesParams->uBacklightLevel;
+        
+        // Here, if default backlight level (non zero unsigned integer) is defined by panelcfg XML tags (<BacklightDefault>..</BacklightDefault>), 
+        // then it will override default pcd backlight level 
+        // Check if input backlight level is out of range
+        if(uDefaultBacklightLevel > MDP_DISPLAY_MAX_BRIGHTNESS)
+        {
+          // Validate backlight level defined by panelcfg XML
+          if((pDisplayInfo->sBacklightConfig.uLevel > 0)&&
+             (pDisplayInfo->sBacklightConfig.uLevel <= MDP_DISPLAY_MAX_BRIGHTNESS))
+          {
+            // Override the PCD defualt backlight level 
+            uDefaultBacklightLevel = pDisplayInfo->sBacklightConfig.uLevel;
+          }
+          else
+          {
+            // Either We haven't defined backlight in panelcfg, or defined backlight value is invalid
+            uDefaultBacklightLevel = PcdGet32(PcdBacklightLevel);
+          }
+        }
+        
+        // Setup any other display parameters
+        MDP_OSAL_MEMZERO(&sPlatformParams, sizeof(MDPPlatformParams));
+        
+        // Configure backlight parameters. 
+        sPlatformParams.sBacklightConfig.bEnable                        = TRUE;
+        sPlatformParams.sBacklightConfig.eBacklightType                 = pDisplayInfo->sBacklightConfig.eBacklightType;
+        sPlatformParams.sBacklightConfig.uBacklightCntrl.eBacklightCtrl = pDisplayInfo->sBacklightConfig.uBacklightCntrl.eBacklightCtrl;
+        sPlatformParams.sBacklightConfig.uLevel                         = uDefaultBacklightLevel;
+        sPlatformParams.sBacklightConfig.uNumBits                       = pDisplayInfo->sBacklightConfig.uNumBits;
+        
+        // Backlight control type specific functionality
+        switch (pDisplayInfo->sBacklightConfig.eBacklightType)
+        {
+          case MDP_PANEL_BACKLIGHTTYPE_I2C:
+            {
+              // Setup backlight I2C configuration 
+              MDP_OSAL_MEMCPY(&sPlatformParams.sBacklightConfig.uBacklightCntrl.sI2CConfig, &pDisplayInfo->uAttrs.sDsi.sI2CConfig, sizeof(MDP_I2C_Configuration));
+
+              if (MDP_STATUS_OK == (eStatus = MDPPlatformConfigure(eDisplayId, MDPPLATFORM_CONFIG_SETBACKLIGHT, &sPlatformParams)))
+              {
+                // Cache current backlight level
+                pDisplayInfo->uBacklightLevel = uDefaultBacklightLevel;
+              }
+            }
+            break;
+            
+          case MDP_PANEL_BACKLIGHTTYPE_AUX:
+            {
+              if (0 == uDefaultBacklightLevel)
+              {
+                // New brightness level is 0, turn OFF 
+                  eStatus = DPDriver_BrightnessEnable(eDisplayId, FALSE);
+              }
+              else
+              {
+                // New brightness is non-zero
+                if ((0 == pDisplayInfo->uBacklightLevel)  &&
+                    (MDP_STATUS_OK != (eStatus = DPDriver_BrightnessEnable(eDisplayId, TRUE))))
+                {
+                  // Skip setting brightness level since it is not enabled
+                }
+                else
+                {
+                  // Set new brightness level
+                  eStatus = DPDriver_BrightnessLevel(eDisplayId, ((float)uDefaultBacklightLevel)/100);
+                }
+              }
+
+              if (MDP_STATUS_OK == eStatus)
+              {
+                // Cache current backlight level
+                pDisplayInfo->uBacklightLevel = uDefaultBacklightLevel;
+              }
+            }
+            break;
+
+          default:
+            {
+              if (MDP_STATUS_OK == (eStatus = MDPPlatformConfigure(eDisplayId, MDPPLATFORM_CONFIG_SETBACKLIGHT, &sPlatformParams)))
+              {
+                // Cache current backlight level
+                pDisplayInfo->uBacklightLevel = uDefaultBacklightLevel;
+              }
+            }
+            break;
+        }
+      }
+      break;
+
+    case MDP_DISPLAY_PROPERTY_FIRMWAREENV:
+      {
+        eStatus = MDP_SaveFirmwareEnvironmentVariable(eDisplayId);
+      }
+      break;  
+
+    case MDP_DISPLAY_PROPERTY_MODE_INFO:
+      {
+         MDP_HwPrivateInfo *psMDPHwPrivateInfo = MDP_GETPRIVATEINFO();
+         uint32             ModeIndex          = pMDPPropertiesParams->sModeParams.uModeIndex;
+
+         /* we are not selecting from list of driver supported modes */
+         pDisplayInfo->bForceMode              = FALSE;
+
+         switch (eDisplayId)
+         {
+           case MDP_DISPLAY_PRIMARY:
+           case MDP_DISPLAY_SECONDARY:
+             /*
+              * if edp is the primary dispay
+              * populated the mode # 0 timing into PanelInfo
+              */
+              if ((pDisplayInfo->ePhysConnect ==  MDP_DISPLAY_CONNECT_EDP) || 
+                  (pDisplayInfo->ePhysConnect ==  MDP_DISPLAY_CONNECT_DP))
+              {
+                 /* both width and height are 0 means panle timing is derived from edid */
+                 if (pDisplayInfo->uDisplayWidth == 0 &&
+                     pDisplayInfo->uDisplayHeight == 0)
+                 {
+                    /* invalid xml file, use panel timing from EDID */
+                    pDisplayInfo->eDisplayFlags |= MDP_PANEL_FLAG_TIMING_FROM_EDID;
+
+                    eStatus = DPDriver_GetModeInfo(pDisplayInfo);      /* populated PanelInfo from edid */
+                 }
+              }
+              break;
+            case MDP_DISPLAY_EXTERNAL:
+            case MDP_DISPLAY_EXTERNAL2:
+            case MDP_DISPLAY_EXTERNAL3:
+              /*
+               * External monitor supports more than one mode,
+               * populated the selected mode timing info PanelInfo
+               */
+               pDisplayInfo->uModeId = ModeIndex;
+               eStatus = ExtDisp_GetModeInfo(pDisplayInfo); /* populate panelInfo from edid */
+            break;
+            default:
+            break;   
+         }
+
+         // Check if we need Dual pipe for this panel
+         if ((NULL != psMDPHwPrivateInfo->pDeviceCaps) &&
+             (pDisplayInfo->uDisplayWidth > psMDPHwPrivateInfo->pDeviceCaps->pResolutionCaps->uMaxLayerWidthPx))
+         {
+             pDisplayInfo->uNumMixers = MDP_DUALPIPE_NUM_MIXERS;
+         }
+      }
+      break;
+    case MDP_DISPLAY_PROPERTY_SELECT_MODE_INDEX:
+      {
+        switch(eDisplayId)
+        {
+          case MDP_DISPLAY_PRIMARY:
+          case MDP_DISPLAY_SECONDARY:
+            eStatus = MDP_STATUS_BAD_PARAM;
+          break;
+          case MDP_DISPLAY_EXTERNAL:
+          case MDP_DISPLAY_EXTERNAL2:
+          case MDP_DISPLAY_EXTERNAL3:
+            pDisplayInfo->uModeId         = pMDPPropertiesParams->uIndex;
+            pDisplayInfo->bForceMode      = TRUE;
+
+            if (MDP_STATUS_OK != ExtDisp_GetModeInfo(pDisplayInfo)) 
+            {
+              MDP_Log_Message(MDP_LOGLEVEL_ERROR, "ExtDisp_GetModeInfo failed for %d\n", eDisplayId );
+            }
+          break;
+          default:
+          break;
+        }
+        break;
+      }
+    case MDP_DISPLAY_PROPERTY_POWER_STATE:
+      {
+        /* Cache the current display power state information */
+        pDisplayInfo->bDisplayPwrState  =  pMDPPropertiesParams->bDisplayPwrState;
+        break;
+      }
+    case MDP_DISPLAY_PROPERTY_ABL_INTERFACE_INIT:
+      {
+        /* Initialize Display context which will be used to create panel configuration string for ABL later */
+        Display_Utils_Initialize(pMDPPropertiesParams->pSupportedDisplayList);
+        
+        break;
+      }
+    case MDP_DISPLAY_PROPERTY_SUPPORTED_DISPLAY:
+      {
+        pDisplayInfo->bIsSupported  =  pMDPPropertiesParams->bIsSupported;
+        break;
+      }
+    case MDP_DISPLAY_PROPERTY_SURFACE_RECT:
+      {
+         if (TRUE == pDisplayInfo->bModeSet)
+         {
+           MDPSurfaceInfo *pSurfaceInfo = NULL;
+
+           /* Only pass a surface if it is valid, otherwise NULL means the surface address programming is unchanged */
+           if ((MDP_PIXEL_FORMAT_NONE != pMDPPropertiesParams->sModeParams.sSurfaceInfo.ePixelFormat) &&
+               (pMDPPropertiesParams->sModeParams.sSurfaceInfo.uWidth > 0)                            &&
+               (pMDPPropertiesParams->sModeParams.sSurfaceInfo.uHeight > 0))
+            {
+               pSurfaceInfo =  &pMDPPropertiesParams->sModeParams.sSurfaceInfo;
+            }
+            
+           /* Configure a new source surface and/or cropping rectangle */
+           if (EFI_SUCCESS != (eStatus = MDPSetupSourcePipe(pDisplayInfo, pSurfaceInfo, &pMDPPropertiesParams->sModeParams.sRectInfo)))
+           {
+               MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: Error configuring a new surface/rect %r\n", eStatus);
+           }
+         }
+         else
+         {
+           MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLib: Unable to change surface/rect.  Mode has not been set.\n");
+         }
+      }
+      break;
+    default:
+      eStatus = MDP_STATUS_BAD_PARAM;
+      break;
+    }
+  }
+
+  MDP_LOG_FUNC_EXIT("MDPSetProperty()");
+
+  return eStatus;
+}
+
+
+/****************************************************************************
+*
+** FUNCTION: MDPGetProperty()
+*/
+/*!
+* \brief
+*   This function will retrieve a specific property of the display
+*
+* \param  [in] eDisplayId           - The display to initialize
+*         [in] eProperty            - The particular property to set
+*         [in] pMDPPropertiesParams - Property parameters
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+MDP_Status  MDPGetProperty(MDP_Display_IDType eDisplayId, MDP_Display_Property eProperty, MDP_PropertiesParamType *pMDPPropertiesParams)
+{
+  MDP_Status           eStatus      = MDP_STATUS_OK;
+
+  MDP_LOG_FUNC_ENTRY("MDPGetProperty()", eProperty);
+
+  if (eDisplayId >= MDP_DISPLAY_MAX)
+  {
+    eStatus = MDP_STATUS_BAD_PARAM;
+  }
+  else
+  {
+    MDP_Panel_AttrType  *pDisplayInfo = MDP_GET_DISPLAYINFO(eDisplayId);
+
+    switch (eProperty)
+    {
+      case MDP_DISPLAY_PROPERTY_BACKLIGHT:
+      {
+        /* Retrieve the current cached backlight level */
+        pMDPPropertiesParams->uBacklightLevel  =  pDisplayInfo->uBacklightLevel;
+        break;
+      }
+    
+      case MDP_DISPLAY_PROPERTY_POWER_STATE:
+      {
+        /* Retrieve the current cached display state information */
+        pMDPPropertiesParams->bDisplayPwrState  =  pDisplayInfo->bDisplayPwrState;
+        break;
+      }
+
+      case MDP_DISPLAY_PROPERTY_MODE_INFO:
+      {
+        /* Retrieve the current cached display mode information */
+        pMDPPropertiesParams->sModeParams.uModeIndex = pDisplayInfo->uModeId;
+        MDP_OSAL_MEMCPY(&pMDPPropertiesParams->sModeParams.sSurfaceInfo, &pDisplayInfo->sFrameBuffer, sizeof(MDPSurfaceInfo));
+        break;
+      }
+
+      case MDP_DISPLAY_PROPERTY_DETECTION_INFO:
+      {
+        /* Retrieve the current cached display detection information */
+        pMDPPropertiesParams->bDisplayDetected = pDisplayInfo->bDetected;      
+        break;
+      }
+      case MDP_DISPLAY_PROPERTY_GETPANELRESOLUTION:
+      { 
+         pMDPPropertiesParams->sResolution.uModeIndex     = pDisplayInfo->uModeId;
+         pMDPPropertiesParams->sResolution.uDisplayWidth  = pDisplayInfo->uDisplayWidth;
+         pMDPPropertiesParams->sResolution.uDisplayHeight = pDisplayInfo->uDisplayHeight;
+         pMDPPropertiesParams->sResolution.uPixelRate     = pDisplayInfo->uPixelRate;
+         pMDPPropertiesParams->sResolution.uRefreshRate   = pDisplayInfo->uRefreshRate;
+         break;
+      }
+
+      case MDP_DISPLAY_PROPERTY_GETFRAMECRC:
+      { 
+        eStatus = DPDriver_GetFrameCRC(pDisplayInfo, &pMDPPropertiesParams->uCRC);
+        break;
+      }
+      default:
+      { 
+        eStatus = MDP_STATUS_BAD_PARAM;
+        break;
+      }
+    }
+  }
+
+  MDP_LOG_FUNC_EXIT("MDPGetProperty()");
+
+  return eStatus;
+}
+
+
+/****************************************************************************
+*
+** FUNCTION: MDPDeInit()
+*/
+/*!
+* \brief
+*   This function will de-initializes the panel interfaces
+*
+* \param [in]  eDisplayId       - Display to de-initialize
+* \param [in]  uFlags           - Reserved
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+MDP_Status  MDPDeInit(MDP_Display_IDType eDisplayId, uint32 uFlags)
+{
+  MDP_Status           eStatus      = MDP_STATUS_OK;
+
+  MDP_LOG_FUNC_ENTRY("MDPDeInit()", eDisplayId);
+
+  if (eDisplayId >= MDP_DISPLAY_MAX)
+  {
+    eStatus = MDP_STATUS_BAD_PARAM;
+  }
+  else 
+  {
+    MDP_Panel_AttrType  *pDisplayInfo = MDP_GET_DISPLAYINFO(eDisplayId);
+
+    if(TRUE == pDisplayInfo->bSWRenderer)
+    {
+      /* do nothing if display is in SW rendering mode, skip HW configuration */
+    }
+    else
+    {
+      /* Handle interface specific differences */
+      switch (pDisplayInfo->ePhysConnect)
+      {
+        case MDP_DISPLAY_CONNECT_PRIMARY_DSI_VIDEO:
+        case MDP_DISPLAY_CONNECT_PRIMARY_DSI_CMD:      
+        case MDP_DISPLAY_CONNECT_SECONDARY_DSI_VIDEO:
+        case MDP_DISPLAY_CONNECT_SECONDARY_DSI_CMD:
+          
+          /* If DSI video transfer should be on during DCS transactions then send command for sending the termination sequence. */
+          if (TRUE == pDisplayInfo->uAttrs.sDsi.bForceCmdInVideoHS)
+          {
+            if (MDP_STATUS_OK != MDPPanelSendCommandSequence(pDisplayInfo, MDP_PANEL_COMMAND_TERM, NULL, 0))
+            {
+              MDP_Log_Message(MDP_LOGLEVEL_WARN, "DisplayDxe: MDPPanelSendCommandSequence() failed to send TERM sequence!\n");
+            }
+          }
+          break;
+          
+         default:
+          break;
+      }
+
+      /* Turn off the display timing engines */
+      if (MDP_STATUS_OK != (eStatus = MDPStopPipe(pDisplayInfo)))
+      {
+        MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDPPanelDeInit() failed! Status: %d\n", eStatus);      
+      }
+    
+
+      /* Turn off the display controller and panel */
+      if (MDP_STATUS_OK != (eStatus = MDPPanelDeInit(pDisplayInfo)))
+      {
+        MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDPPanelDeInit() failed! Status: %d\n", eStatus);  
+      }
+    }
+  }
+
+  MDP_LOG_FUNC_EXIT("MDPDeInit()");
+
+  return eStatus;
+}
+
+
+
+/****************************************************************************
+*
+** FUNCTION: MDPTerm()
+*/
+/*!
+* \brief
+*   This function will deinitialize the MDP core and free all resources.
+*
+* \param [in]  uFlags           - Reserved
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+MDP_Status  MDPTerm(uint32 uFlags)
+{
+  MDP_Panel_AttrType  *pDisplayInfo = NULL;
+  MDP_Status           eStatus      = MDP_STATUS_OK;
+
+  MDP_LOG_FUNC_ENTRY("MDPTerm()", 0x00);
+
+  /* Turn off core clock */
+  if (MDP_STATUS_OK != (eStatus = MDPDisableClocks(MDP_CLOCKTYPE_CORE)))
+  {
+    MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDP Disable Core Clock failed with Status(%d)!\n", eStatus);
+  }
+
+  if (NULL != (pDisplayInfo = MDP_GET_DISPLAYINFO(MDP_DISPLAY_PRIMARY)))
+  {
+    /* Turn off dsi0 clock */
+    if (MDP_STATUS_OK != (eStatus = MDPDisableClocks(MDP_CLOCKTYPE_DSI0)))
+    {
+      MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDP Disable Dsi0 Clock failed with Status(%d)!\n", eStatus);
+    }
+
+    /* Turn off dsi1 clock */
+    if (MDP_STATUS_OK != (eStatus = MDPDisableClocks(MDP_CLOCKTYPE_DSI1)))
+    {
+      MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDP Disable Dsi1 Clock failed with Status(%d)!\n", eStatus);
+    }
+  }
+
+  if (NULL != (pDisplayInfo = MDP_GET_DISPLAYINFO(MDP_DISPLAY_EXTERNAL)) ||
+      NULL != (pDisplayInfo = MDP_GET_DISPLAYINFO(MDP_DISPLAY_EXTERNAL2)) ||
+      NULL != (pDisplayInfo = MDP_GET_DISPLAYINFO(MDP_DISPLAY_EXTERNAL3)))
+  {
+    /* Turn off hdmi clock */
+    if (MDP_STATUS_OK != (eStatus = MDPDisableClocks(MDP_CLOCKTYPE_HDMI)))
+    {
+      MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDP Disable HDMI Clock failed with Status(%d)!\n", eStatus);
+    }
+
+    /* Turn off dp clock */
+    if (MDP_STATUS_OK != (eStatus = MDPDisableClocks(MDP_CLOCKTYPE_DP)))
+    {
+      MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDP Disable DP Clock failed with Status(%d)!\n", eStatus);
+    }
+  }
+
+  MDP_LOG_FUNC_EXIT("MDPTerm()");
+
+  return eStatus;
+}
+
+/****************************************************************************
+*
+** FUNCTION: MDPExitBoot()
+*/
+/*!
+* \brief
+*   This function performs house cleaning before UEFI exit
+*
+* \param [in]  uFlags           - Reserved
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+MDP_Status  MDPExitBoot(uint32 uFlags)
+{
+  MDP_Panel_AttrType  *pDisplayInfo         = NULL;
+  MDP_Status           eStatus              = MDP_STATUS_OK;
+  bool32               bSeamlessSplash      = TRUE;
+  MDP_Display_IDType   eDisplayId           = MDP_DISPLAY_PRIMARY;
+  uint8                uI                   = 0;
+
+  /* If seamless splash is not required, turn off the display before leaving */
+  MDP_PowerParamsType  sPowerParams;
+
+  for (eDisplayId = MDP_DISPLAY_PRIMARY; eDisplayId <= MDP_DISPLAY_EXTERNAL; eDisplayId++)
+  {
+    if (FALSE == MDP_DISPLAY_INTERNAL(eDisplayId))
+    {
+      continue;
+    }
+    else
+    {
+      pDisplayInfo = MDP_GET_DISPLAYINFO(eDisplayId);
+
+      if (MDP_PANEL_FLAG_DISABLE_SEAMLESS_SPLASH &  pDisplayInfo->eDisplayFlags)
+      {
+        bSeamlessSplash = FALSE;
+      }
+
+      if ((FALSE == bSeamlessSplash) &&
+          (TRUE  == pDisplayInfo->bDisplayPwrState))
+      {
+        MDP_OSAL_MEMZERO(&sPowerParams, sizeof(MDP_PowerParamsType));
+        sPowerParams.bPowerOn = FALSE;
+
+        // DeInit the panel interfaces before exiting
+        if (MDP_STATUS_OK != (eStatus = MDPDeInit(eDisplayId, 0x0)))
+        {
+          MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPExitBoot: Display deInit failed with status(%d)!\n", eStatus);
+        }
+
+        // Turn off MDP powers before exiting
+        if (MDP_STATUS_OK != (eStatus = MDPPower(eDisplayId, &sPowerParams, 0x0)))
+        {
+          MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPExitBoot: Disable common display panel power failed with status(%d)!\n", eStatus);
+        }
+
+        // Turn off MDP powers before exiting
+        if (MDP_STATUS_OK != (eStatus = MDPPower(eDisplayId, &sPowerParams, POWERCONFIG_FLAGS_PANEL_POWER)))
+        {
+          MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPExitBoot: Disable specific display panel power failed with status(%d)!\n", eStatus);
+        }
+      }
+
+      if (NULL != pDisplayInfo->uAttrs.sDsi.pInitBuffer)
+      {
+        MDP_OSAL_FREE(pDisplayInfo->uAttrs.sDsi.pInitBuffer);
+        pDisplayInfo->uAttrs.sDsi.pInitBuffer = NULL;
+      }
+
+      if (NULL != pDisplayInfo->uAttrs.sDsi.pTermBuffer)
+      {
+        MDP_OSAL_FREE(pDisplayInfo->uAttrs.sDsi.pTermBuffer);
+        pDisplayInfo->uAttrs.sDsi.pTermBuffer = NULL;
+      }
+
+      if (NULL != pDisplayInfo->uAttrs.sDsi.pDSCPpsBuffer)
+      {
+        MDP_OSAL_FREE(pDisplayInfo->uAttrs.sDsi.pDSCPpsBuffer);
+        pDisplayInfo->uAttrs.sDsi.pDSCPpsBuffer = NULL;
+      }
+    }
+  }
+
+  if (FALSE == bSeamlessSplash)
+  {
+    // Turn off MDP clocks before exiting
+    if (MDP_STATUS_OK != (eStatus = MDPTerm(0x0)))
+    {
+      MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPExitBoot: Turn off MDP clocks failed with Status(%d)!\n", eStatus);    
+    }
+  }
+
+  for (uI=0; uI < MDP_DISPLAY_MAX; uI++)
+  {
+    if (NULL != gpDSIInitSequenceBuffer[uI])
+    {
+      MDP_OSAL_FREE(gpDSIInitSequenceBuffer[uI]);
+      gpDSIInitSequenceBuffer[uI] = NULL;
+    }
+
+    if (NULL != gpDSITermSequenceBuffer[uI])
+    {
+      MDP_OSAL_FREE(gpDSITermSequenceBuffer[uI]);
+      gpDSITermSequenceBuffer[uI] = NULL;
+    }
+
+    if (NULL != gpDSIDscPpsBuffer[uI])
+    {
+      MDP_OSAL_FREE(gpDSIDscPpsBuffer[uI]);
+      gpDSIDscPpsBuffer[uI] = NULL;
+    }
+
+    if (NULL != gpI2CInitSequenceBuffer[uI])
+    {
+      MDP_OSAL_FREE(gpI2CInitSequenceBuffer[uI]);
+      gpI2CInitSequenceBuffer[uI] = NULL;
+    }
+
+    if (NULL != gpI2CTermSequenceBuffer[uI])
+    {
+      MDP_OSAL_FREE(gpI2CTermSequenceBuffer[uI]);
+      gpI2CTermSequenceBuffer[uI] = NULL;
+    }
+  }
+
+  // Store display pll codes 
+  Display_Utils_StorePLLCodes();
+
+  return MDP_STATUS_OK;
+}
+
+/****************************************************************************
+*
+** FUNCTION: MDPSetCoreClock()
+*/
+/*!
+* \brief
+*   This function will setup the MDP core clock, enable footswitch, and restore TZ of register access
+*
+* \param [in]  uFlags           
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+MDP_Status  MDPSetCoreClock(uint32 uFlags)
+{
+  MDP_Status eStatus = MDP_STATUS_OK;
+
+  MDP_LOG_FUNC_ENTRY("MDPSetCoreClock()", 0x00);
+
+  /* Turn on the core clock */
+  if (MDP_STATUS_OK != (eStatus = MDPSetupClocks(MDP_CLOCKTYPE_CORE, NULL)))
+  {
+     MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDPSetupClocks() failed!\n");
+  }
+
+  MDP_LOG_FUNC_EXIT("MDPSetCoreClock()");
+
+  return eStatus;
+}
+
+
+#ifdef MDP_ENABLE_PROFILING 
+/****************************************************************************
+*
+** FUNCTION: MDPProfiler()
+*/
+/*!
+* \brief
+*   This function performs the profiling of functions 
+*
+* \param [in]  pFuncName        - Function name
+* \param [in]  uParam1          - Display ID, Property or Mode info depending on the function  
+* \param [in]  bEntry           - Function entry or exit. True - entry; False - exit;
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+MDP_Status  MDPProfiler(uint8 *pFuncName, uint32 uParam1, bool32 bEntry)
+{
+  MDP_Status      eStatus     =  MDP_STATUS_OK; 
+  static uint32   uStartTime;
+  static uint32   uTotalDriverTime;
+
+  /* Function entry */
+  if (bEntry)
+  {
+    /* Start time */   
+    uStartTime = MDP_GetTimerCountUS();
+    MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLibProfile: Entry[%a][%d]\n", pFuncName, uParam1);  
+  }    
+  else 
+  {
+    /* Function exit */ 
+    uint32          uEndTime;
+    uint32          uTotalFuncTime = 0;   
+
+    /* End time */ 
+    uEndTime = MDP_GetTimerCountUS();
+    /* Function execution time(ms) */ 
+    uTotalFuncTime = (uEndTime - uStartTime);   
+    /* Total driver execution time(ms) */
+    uTotalDriverTime += uTotalFuncTime;
+
+    MDP_Log_Message(MDP_LOGLEVEL_ERROR, "MDPLibProfile: Exit[%a][%dus function time][%dus total time]\n", pFuncName, uTotalFuncTime, uTotalDriverTime);
+  }
+
+  return eStatus;
+}
+#endif
+
+
+/*=========================================================================
+     Local Static Variables
+==========================================================================*/
+
+static bool32 MDPDetectExtPlugin(MDP_Display_IDType eDisplayId, MDP_Panel_AttrType  *pPanelInfo, uint32 Flags)
+{
+  bool32     bDetected   = FALSE;
+  MDP_Status eStatus       = MDP_STATUS_OK;
+
+  if (NULL == pPanelInfo)
+  {      
+   MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPDetectExtPlugin: Null pointer passed\n");  
+  }
+  else
+  {
+    eStatus =  ExtDisp_Init(eDisplayId, Flags);
+    if(MDP_STATUS_OK == eStatus)
+    {
+      // Get Valid Mode information for mode at Index 0
+      if (ExtDisp_IsDisplayPlugged(eDisplayId))
+      {
+        pPanelInfo->eDisplayId    = eDisplayId;
+        pPanelInfo->ePhysConnect  = gDisplayInfo[eDisplayId].ePhysConnect;
+        bDetected                 = TRUE;
+
+        // Clear the GPIO list with 0xFF to signify an empty list.
+        // External display has not implemented the parser to clear default fields
+        MDP_OSAL_MEMSET(&pPanelInfo->uDefaultGPIOState, 0xFF, sizeof(pPanelInfo->uDefaultGPIOState));
+      }
+      else
+      {
+        ExtDisp_Close(eDisplayId);
+      }
+    }    
+  }
+  
+  return bDetected;
+}
+
+
+/****************************************************************************
+*
+** FUNCTION: MDPPlatformGetDisableDisplay()
+*/
+/*!
+* \brief
+*   Returns TRUE if DISABLEDISPLAY is set and FALSE otherwise
+*
+*
+* \retval bool32
+*
+****************************************************************************/
+static bool32 MDPPlatformGetDisableDisplay(void)
+{
+  UINT32       uValue        =  0;
+  bool32       bDisableDisp  = FALSE; 
+  MDP_Status   eStatus       = MDP_STATUS_OK;
+
+  eStatus =  MDP_Display_GetVariable_Integer (L"DISABLEDISPLAY", &uValue);
+
+  if ((MDP_STATUS_OK ==  eStatus) &&
+      (uValue         >  0))
+  {
+    bDisableDisp = TRUE;
+  }
+  
+  return bDisableDisp;
+}
+
+/****************************************************************************
+*
+** FUNCTION: MDPPlatformSetMdssBase()
+*/
+/*!
+* \brief
+*   Set MDSS base address
+*
+*
+* \retval MDP_Status
+*
+****************************************************************************/
+static MDP_Status MDPPlatformSetMdssBase(EFIChipInfoFamilyType  sEFIChipSetFamily)
+{
+  MDP_Status                          Status  = MDP_STATUS_NOT_SUPPORTED;
+  HAL_MDP_SWMappedHWBaseAddressesType sMDSSAddress;
+  uint8                               uCount;
+
+  MDP_OSAL_MEMZERO(&sMDSSAddress, sizeof(sMDSSAddress));
+
+  //Search for correct chip family
+  for(uCount = 0; uCount< MDSS_BASEADDRESSMAPINGS_MAX; uCount++)
+  {
+    if(asMDSS_BaseAddressMappings[uCount].sEFIChipSetFamily == sEFIChipSetFamily)
+    {
+      sMDSSAddress.uMdpAddress = asMDSS_BaseAddressMappings[uCount].uMDSSBaseAddress;
+      Status                   = MDP_STATUS_OK;
+      break;   
+    }
+  }
+  
+  //if chip family is not found take a default one , and print warning log.
+  if( MDP_STATUS_OK != Status)
+  {
+    MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDPPlatformSetMdssBase - Chipset Family 0x%x not found, cannot continue!\n",
+                    sEFIChipSetFamily);
+    Status = MDP_STATUS_BAD_PARAM;
+  }
+  else 
+  {
+    // Setup the HAL base address
+    HAL_MDSS_SetBaseAddress(&sMDSSAddress);
+  }
+
+  return Status;
+}
+/* ---------------------------------------------------------------------- */
+/**
+** FUNCTION: MDPCalculateDSCParameters()
+**
+** DESCRIPTION:
+**   Calcualte DSC parameters that are required to correctly setup the
+**   DSC related configuration like topology flags and resolution info
+**   for each compression encoder.
+**   DSC related registers configuration will be commit later.
+**
+** ---------------------------------------------------------------------- */
+void MDPCalculateDSCParameters(MDP_Panel_AttrType *pPanelInfo)
+{
+  HAL_MDP_DSCInfoType             sDSCInfo;
+  uint32                          uProgramBothPingPongs = 0;
+  DSCDescType                    *pDSCDesc              = &pPanelInfo->sDSCDesc;
+
+  MDP_OSAL_MEMZERO(&sDSCInfo, sizeof(HAL_MDP_DSCInfoType));
+
+  sDSCInfo.pDSCEncoderPacket = pDSCDesc->pDSCEncPktType;
+
+  /* Setup the EncParams */
+  /* Configure the start address where the HAL will create the PPS command payload data */
+  sDSCInfo.pDSCEncoderPacket->pPacketData    = pDSCDesc->pDSCPpsBuffer;
+  sDSCInfo.pDSCEncoderPacket->pEncoderParams = pDSCDesc->pDSCEncParams;
+
+  /* Populate DSC Version */
+  sDSCInfo.pDSCEncoderPacket->pEncoderParams->uDSCVersionMajor = pDSCDesc->uDSCMajor;
+  sDSCInfo.pDSCEncoderPacket->pEncoderParams->uDSCVersionMinor = pDSCDesc->uDSCMinor;
+  sDSCInfo.pDSCEncoderPacket->pEncoderParams->uDSCVersionScr   = pDSCDesc->uDSCScr;
+
+
+  /* Determine the type of DSC encoder configuration */
+  sDSCInfo.pDSCEncoderCfg                         = pDSCDesc->pDSCEncCfg;
+  sDSCInfo.pDSCEncoderCfg->pEncoderParams         = pDSCDesc->pDSCEncParams;
+  sDSCInfo.pDSCEncoderCfg->bUserProvidedEncParams = FALSE;
+
+  sDSCInfo.pDSCEncoderCfg->eCompressionRatio      = pDSCDesc->uDSCCompressionRatio;
+
+  /* Configure the Slice Width and height */
+  sDSCInfo.pDSCEncoderCfg->pEncoderParams->uSliceHeight = pDSCDesc->uDSCSliceHeight;
+  sDSCInfo.pDSCEncoderCfg->pEncoderParams->uSliceWidth  = pDSCDesc->uDSCSliceWidth;
+
+  sDSCInfo.pDSCEncoderCfg->pEncoderParams->uBitsPerComponent =  pDSCDesc->uDSCBpc; 
+  sDSCInfo.pDSCEncoderCfg->pEncoderParams->uBitsPerPixel     = pDSCDesc->uDSCBpp;
+  sDSCInfo.pDSCEncoderCfg->pEncoderParams->bBlockPredEnable  = pDSCDesc->bDSCBlockPred;
+
+
+  if ((0 == sDSCInfo.pDSCEncoderCfg->pEncoderParams->uSliceHeight) ||
+      (sDSCInfo.pDSCEncoderCfg->pEncoderParams->uSliceHeight > pPanelInfo->uDisplayHeight))
+  {
+    /* Default Slice height to 16*/
+    sDSCInfo.pDSCEncoderCfg->pEncoderParams->uSliceHeight = 16;
+    MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDPSetupDSCProperty: Slice Height not defined in XML, use default\n");
+  }
+
+  if ((0 == sDSCInfo.pDSCEncoderCfg->pEncoderParams->uSliceWidth) ||
+      (sDSCInfo.pDSCEncoderCfg->pEncoderParams->uSliceWidth > pPanelInfo->uDisplayWidth))
+  {
+    /* Default slice width is half of the panel width */
+    sDSCInfo.pDSCEncoderCfg->pEncoderParams->uSliceWidth = pPanelInfo->uDisplayWidth / 2;
+    MDP_Log_Message(MDP_LOGLEVEL_WARN, "MDPLib: MDPSetupDSCProperty: Slice Width not defined in XML, use default\n");
+  }
+
+  if (MDP_INTERFACE_SINGLE == pPanelInfo->uNumInterfaces)
+  {
+    if (0 == pDSCDesc->bDSCLayerMixSplit)
+    {
+      /* Single encoder and single dsi Based on the profile id setup the following */
+      sDSCInfo.pDSCEncoderCfg->bPingPongSplitMUXActive    = 0;
+      sDSCInfo.pDSCEncoderCfg->bSplitDispActive           = 0;
+      sDSCInfo.pDSCEncoderCfg->bSplitMuxActive            = 0;
+      sDSCInfo.pDSCEncoderCfg->uInputFrameHeightInPixels  = pPanelInfo->uDisplayHeight;
+      sDSCInfo.pDSCEncoderCfg->uInputFrameWidthInPixels   = pPanelInfo->uDisplayWidth;
+
+    }
+    else
+    {
+      /* Place holder when we implement the 2.5k Panel with DSC with dual pipe/mixer */
+      /* Single DSI interface, Layer Mixer Split Config */
+
+      sDSCInfo.pDSCEncoderCfg->bPingPongSplitMUXActive = 0;
+      sDSCInfo.pDSCEncoderCfg->bSplitDispActive        = 0;
+
+      if (1 == pDSCDesc->uDSCEncodersNum)
+      {
+        sDSCInfo.pDSCEncoderCfg->bSplitMuxActive       = 0;
+        pDSCDesc->uDSC3DMux              = 1;     /* use 3D mux */
+        uProgramBothPingPongs                          = 0;
+      }
+      else
+      {
+        sDSCInfo.pDSCEncoderCfg->bSplitMuxActive       = 1;
+        uProgramBothPingPongs                          = 1;
+      }
+
+      sDSCInfo.pDSCEncoderCfg->uInputFrameHeightInPixels = pPanelInfo->uDisplayHeight;
+
+      /* Total Width is multiplied by 2 */
+      sDSCInfo.pDSCEncoderCfg->uInputFrameWidthInPixels = pPanelInfo->uDisplayWidth;
+    }
+
+  }
+  else if (MDP_INTERFACE_DUAL == pPanelInfo->uNumInterfaces)
+  {
+    /* Place holder when we implement 4k Panel with DSC */
+
+    /* Single Pipe Config(one encoder) -> each DSI  */
+    sDSCInfo.pDSCEncoderCfg->bPingPongSplitMUXActive = 0;
+    sDSCInfo.pDSCEncoderCfg->bSplitDispActive        = 1;
+    sDSCInfo.pDSCEncoderCfg->bSplitMuxActive         = 0;
+
+    sDSCInfo.pDSCEncoderCfg->uInputFrameHeightInPixels = pPanelInfo->uDisplayHeight;
+    sDSCInfo.pDSCEncoderCfg->uInputFrameWidthInPixels  = pPanelInfo->uDisplayWidth;
+
+    /* Need to setup both the DSC encoders and the split mux  */
+
+    uProgramBothPingPongs = 1;
+  }
+
+  if ((MDP_DISPLAY_CONNECT_PRIMARY_DSI_VIDEO == pPanelInfo->ePhysConnect) ||
+      ( MDP_DISPLAY_CONNECT_SECONDARY_DSI_VIDEO == pPanelInfo->ePhysConnect))
+  {
+    sDSCInfo.pDSCEncoderCfg->eInterfaceMode = HAL_MDP_INTERFACE_MODE_VIDEO;
+  }
+  else if ((MDP_DISPLAY_CONNECT_PRIMARY_DSI_CMD == pPanelInfo->ePhysConnect) ||
+           (MDP_DISPLAY_CONNECT_SECONDARY_DSI_CMD == pPanelInfo->ePhysConnect))
+  {
+    sDSCInfo.pDSCEncoderCfg->eInterfaceMode = HAL_MDP_INTERFACE_MODE_COMMAND;
+  }
+
+  /* Calculate the DSC configuration settings for HAL */
+  HAL_MDP_DSC_GetPropery(0, &sDSCInfo, 0x00);
+
+  if (0 == pDSCDesc->uDSCSlicePerPacket)
+  {
+    /* If DSIDSCSlicePerPacket is not set in panel xml file, then use the default calculated value of that,
+     * otherwise use the value of DSIDSCSlicePerPacket from panel xml file */
+    pDSCDesc->uDSCSlicePerPacket = sDSCInfo.pDSCEncoderCfg->uSlicePerPacket;
+  }
+  else if (0 != sDSCInfo.pDSCEncoderCfg->pEncoderParams->uSliceWidth)
+  {
+    if (pDSCDesc->uDSCSlicePerPacket > (pPanelInfo->uDisplayWidth / sDSCInfo.pDSCEncoderCfg->pEncoderParams->uSliceWidth))
+    {
+      /* If the value of DSIDSCSlicePerPacket from panel xml is out of range, then use the default calculated value as well. */
+      pDSCDesc->uDSCSlicePerPacket = sDSCInfo.pDSCEncoderCfg->uSlicePerPacket;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/**
+** FUNCTION: MDPSetupDSCProperty()
+**
+** DESCRIPTION:
+**   Configuration parameters that are required to correctly setup the
+**   DSC related configuration like topology flags and resolution info
+**   for each compression encoder.
+**
+** ---------------------------------------------------------------------- */
+void MDPSetupDSCProperty(MDP_Panel_AttrType *pPanelInfo)
+{
+    DSCDescType   *pDSCDesc = &pPanelInfo->sDSCDesc;
+
+  MDP_OSAL_MEMZERO(pPanelInfo->uAttrs.sDsi.pDSCPpsBuffer, MDP_DSI_DSC_PPS_TOTAL_PACKET_SIZE);
+
+  pDSCDesc = &pPanelInfo->sDSCDesc;
+  MDP_OSAL_MEMZERO(pDSCDesc, sizeof(DSCDescType));
+
+  pPanelInfo->uAttrs.sDsi.uDSCBpc              = gDscProfileModes[pPanelInfo->uAttrs.sDsi.uDSCProfileID].uBitsPerComponent;
+  pPanelInfo->uAttrs.sDsi.uDSCBpp              = gDscProfileModes[pPanelInfo->uAttrs.sDsi.uDSCProfileID].uBitsPerPixel;
+  pPanelInfo->uAttrs.sDsi.uDSCCompressionRatio = gDscProfileModes[pPanelInfo->uAttrs.sDsi.uDSCProfileID].uCompressionRatio;
+  pPanelInfo->uAttrs.sDsi.bDSCLayerMixSplit    = gDscProfileModes[pPanelInfo->uAttrs.sDsi.uDSCProfileID].bLMSplitEnable;
+  pPanelInfo->uAttrs.sDsi.bDSCBlockPred        = gDscProfileModes[pPanelInfo->uAttrs.sDsi.uDSCProfileID].bBlockPredEnable;
+  pPanelInfo->uAttrs.sDsi.uDSCEncodersNum      = gDscProfileModes[pPanelInfo->uAttrs.sDsi.uDSCProfileID].uEncodersNum;
+
+  pDSCDesc->bDSCEnable                         = pPanelInfo->uAttrs.sDsi.bDSCEnable;
+  pDSCDesc->uDSCMajor                          = pPanelInfo->uAttrs.sDsi.uDSCMajor;
+  pDSCDesc->uDSCMinor                          = pPanelInfo->uAttrs.sDsi.uDSCMinor;
+  pDSCDesc->uDSCScr                            = pPanelInfo->uAttrs.sDsi.uDSCScr;
+  pDSCDesc->uDSCProfileID                      = pPanelInfo->uAttrs.sDsi.uDSCProfileID;
+  pDSCDesc->uDSCCompressionRatio               = pPanelInfo->uAttrs.sDsi.uDSCCompressionRatio;
+  pDSCDesc->uDSCBpc                            = pPanelInfo->uAttrs.sDsi.uDSCBpc;
+  pDSCDesc->uDSCBpp                            = pPanelInfo->uAttrs.sDsi.uDSCBpp;
+  pDSCDesc->uDSCSliceHeight                    = pPanelInfo->uAttrs.sDsi.uDSCSliceHeight;
+  pDSCDesc->uDSCSliceWidth                     = pPanelInfo->uAttrs.sDsi.uDSCSliceWidth;
+  pDSCDesc->bDSCLayerMixSplit                  = pPanelInfo->uAttrs.sDsi.bDSCLayerMixSplit;
+  pDSCDesc->bDSCBlockPred                      = pPanelInfo->uAttrs.sDsi.bDSCBlockPred;
+  pDSCDesc->uDSCEncodersNum                    = pPanelInfo->uAttrs.sDsi.uDSCEncodersNum;
+  pDSCDesc->uDSCSlicePerPacket                 = pPanelInfo->uAttrs.sDsi.uDSCSlicePerPacket;
+
+  pDSCDesc->pDSCEncCfg                         = &pPanelInfo->uAttrs.sDsi.sDSCEncCfg;
+  pDSCDesc->pDSCEncParams                      = &pPanelInfo->uAttrs.sDsi.sDSCEncParams;
+  pDSCDesc->pDSCEncPktType                     = &pPanelInfo->uAttrs.sDsi.sDSCEncPktType;
+  /* Reserved PPS buf header */
+  pDSCDesc->pDSCPpsBuffer                      = pPanelInfo->uAttrs.sDsi.pDSCPpsBuffer + MDP_DSI_DSC_HEADER_SIZE + MDP_DSI_DSC_XML_HEADER_SIZE;
+
+  MDPCalculateDSCParameters(pPanelInfo);
+
+  /* Below parameters may changed after MDPCalculateDSCParameters() */
+  pPanelInfo->uAttrs.sDsi.uDSC3DMux          = pDSCDesc->uDSC3DMux;
+  pPanelInfo->uAttrs.sDsi.uDSCSlicePerPacket = pDSCDesc->uDSCSlicePerPacket;
+}
+
+/* ---------------------------------------------------------------------- */
+/**
+** FUNCTION: MDPSetGPIOState()
+**
+** DESCRIPTION:
+**   Configuration default GPIO states
+**
+** ---------------------------------------------------------------------- */
+static MDP_Status MDPSetGPIOState(MDP_Panel_AttrType *pDisplayInfo)
+{
+  MDP_Status    eStatus     = MDP_STATUS_OK;
+  
+  for (uint32 uGPIOState = 0;uGPIOState <= 1;uGPIOState++)
+  {
+    MDPPlatformParams sPlatformConfig;
+
+    MDP_OSAL_MEMZERO(&sPlatformConfig, sizeof(MDPPlatformParams));
+    sPlatformConfig.sGPIOState.eGPIOType = MDPPLATFORM_GPIOTYPE_TLMM;
+    sPlatformConfig.sGPIOState.pGPIOList = (uint32*)&(pDisplayInfo->uDefaultGPIOState[uGPIOState]);
+    sPlatformConfig.sGPIOState.uListSize = MDP_MAX_GPIO_LIST_ENTRIES;
+    sPlatformConfig.sGPIOState.uState = uGPIOState;
+
+    if (MDP_STATUS_OK != MDPPlatformConfigure(pDisplayInfo->eDisplayId, MDPPLATFORM_CONFIG_SETGPIOSTATE, &sPlatformConfig))
+    {
+      MDP_Log_Message(MDP_LOGLEVEL_WARN, "DisplayDxe: Failed to configure list of GPIOs to %d\n", uGPIOState);
+      eStatus = MDP_STATUS_FAILED;
+      break;
+    }
+  }
+  return eStatus;
+}

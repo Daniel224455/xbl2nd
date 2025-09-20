@@ -1,0 +1,61 @@
+#/** @file ShmBridgeTest.inf
+#  
+#  file ShmBridgeTest.c tests create/delete of shared memory bridge
+#  
+#  Copyright (c) 2017-2018 Copyright Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 05/03/18   pranavj Ported SHMBridge changes to Poipu
+# 07/03/2017         initial development
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ShmBridgeTest
+  FILE_GUID                      = 903ea1b4-8795-4168-93c3-427358db5a46
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = ShmBridgeTestMain
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = ARM
+#
+
+[Sources.common]
+  ShmBridgeTest.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+  UncachedMemoryAllocationLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  DebugLib
+  BaseLib
+  TestInterfaceLib
+  ShmBridgeLib
+
+[Protocols]
+  gEfiShmBridgeProtocolGuid
+
+  gEfiTzeLoaderProtocolGuid
+  gQcomScmProtocolGuid
+  gEfiSdccRpmbProtocolGuid

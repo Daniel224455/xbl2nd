@@ -1,0 +1,41 @@
+#/** @file SystemSleepNullLib.inf
+#
+#  SystemSleep Null library
+#
+#  Copyright (c) 2018 Qualcomm Technologies, Inc.  All Rights Reserved.
+#
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 02/12/18   yg      Initial version.
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SystemSleepNullLib
+  FILE_GUID                      = 763C6212-B041-44A3-AA0B-BC6BCFAAE65B
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SystemSleepLib
+
+[Sources]
+  SysSleepNull.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  ArmLib
+

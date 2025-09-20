@@ -1,0 +1,53 @@
+#/**
+#
+#  Variable Policy Engine Secure Boot Test
+#
+#  Copyright (c) 2019 Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = VarPolSecBootTest
+  FILE_GUID                      = 75B4ED4E-4C97-40E4-BF4F-D2997E7DFF9D
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = VariablePolicySecureBootTestMain
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -O0 -fno-inline
+
+[Sources]
+  VariablePolicySecureBootTest.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  TestInterfaceLib
+  BaseLib
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  DebugLib
+  UefiCfgLib
+  QcomLib
+
+[Guids]
+  gEfiGlobalVariableGuid                        ## CONSUMES
+  gEfiImageSecurityDatabaseGuid                 ## CONSUMES
+
+[Ppis]
+
+[Protocols]
+  gVariablePolicyProtocolGuid
+
+[FeaturePcd]
+
+[Pcd]
+

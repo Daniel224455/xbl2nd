@@ -1,0 +1,126 @@
+;============================================================================
+;  Name:
+;    load_uefi_dump.cmm
+;
+;  Description:
+;     Load UEFI crashdumps to T32 simulator
+;
+; Copyright (c) 2016,2018 Qualcomm Technologies Incorporated.
+; All Rights Reserved.
+; Qualcomm Technologies Confidential and Proprietary
+;
+;----------------------------------------------------------------------------
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+
+;
+;when         who     what, where, why
+;----------   ---     ----------------------------------------------------------
+;2018-11-26   yg      Add NOLOAD arg
+;2018-07-13   ai      Support for restoring registers from SDI CPU ctxt
+;2016-10-14   ai      Initial Version
+;============================================================================;
+
+&SHARED_IMEM_BASE=0x146BF000
+&DBI_SHARED_IMEM_COOKIE_OFFSET=0x10
+
+;ARGS:
+;DumpPath|NOLOAD - Location of the dump, or NOLOAD to just load CPU context after dump and symbols are loaded
+;TargetCmmPath - Location of symbol_load.cmm
+;CoreNum - OPTIONAL. Default=0
+
+ENTRY &DumpPath &TargetCmmPath &CoreNum
+  ; Sanity check - no argument
+  if (("&DumpPath"=="")||("&TargetCmmPath"==""))
+  (
+    DIALOG.OK "Argument required!" "load_uefi_dump.cmm <DumpPath|NOLOAD> <TargetCmmPath> [<CoreNum>]"
+    END
+  )
+
+  ; Default CoreNum=0 if not passed in by caller
+  if ("&CoreNum"=="")
+  (
+    &CoreNum=0
+  )
+
+  if ("&DumpPath"!="NOLOAD")
+  (
+    ; Sanity check - incorrect argument
+    &LoadCmmPath="&DumpPath/load.cmm"
+    if (OS.ACCESS("&LoadCmmPath", "r")!=TRUE())
+    (
+      DIALOG.OK "&DumpPath" "does not contain load.cmm!"
+      END
+    )
+
+    ; Load Dump and UEFI symbols
+    IF !SYSTEM.UP()
+    (
+      SYS.UP()
+    )
+    CD.DO &LoadCmmPath
+    CD.DO &TargetCmmPath/symbol_load.cmm
+  )
+
+  ; Locate CPU context
+  &DbiBaseAddr=&SHARED_IMEM_BASE+&DBI_SHARED_IMEM_COOKIE_OFFSET
+  &DbiBaseAddr=DATA.QUAD(D:&DbiBaseAddr)
+  &DbiBaseAddr=&DbiBaseAddr+VAR.SIZEOF(DUMP_TABLE_TYPE)
+  &DbiBaseAddr=VAR.ADDRESS(((DUMP_TABLE_TYPE*)&DbiBaseAddr)->Entries[0].start_addr)
+  &DbiBaseAddr=DATA.QUAD(&DbiBaseAddr)
+  &DbiBaseAddr=VAR.ADDRESS(((DUMP_DATA_TYPE_TABLE*)&DbiBaseAddr)->DumpDataType[&CoreNum].start_addr)
+  &DbiBaseAddr=DATA.QUAD(&DbiBaseAddr)
+
+  ; EL1h
+  R.S M 0x05
+
+  ; nsec
+  R.S NS 1
+
+  ; Restore CPU context
+  R.S   X0        DATA.QUAD(NSD:(&DbiBaseAddr+0x10))
+  R.S   X1        DATA.QUAD(NSD:(&DbiBaseAddr+0x18))
+  R.S   X2        DATA.QUAD(NSD:(&DbiBaseAddr+0x20))
+  R.S   X3        DATA.QUAD(NSD:(&DbiBaseAddr+0x28))
+  R.S   X4        DATA.QUAD(NSD:(&DbiBaseAddr+0x30))
+  R.S   X5        DATA.QUAD(NSD:(&DbiBaseAddr+0x38))
+  R.S   X6        DATA.QUAD(NSD:(&DbiBaseAddr+0x40))
+  R.S   X7        DATA.QUAD(NSD:(&DbiBaseAddr+0x48))
+  R.S   X8        DATA.QUAD(NSD:(&DbiBaseAddr+0x50))
+  R.S   X9        DATA.QUAD(NSD:(&DbiBaseAddr+0x58))
+  R.S   X10       DATA.QUAD(NSD:(&DbiBaseAddr+0x60))
+  R.S   X11       DATA.QUAD(NSD:(&DbiBaseAddr+0x68))
+  R.S   X12       DATA.QUAD(NSD:(&DbiBaseAddr+0x70))
+  R.S   X13       DATA.QUAD(NSD:(&DbiBaseAddr+0x78))
+  R.S   X14       DATA.QUAD(NSD:(&DbiBaseAddr+0x80))
+  R.S   X15       DATA.QUAD(NSD:(&DbiBaseAddr+0x88))
+  R.S   X16       DATA.QUAD(NSD:(&DbiBaseAddr+0x90))
+  R.S   X17       DATA.QUAD(NSD:(&DbiBaseAddr+0x98))
+  R.S   X18       DATA.QUAD(NSD:(&DbiBaseAddr+0xA0))
+  R.S   X19       DATA.QUAD(NSD:(&DbiBaseAddr+0xA8))
+  R.S   X20       DATA.QUAD(NSD:(&DbiBaseAddr+0xB0))
+  R.S   X21       DATA.QUAD(NSD:(&DbiBaseAddr+0xB8))
+  R.S   X22       DATA.QUAD(NSD:(&DbiBaseAddr+0xC0))
+  R.S   X23       DATA.QUAD(NSD:(&DbiBaseAddr+0xC8))
+  R.S   X24       DATA.QUAD(NSD:(&DbiBaseAddr+0xD0))
+  R.S   X25       DATA.QUAD(NSD:(&DbiBaseAddr+0xD8))
+  R.S   X26       DATA.QUAD(NSD:(&DbiBaseAddr+0xE0))
+  R.S   X27       DATA.QUAD(NSD:(&DbiBaseAddr+0xE8))
+  R.S   X28       DATA.QUAD(NSD:(&DbiBaseAddr+0xF0))
+  R.S   X29       DATA.QUAD(NSD:(&DbiBaseAddr+0xF8))
+  R.S   X30       DATA.QUAD(NSD:(&DbiBaseAddr+0x100))
+  R.S   PC        DATA.QUAD(NSD:(&DbiBaseAddr+0x108))
+  R.S   SP_EL3    DATA.QUAD(NSD:(&DbiBaseAddr+0x118))
+  R.S   ELR_EL3   DATA.QUAD(NSD:(&DbiBaseAddr+0x120))
+  R.S   SPSR_EL3  DATA.QUAD(NSD:(&DbiBaseAddr+0x128))
+  R.S   SP_EL2    DATA.QUAD(NSD:(&DbiBaseAddr+0x130))
+  R.S   ELR_EL2   DATA.QUAD(NSD:(&DbiBaseAddr+0x138))
+  R.S   SPSR_EL2  DATA.QUAD(NSD:(&DbiBaseAddr+0x140))
+  R.S   SP_EL1    DATA.QUAD(NSD:(&DbiBaseAddr+0x148))
+  R.S   ELR_EL1   DATA.QUAD(NSD:(&DbiBaseAddr+0x150))
+  R.S   SPSR_EL1  DATA.QUAD(NSD:(&DbiBaseAddr+0x158))
+  R.S   SP_EL0    DATA.QUAD(NSD:(&DbiBaseAddr+0x160))
+
+  cd &TargetCmmPath
+

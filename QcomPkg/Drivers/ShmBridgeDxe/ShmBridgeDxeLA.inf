@@ -1,0 +1,42 @@
+#/** @file ShmBridgeDxe.inf
+#
+#  Shared Bridge Driver INF file
+#
+#  Copyright (c) 2017-2018 Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ShmBridgeDxe
+  FILE_GUID                      = 9c1eb71f-dd6c-4ed5-9f6a-5cc0ca789f16
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = ShmBridgeEntryPoint
+
+[Sources.common]
+  ShmBridgeDxeLA.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  MemoryAllocationLib
+  UncachedMemoryAllocationLib
+  UefiDriverEntryPoint
+  UefiCfgLib
+  ShmBridgeLib
+
+[Guids]
+  gEfiEventExitBootServicesGuid
+
+[Protocols]
+  gEfiShmBridgeProtocolGuid       ## PRODUCES
+
+[Depex]
+  TRUE
+

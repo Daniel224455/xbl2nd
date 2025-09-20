@@ -1,0 +1,54 @@
+/*=============================================================================
+  Readme for crashdump feature in SBL
+
+  Copyright (c) 2016 Qualcomm Technologies, Inc. All rights reserved.
+
+                              EDIT HISTORY
+
+ when       who     what, where, why
+ --------   ---     -----------------------------------------------------------
+ 09/10/18   msantos Initial version
+=============================================================================*/
+
+ --------------
+| Introduction |
+ --------------
+In some crash scenarios in SBL, it may be required to debug without the use of a JTAG device.
+This can be accomplished with the crashdump feature in SBL.
+NOTE: currently only supports graceful errors.
+
+ --------------------
+| Detailed Operation |
+ --------------------
+To collect and debug crashdumps, use the following procedure: 
+
+0. If a crash occurs, the device screen should show "Crashdump Mode".
+
+1. Collect crashdumps by opening the "QPST Configuration" tool you should see one COM port with a green progress bar.
+   Dumps are usually collected to the following location (depending on your QPST installation): 
+     C:\ProgramData\Qualcomm\QPST\Sahara\Port_COMXX
+
+2. Start a T32 Simulator APPS window:
+    <metabuild location>\common\Core\t32\t32start.pyc
+    Simulator -> APSS/ARM64 -> Start
+
+3. Run the boot_debug.cmm script (this is recommended if you do not want to load the XBLLoader symbols manually)
+   CD.DO <build path>\boot_images\QcomPkg\Tools\boot_debug.cmm
+   Follow the prompts and select option "10: Load SBL crash dumps". It will prompt for path to XBLLoader.dll,
+   then prompt for the QPST Port_COMXX folder where the dumps are located
+   
+The rampdump and symbols will be loaded and debugging related windows (source code, call stack, registers,
+etc.) will be displayed.
+
+ ----------------
+|  How it works  |
+ ----------------
+Crashes will cause a context backup to an unused DDR region. The device resets and kicks into ramdump image,
+where the context will be included as a separate binary (SBL_CRSH.BIN) in the default RAM dump to QPST.
+load_boot_crash_dump.cmm will use the binary to restore the context into a T32 instance, and the environment 
+will now appear as if the device is paused at the moment of the crash.
+
+ -------------
+| Limitations |
+ -------------
+Currently only support for graceful errors.

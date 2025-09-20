@@ -1,0 +1,156 @@
+;============================================================================
+;  Name:
+;    idmp.cmm
+;
+;  Description:
+;     Interrupt related registers dump.
+;
+; Copyright (c) 2017-2018 Qualcomm Technologies, Inc.
+; All Rights Reserved.
+; Qualcomm Technologies Proprietary and Confidential.
+;
+;----------------------------------------------------------------------------
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+;
+;
+;   when         who     what, where, why
+; -----------   -----   ----------------------------------------------------------
+;  09-05-2018    yg      Add Routing info for Qtimer
+;  12-14-2017    yg      Created new
+;============================================================================;
+
+; ---------------------------------------------------------
+; Script entry point
+; ---------------------------------------------------------
+local &Distr_base
+
+local &RDistr_base
+local &RD_Base
+local &SGI_Base
+local &RDistr_Stride
+local &cpunum
+local &istat
+local &rdtype
+local &adr
+
+local &isenabler
+local &ispendr
+local &isactiver
+local &iprio
+local &itarget
+local &icfg
+local &iroute
+
+local &iEnabled
+local &iPending
+local &iActive
+
+local &low
+local &high
+
+;area.reset
+area.view
+
+  &isenabler=0x100
+  &ispendr=0x200
+  &isactiver=0x300
+  &iprio=0x400
+  &itarget=0x800
+  &icfg=0xC00
+  &iroute=0x6000
+
+  &Distr_base=0x17A00000
+
+  &RDistr_base=0x17A60000
+  &RDistr_Stride=0x20000
+
+  &cpunum=0
+
+  print ""
+  print "Distributor Base     : ", FORMAT.HEX(8.,&Distr_base)
+  print "Redistributor Base   : ", FORMAT.HEX(8.,&RDistr_base)
+  print "Redistributor Stride : ", FORMAT.HEX(8.,&RDistr_Stride)
+
+  print ""
+  print "PPI's (31-16) & SGI's (15-0)"
+  print "CPU  : RDist type    IEnabled      IPend       IActive "
+  while (&cpunum<8)
+  (
+     &RD_Base=&RDistr_base+(&cpunum*&RDistr_Stride)
+     &SGI_Base=&RD_Base+0x10000
+
+     &adr=&RD_Base+0x8
+     &rdtype=data.long(A:&adr)
+
+     &adr=&SGI_Base+&isenabler
+     &iEnabled=data.long(A:&adr)
+
+     &adr=&SGI_Base+&ispendr
+     &iPending=data.long(A:&adr)
+
+     &adr=&SGI_Base+&isactiver
+     &iActive=data.long(A:&adr)
+
+
+     print "&cpunum  : ", FORMAT.HEX(8.,&rdtype), "      ", FORMAT.HEX(8.,&iEnabled), "     ", FORMAT.HEX(8.,&iPending), "     ", FORMAT.HEX(8.,&iActive)
+
+     &cpunum=&cpunum+1
+  )
+
+  print ""
+  print "SPI's: (32 - 1023)"
+  print "Register  :  Addr Range   :   (95-64)     (63-32)"
+
+  &adr=&Distr_base+0x4+&isenabler
+  &low=data.long(A:&adr)
+  &high=data.long(A:&adr+0x4)
+  print "IEnabled  :  ", FORMAT.HEX(8.,&adr), "++7F    ", FORMAT.HEX(8.,&high), "    ", FORMAT.HEX(8.,&low)
+
+  &adr=&Distr_base+0x4+&ispendr
+  &low=data.long(A:&adr)
+  &high=data.long(A:&adr+0x4)
+  print "IPending  :  ", FORMAT.HEX(8.,&adr), "++7F    ", FORMAT.HEX(8.,&high), "    ", FORMAT.HEX(8.,&low)
+
+  &adr=&Distr_base+0x4+&isactiver
+  &low=data.long(A:&adr)
+  &high=data.long(A:&adr+0x4)
+  print "IActive   :  ", FORMAT.HEX(8.,&adr), "++7F    ", FORMAT.HEX(8.,&high), "    ", FORMAT.HEX(8.,&low)
+
+  &adr=&Distr_base+0x20+&iprio
+  print "IPriority :  ", FORMAT.HEX(8.,&adr), "++3FF   (1 Byte per intr)"
+
+  &adr=&Distr_base+0x8+&icfg
+  print "ICfg      :  ", FORMAT.HEX(8.,&adr), "++0xFF  (2 bits per intr)"
+
+  &adr=&Distr_base+0x100+&iroute
+  print "IRoute    :  ", FORMAT.HEX(8.,&adr), "++1EFF  (8 Bytes per intr)"
+
+
+  print ""
+  &QtimerBase=0x17C21000
+  print "Timer at " , FORMAT.HEX(8.,&QtimerBase)
+  &adr=&QtimerBase
+  &low=data.long(A:&adr)
+  &high=data.long(A:&adr+0x4)
+  print "CntPct    :  ", FORMAT.HEX(8.,&high), "    ", FORMAT.HEX(8.,&low)
+
+  &adr=&QtimerBase+0x20
+  &low=data.long(A:&adr)
+  &high=data.long(A:&adr+0x4)
+  print "CntpCval  :  ", FORMAT.HEX(8.,&high), "    ", FORMAT.HEX(8.,&low)
+
+  &adr=&QtimerBase+0x2C
+  &low=data.long(A:&adr)
+  print "CntpCtl   :  ", FORMAT.HEX(1.,&low)
+
+  &QtimerIntrVect=0x28
+  &adr=&Distr_base+&iroute+(&QtimerIntrVect*0x8)
+  &low=data.quad(A:&adr)
+  print "Routing   :  Vect ", FORMAT.Decimal(2.,&QtimerIntrVect), " => Cpu ", FORMAT.HEX(8.,&low)
+
+  print "------------------------------------------------------------"
+
+enddo
+

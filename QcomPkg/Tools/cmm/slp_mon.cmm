@@ -1,0 +1,33 @@
+
+B::
+
+;  v.v SmcTimeVal
+;  v.v CurrentActive
+;  v.v WakeupCoreMap
+;  v.v LastQTimerIntInfo
+; v.v SleepCallOriginate
+; v.v MaxSleeptoSmcDelay
+
+
+ WinPOS 0.71429 17.5 22. 2. 10. 1. LIST NORMAL "QTimerCtl"
+ wl.d.dump ezaxi:0x17C2102c++0x3 /NoAscii 
+ 
+ WinPOS 0.0 22.333 29. 2. 10. 1. LIST NORMAL "QTimer CNT"
+ wl.d.dump ezaxi:0x17C21000++0x7 /NoAscii 
+ 
+ WinPOS 0.0 27.833 29. 2. 10. 1. LIST NORMAL "QTimer CVal"
+ wl.d.dump ezaxi:0x17C21020++0x7 /NoAscii 
+
+ WinPOS 37.857 22.333 29. 2. 10. 1. LIST NORMAL "Tmr Routing"
+ wl.d.dump ezaxi:0x17A06140++7 /noascii
+ 
+ WinPOS 39.857 22.333 29. 2. 10. 1. LIST NORMAL "Is Pending"
+ wl.d.dump ezaxi:0x17A00204++0x7F /noascii
+ 
+; WinPOS 133.29 19.167 29. 9. 10. 1. LIST NORMAL "MVal map"
+; wl.d.dump ezaxi:0x9fc36FA0++0x3f /NoAscii 
+
+; WinPOS 104.43 34.583 22. 9. 10. 1. LIST NORMAL "Sleep originate"
+; wl.d.dump ezaxi:0x9fc370B4++0x1f /NoAscii 
+
+ENDDO

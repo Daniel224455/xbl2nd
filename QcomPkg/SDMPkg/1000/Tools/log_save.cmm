@@ -1,0 +1,42 @@
+;============================================================================
+;  Name:
+;    log_save.cmm
+;
+;  Description:
+;     Save UEFI Debug Logs
+;
+; Copyright (c) 2018 Qualcomm Technologies, Inc.  All
+; Rights Reserved. Qualcomm Technologies Proprietary and
+; Confidential.
+;
+;----------------------------------------------------------------------------
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+;
+;
+;
+;  when         who     what, where, why
+; ----------    ---     ----------------------------------------------------------
+; 2018-10-22    kpa     Fix duplicate toolbars buttons on multiple script invoke
+; 2018-06-12    kpa     Initial Version
+;============================================================================;
+
+global &DebugScriptsDir
+
+ENTRY &LogFileName
+
+  IF ("&DebugScriptsDir"=="")
+  (
+    local &CwDir
+    &CwDir=os.ppd()
+
+    &DebugScriptsDir="&CwDir"
+    print "Error!! DebugScriptsDir not Set, using current folder  &CwDir"
+  )
+
+  print "Build Target Dir: &DebugScriptsDir"
+
+  ; Call the actual script
+  cd.do &DebugScriptsDir/../../Tools/log_save_common.cmm &LogFileName
+

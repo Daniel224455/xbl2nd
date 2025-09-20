@@ -1,0 +1,45 @@
+#/** @file StorageCoreCommon.inf
+#
+#  Storage Common Services Lib for UEFI
+#  
+#  Copyright (c) 2018 Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 06/11/18   bb     Initial Revision
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = StorageBootCommonLib
+  FILE_GUID                      = 39E08A23-1989-42F8-8BCE-6DC456EB6360
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = StorageBootCommonLib
+
+[Sources.common]
+   StorageCoreCommon.c
+
+[Sources.AARCH64]
+ 
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = 
+ 
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec
+
+
+[LibraryClasses]
+
+

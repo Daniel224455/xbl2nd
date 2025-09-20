@@ -1,0 +1,40 @@
+#/** @file LockLib.inf
+#
+#  Component description file for Lock Library module
+#
+#  Copyright (c) 2017 Qualcomm Technologies, Inc.  All Rights Reserved.
+#
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 07/24/17   yg      Initial version
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = LockLib
+  FILE_GUID                      = F1105B58-068A-4C5E-ADDC-3D3016B56C40
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = LockLib
+
+[Sources]
+  LockLib.c
+
+[Packages]
+  QcomPkg/QcomPkg.dec
+  MdePkg/MdePkg.dec
+
+[LibraryClasses]
+  HobLib
+  KernelLib
+  MemoryAllocationLib
+  BaseMemoryLib
+
+

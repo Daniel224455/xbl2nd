@@ -1,0 +1,39 @@
+## @file
+#  Support for Raw File System Protocol.
+#
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = RawFileSystem
+  FILE_GUID                      = 5AE6DDDF-EFE5-4A9B-80EF-ACB5B5DC00C1
+  MODULE_TYPE                    = UEFI_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = RawFileSystemEntryPoint
+
+[Sources]
+  RawFileFunctions.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  DevicePathLib
+  MemoryAllocationLib
+  PrintLib
+  UefiDriverEntryPoint
+  UefiLib
+  QcomLib
+  
+[Guids]
+ gEfiFileInfoGuid
+
+[Protocols]
+  gEfiRawFileSystemProtocolGuid                 ## PRODUCES
+  gEfiLoadedImageProtocolGuid				    ## CONSUMES
+  gEfiBlockIoProtocolGuid                       ## CONSUMES

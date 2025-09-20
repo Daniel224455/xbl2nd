@@ -1,0 +1,19 @@
+#/** @file HALDPLibStub.dec
+# dp stub package.
+#
+#      Copyright (c) 2016-2018 Qualcomm Technologies, Inc.  All Rights Reserved.
+#      Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = HaldpStubPkg
+  PACKAGE_GUID                   = 8FBA180D-5159-410E-AFC7-54B9062A4E08
+  PACKAGE_VERSION                = 0.1
+
+[Includes.common]
+../HALMDSSLib
+../MDPLib
+

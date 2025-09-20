@@ -1,0 +1,100 @@
+#/** @file DDRTargetLib.inf
+#
+#  DDR Lib
+#  
+#  Copyright (c) 2018 Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 08/24/17   naa     Added FEATURE_BOOT_DDI_ENABLE flag
+# 08/04/17   naa     Added DDI sources
+# 08/21/15   elt     Commented out ddr_log.c
+# 08/17/15   sr      Initial Revision
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = DDRTargetLib
+  FILE_GUID                      = B90EACA0-47CE-79C4-C1BA-14A4973FF8BC
+  MODULE_TYPE                    = SEC
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = DDRTargetLib
+
+[BuildOptions]
+  RVCT:*_*_*_CC_FLAGS = -DSHARED_IMEM_DDR_PARAM_BASE=0xFE805190 -DSHARED_IMEM_DDR_TRAINING_COOKIE=0xFE805018 -DBUILD_BOOT_CHAIN
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -DDDRCC_PLL_EXTENSION_0 -DFEATURE_BOOT_EXTERN_DDR_COMPLETED -DFEATURE_BOOT_DDI_ENABLE -DSHARED_IMEM_DDR_PARAM_BASE=0xFE805190 -DSHARED_IMEM_DDR_TRAINING_COOKIE=0xFE805018 -DBUILD_BOOT_CHAIN -DUSE_LOADER_UTIL -DENABLE_AUTO_BOOT_OPTIMIZATION -Wno-tautological-compare
+  
+[Sources.common]
+  ../../../../Library/DDRLib/common/ddr_sync.c
+  ../../../../Library/DDRLib/common/params/v5/ddr_params.c
+  ../../../../Library/DDRLib/common/ddr_sns_drivers.c
+  ../../../../Library/DDRLib/common/ddr_test.c
+  ../../../../Library/DDRLib/common/ddr_log.c
+
+# DDI Target Sources
+  ../../../../Library/DDILib/ddi_testing.c
+  ../../../../Library/DDILib/ddi_test_cases.c
+  ../../../../Library/DDILib/ddi_test_list.c
+  
+# DDR Target Sources
+  ../../../1000/Library/DDRTargetLib_AU/ddr_target.c
+  ../../../1000/Library/DDRTargetLib/ddr_external_api.c
+  ../../../1000/Library/DDRTargetLib/ddr_shared_params.c
+
+#DSF Target Config 
+# DDR target sources
+
+
+# SDI source
+  ../../../1000/Library/DDRTargetLib/ddr_sdi_wrapper.c
+  ../../../1000/Library/DDRTargetLib/ddr_sdi_log.c
+
+  
+  # Header file inclusions  
+  ../../../../Library/DDRLib/common/params/v5/ddr_params.h
+  ../../../1000/Library/DDRTargetLib/ddr_sdi_log.h
+
+#Target header inclusion
+  ../../../1000/Library/DDRTargetLib/ddr_status_reg.h
+  ../../../1000/Library/DDRTargetLib/ddr_target.h
+  ../../../1000/Library/DDRTargetLib/ddr_shared_params.h
+
+# Library definition
+  ../../../../Include/Library/LoaderUtils.h
+  
+[UserExtensions.PackIt.PackOut]
+  ../../../../Library/DDILib/ddi_test_cases_internal.c
+  ../../../../Library/DDILib/ddi_test_cases_internal.h
+  ../../../../Library/DDILib/ddi_test_list_internal.c
+  ../../../../Library/DDILib/ddi_test_list_internal.h
+  ../../../../Library/DDILib/ddi_modify_phy.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+  QcomPkg/XBLLoaderApi.dec
+  QcomPkg/SDMPkg/1000/Library/DDRTargetLib_AU/DDRTargetLibPkg.dec
+  QcomPkg/SDMPkg/1000/Library/DSFTargetLib_AU/DSFTargetLibPkg.dec
+  QcomPkg/Library/DDRLib/DDRLibPkg.dec
+  
+[LibraryClasses]
+  MuslLib
+  ServicesUtilsLib
+  DSFTargetLib
+  XBLConfigLib
+[FeaturePcd]
+
+[FixedPcd]
+ gQcomTokenSpaceGuid.PcdBuildType
+[Guids]
+

@@ -1,0 +1,72 @@
+;============================================================================
+; Name: t32_uefi_menu.cmm
+;
+; Description: Add UEFI specific menu item to trace 32 window
+;
+; Copyright (c) 2013,2015-2016 Qualcomm Technologies, Inc.
+; All Rights Reserved.
+; Qualcomm Technologies Proprietary and Confidential.
+;
+;----------------------------------------------------------------------------
+
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+;
+;
+;
+;  when         who     what, where, why
+;  ----------   ---     -----------------------------------------------------
+;  2018-10-22   kpa     Fix duplicate toolbars buttons on multiple script invoke 
+;  2018-07-02   kpa     Support updating Menu toolbar script buttons 
+;  2016-06-28   vk      Change color, fix spacing
+;  2016-02-22   vk      Add buttons
+;  2015-10-15   bh      Update after PATH additions
+;  2013-11-22   vk      Initial version
+;============================================================================;
+
+; ---------------------------------------------------------
+; Script entry point
+; ---------------------------------------------------------
+
+global &UefiBase
+
+GLOBAL &MenuSetup
+GLOBAL &DebugScriptsDir
+
+ENTRY &TargetPkgPath
+
+  &DebugScriptsDir="&TargetPkgPath"
+  &CwDir=os.ppd()  
+
+  if ("&MenuSetup"=="1")
+  (
+    ENDDO
+  )
+
+  MENU.ReProgram
+  (&
+    ADD
+    TOOLBAR
+    ( ; <tooltip> <icon> <command>
+      TOOLITEM "UART Log" "L,R" "cd.do &DebugScriptsDir/log_save.cmm"
+      TOOLITEM "Symbol Load" "S,R" "cd.do &DebugScriptsDir/symbol_load.cmm"
+      TOOLITEM "Display Area UEFI_Logs" "A,R" "area.view UEFI_Logs"
+      TOOLITEM "Interrupt GIC/Timer bits display" "G,R" "cd.do &DebugScriptsDir/../../../tools/cmm/idmp.cmm"
+      TOOLITEM "Show all the Threads in the system" "T,R" "cd.do &DebugScriptsDir/../../../tools/cmm/show_thread.cmm"
+    
+    )
+  )
+
+  ;Check if T32 Awareness support is available
+  IF OS.FILE(~~/demo/arm64/bootloader/uefi/tiano/tiano.t32)==TRUE()
+  (
+    ;Enable the complete PA map for the awareness script
+    EXT.CONFIG ~~/demo/arm64/bootloader/uefi/tiano/tiano.t32 0x80000000 0x180000000
+    EXTension.Option BOOTFV &UefiBase
+  )
+
+  MENU.ReProgram &CwDir/uefi.men
+  &MenuSetup="1"
+  
+ENDDO

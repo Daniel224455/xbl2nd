@@ -1,0 +1,35 @@
+#/** @file XBLLoaderLibPkg.dec
+# Pmic package.
+#
+# Copyright (c) 2020 Qualcomm Technologies, Inc. 
+# All rights reserved.
+#
+#**/
+#
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 07/13/20   adawar     Added DRE change to poipuAU from hanaAU
+#==============================================================================
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = DRETargetLibPkg
+  PACKAGE_GUID                   = 83DB986C-9B4F-46D8-A1FD-75AB15CEE60D
+  PACKAGE_VERSION                = 0.1
+
+################################################################################
+#
+# Include Section - list of Include Paths that are provided by this package.
+#                   Comments are used for Keywords and Module Types.
+#
+# Supported Module Types:
+#  BASE SEC PEI_CORE PEIM DXE_CORE DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SMM_DRIVER DXE_SAL_DRIVER UEFI_DRIVER UEFI_APPLICATION
+#
+################################################################################
+[Includes.common]
+  ../../../1000/Library/DRETargetLib
+  ../../../1000/Include

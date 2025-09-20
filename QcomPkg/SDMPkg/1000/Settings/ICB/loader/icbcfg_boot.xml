@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="NULL">
+<!-- =========================================================================== -->
+<!--  -->
+<!--  FILE:         icbcfg_boot.xml -->
+<!--  -->
+<!--  DESCRIPTION:  This file contains the DAL XML properties for the ICB -->
+<!--                Configuration Driver. -->
+<!--  -->
+<!-- =========================================================================== -->
+<!--  -->
+<!--                              Edit History -->
+<!--  -->
+<!--  $Change: 6059038 $  -->
+<!--  -->
+<!--  when         who     what, where, why -->
+<!--  ==========   ==-     ======================================================- -->
+<!--  2015/10/09   sds    Created -->
+<!--  -->
+<!-- =========================================================================== -->
+<!--              Copyright (c) 2018 QUALCOMM Technologies, Inc. -->
+<!--                     All Rights Reserved. -->
+<!--                   QUALCOMM Proprietary/GTDR -->
+<!-- =========================================================================== -->
+
+
+   <global_def>
+     <var_seq name="HWIOStructIncFile" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">
+       ./../ICB/loader/icbcfg_data.c
+     </var_seq> 
+   </global_def>
+   <device name="/dev/icbcfg/boot">
+     <props name="icbcfg_info" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+        icbcfg_info
+     </props> 
+   </device>   
+</driver>

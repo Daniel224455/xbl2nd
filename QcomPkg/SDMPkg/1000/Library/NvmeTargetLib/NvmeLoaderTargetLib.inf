@@ -1,0 +1,42 @@
+#/** @file NvmeLoaderTargetLib.inf
+#
+#  NVMe BSP Target specific INF file
+#
+#  Copyright (c) 2018 Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who   what, where, why
+# ----------   ---   ---------------------------------------------------------
+# 2018-06-15   wek   Initial version
+#
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = NvmeLoaderTargetLib
+  FILE_GUID                      = B1392BD4-85F9-4414-95B9-1CBF033860C8
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = NvmeLoaderTargetLib
+
+[Sources.common]
+  ./../../Settings/Nvme/loader/NvmeLoaderTargetLib.c
+  ./../../Settings/Nvme/loader/nvme_loader_bsp.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+
+[LibraryClasses]
+  BaseLib
+
+

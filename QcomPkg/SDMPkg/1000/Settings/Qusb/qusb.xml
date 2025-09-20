@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="NULL">
+
+  <global_def>
+    <var_seq name="QusbPhyIncFile" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">
+      ../../1000/Settings/Qusb/qusb_phy_settings.c
+    </var_seq>
+  </global_def>
+  <device name="QUSB_PORT_PRIM">
+    <!-- HS PHY Configuration Settings -->
+    <props name="hs_phy_cfg_addr" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_hs_phy_cfg_address
+    </props>
+    <props name="hs_phy_cfg_val" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_hs_phy_cfg_value
+    </props>
+    <!-- SS PHY Configuration Settings -->
+    <props name="ss_phy_cfg_addr" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_ss_phy_cfg_address_common
+    </props>
+    <props name="ss_phy_cfg_val" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_ss_phy_cfg_value_common
+    </props>
+  </device>
+  <device name="QUSB_PORT_SEC">
+    <!-- HS PHY Configuration Settings -->
+    <props name="hs_phy_sec_cfg_addr" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_hs_phy_sec_cfg_address
+    </props>
+    <props name="hs_phy_sec_cfg_val" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_hs_phy_sec_cfg_value
+    </props>
+    <!-- SS PHY Configuration Settings -->
+    <props name="ss_phy_sec_cfg_addr" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_ss_phy_sec_cfg_address_common
+    </props>
+    <props name="ss_phy_sec_cfg_val" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_ss_phy_sec_cfg_value_common
+    </props>
+  </device>
+  <device name="QUSB_PORT_MP0">
+    <!-- HS PHY Configuration Settings -->
+    <props name="hs_phy_MP0_cfg_addr" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_hs_phy_MP0_cfg_address
+    </props>
+    <props name="hs_phy_MP0_cfg_val" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_hs_phy_MP0_cfg_value
+    </props>
+    <!-- SS PHY Configuration Settings -->
+    <props name="ss_phy_MP0_cfg_addr" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_ss_phy_MP0_cfg_address_common
+    </props>
+    <props name="ss_phy_MP0_cfg_val" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_ss_phy_MP0_cfg_value_common
+    </props>
+  </device>
+  <device name="QUSB_PORT_MP1">
+    <!-- HS PHY Configuration Settings -->
+    <props name="hs_phy_MP1_cfg_addr" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_hs_phy_MP1_cfg_address
+    </props>
+    <props name="hs_phy_MP1_cfg_val" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_hs_phy_MP1_cfg_value
+    </props>
+    <!-- SS PHY Configuration Settings -->
+    <props name="ss_phy_MP1_cfg_addr" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_ss_phy_MP1_cfg_address_common
+    </props>
+    <props name="ss_phy_MP1_cfg_val" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      qusb_dci_ss_phy_MP1_cfg_value_common
+    </props>
+  </device>
+</driver>

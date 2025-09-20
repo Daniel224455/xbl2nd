@@ -1,0 +1,53 @@
+#/*===============================================================================
+#  Copyright (c) 2018 - 2019 Qualcomm Technologies, Inc.  All Rights Reserved.
+#
+#  FILE:         QcomWDogDxe.inf
+#  DESCRIPTION:
+#
+#  REVISION HISTORY
+#  when       who         what, where, why
+#  --------   ---         --------------------------------------------------------
+#  04/13/18   yw         initial version
+#
+#================================================================================*/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = QcomWDogDxe
+  FILE_GUID                      = 040E1E61-0AFB-411B-9EC9-00F3FC59CC13
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = WDogDxeEntry
+
+
+[Sources.common]
+  QcomWDogDxe.c
+
+[Packages]
+  QcomPkg/QcomPkg.dec
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  PcdLib
+  WatchDogLib
+  TargetResetLib
+
+[Pcd]
+  gQcomTokenSpaceGuid.ForceEnableHWWdog
+
+[Protocols]
+   gEfiQcomWDogProtocolGuid
+   gEfiVariableServicesProtocolGuid
+   gEfiRscHandlerProtocolGuid
+
+[Guids]
+   gEfiEventExitBootServicesGuid
+   gQcomTokenSpaceGuid
+
+[Depex]
+  TRUE
+
+

@@ -1,0 +1,25 @@
+#/** @file HALDPLib.dec
+# dp package.
+#
+#      Copyright (c) 2017-2018 Qualcomm Technologies, Inc.  All Rights Reserved.
+#      Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+#
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+#
+#==============================================================================
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = HaldpPkg
+  PACKAGE_GUID                   = a117cf43-6a35-42a3-bb61-f1b5afd0f8f2
+  PACKAGE_VERSION                = 0.1
+
+[Includes.common]
+../HALMDSSLib
+../MDPLib
+

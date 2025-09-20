@@ -1,0 +1,83 @@
+
+# @file  GpiDrvLib.inf
+#
+#
+#  Copyright (c) 2017, Qualcomm Technologies, Inc.  All Rights Reserved.
+# 
+#
+#
+
+#=============================================================================
+#                              EDIT HISTORY
+#
+
+# when       who      what, where, why
+# --------   ---      ----------------------------------------------------------
+# 01/31/17   ts       creating Gpi Driver library
+#=============================================================================*/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = GpiDrvLib
+  FILE_GUID                      = 1AAAC69D-4389-4728-B1AE-8EC0339B6737
+  MODULE_TYPE                    = UEFI_DRIVER
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = GpiDrvLib
+
+[Sources]
+  inc/gpi_ee.h
+  inc/gpi_i.h
+  inc/gpi_utils.h
+  inc/gpitgtcfgdata.h
+#  inc/gsihwio.h
+  inc/gpi_fwload.h
+  src/gpi.c
+  src/gpi_init.c
+  src/gpi_ee.c
+  src/gpi_i.c
+  src/gpi_isr.c
+  src/gpi_threads.c
+  src/gpi_utils.c
+  src/gpi_fwload.c
+  src/gpi_elf_parser.c
+  
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+
+[LibraryClasses]
+  PcdLib
+  QcomLib
+  DevicePathLib
+  UefiBootServicesTableLib
+  MemoryAllocationLib
+  ReportStatusCodeLib
+  BaseMemoryLib
+  UefiLib
+  BaseLib
+  UefiDriverEntryPoint
+  DebugLib
+  UefiCfgLib
+  NpaApiLib
+  ULogApiLib
+  CacheMaintenanceLib
+  UncachedMemoryAllocationLib
+  ShmBridgeLib
+  
+[Protocols]
+  gEfiChipInfoProtocolGuid
+  gEfiPlatformInfoProtocolGuid
+  gEfiClockProtocolGuid                           ## CONSUMED
+  gEfiTLMMProtocolGuid
+  gQcomPmicGpioProtocolGuid
+  gQcomPmicVregProtocolGuid
+  gEfiNpaProtocolGuid
+  gQcomScmProtocolGuid
+  gEfiShmBridgeProtocolGuid
+
+[Guids]
+  gEfiQupv3FirmwareElfTypeGuid

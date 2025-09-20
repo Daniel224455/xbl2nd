@@ -1,0 +1,42 @@
+#/** @file UfsTargetBootLib.inf
+#
+#  UFS Target Lib for XBL loader
+#
+#  Copyright (c) 2017, 2018 Qualcomm Technologies, Inc . All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ----------------------------------------------------------
+# 2018-25-01   vk      Use loader cache lib
+# 2017-06-01   jt      Initial revision
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = UfsTargetBootLib
+  FILE_GUID                      = E191EE39-B388-4102-8415-090FAA049CE7  
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = UfsTargetBootLib
+
+[Sources]
+  ../../Settings/UFS/loader/ufs_bsp_loader.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec  
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  DebugLib
+  LoaderCacheLib
+  DALCommonLoaderLib
+

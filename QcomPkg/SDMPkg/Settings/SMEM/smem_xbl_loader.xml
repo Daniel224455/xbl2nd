@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright (c) 2016-2017 Qualcomm Technologies, Inc.
+ All Rights Reserved.
+ Confidential and Proprietary - Qualcomm Technologies, Inc.-->
+
+<driver name="NULL">
+  <global_def>
+    <var_seq name="smem_partitions_file" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">
+      ./../SMEM/smem_partitions.c
+    </var_seq>
+  </global_def>
+  <device name="/core/mproc/smem">
+	<props name="smem_vers" type="DALPROP_ATTR_TYPE_UINT32" >
+      0x000C0000
+	</props>
+    
+	<props name="smem_toc_vers" type="DALPROP_ATTR_TYPE_UINT32" >
+	  0x00000001
+	</props>
+
+    <props name="smem_partitions" type="DALPROP_ATTR_TYPE_STRUCT_PTR" >
+      smem_toc_partition_entries
+    </props>
+	
+	<props name="smem_max_items" type="DALPROP_ATTR_TYPE_UINT32" >
+	  625
+	</props>
+    
+  </device>
+</driver>

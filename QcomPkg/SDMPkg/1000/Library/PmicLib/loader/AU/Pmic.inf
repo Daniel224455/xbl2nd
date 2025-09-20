@@ -1,0 +1,47 @@
+# @file Pmic.inf
+# 
+# PMIC Data image for SDM1000AU
+#
+# Copyright (c) 2014-2019 Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when        who     what, where, why
+# --------    ---     ----------------------------------------------------------
+# 02/09/18    aab     Updated to support SDM1000
+# 04/26/17    vk      Make image type  USER_DEFINED
+# 08/07/15    al      Updating for 8998
+# 05/15/15    vk      Support seperate dsc for 8996 loader and core
+# 11/10/14    aab     Added build option 
+# 10/13/14    kedara  Initial Revision
+#=============================================================================
+
+[Defines]
+  INF_VERSION       = 0x00010005
+  BASE_NAME         = Pmic
+  FILE_GUID         = 1D5B8D44-45CB-C0A3-777C-3BB37755B9E6
+  MODULE_TYPE       = USER_DEFINED
+  VERSION_STRING    = 1.0
+
+ 
+[Sources.common]
+   ../../../../../../Library/PmicLib/target/sa8195_pmm8195au/psi/pm_config_target_sbl_sequence.c
+   ../../../../../../Library/PmicLib/target/sa8195_pmm8195au/psi/pm_config_target_pbs_ram.c
+   ../../../../../../Library/PmicLib/target/sa8195_pmm8195au/psi/pm_config_target_sdam.c
+   ../../../../../../Library/PmicLib/target/sa8195_pmm8195au/psi/pm_psi.c
+   ../../../../../../Library/PmicLib/psi/psi_main.c
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_DLINK_FLAGS = --whole-archive $(WORKSPACE)/Build/$(TARGETMSM)_Loader/$(TARGET)_$(TOOLCHAIN)/$(ARCH)/$(TARGETROOT)/Library/PmicLib/loader/AU/Pmic/OUTPUT/Pmic.lib --no-whole-archive
+
+
+[Packages]
+  MdePkg/MdePkg.dec
+  ArmPkg/ArmPkg.dec 
+  QcomPkg/QcomPkg.dec 
+  QcomPkg/XBLLoaderApi.dec  
+  QcomPkg/SDMPkg/1000/Library/PmicLib/loader/AU/PmicLoaderLib.dec
+  QcomPkg/SDMPkg/1000/Library/PmicLib/PmicAuLib.dec
+

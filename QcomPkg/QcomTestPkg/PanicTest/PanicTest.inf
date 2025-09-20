@@ -1,0 +1,57 @@
+#/** @file 
+#  
+#  Test calling scheduler's panic handler
+#  
+#  Copyright (c) 2018, Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 10/21/16   ai      Initial version 
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PanicTest 
+  FILE_GUID                      = 7DEBD268-7AB3-48C5-8DA5-FE25CFE1035D
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = UefiMain
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = ARM
+#
+
+[Sources]
+  PanicTest.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+  PcdLib
+  TestInterfaceLib
+  UefiBootServicesTableLib
+
+[Guids]
+   
+[Ppis]
+
+[Protocols]
+
+[FeaturePcd]
+
+[Pcd]
+

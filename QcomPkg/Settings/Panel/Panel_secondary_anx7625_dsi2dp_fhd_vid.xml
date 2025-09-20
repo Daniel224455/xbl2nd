@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PanelName>ANX7625DSI2DP</PanelName>
+<PanelDescription>Analogix FHD Video Mode Panel (1920 x1080 24bpp)</PanelDescription>
+<Group id="Active Timing">
+ <HorizontalActive units="Dot Clocks">1920</HorizontalActive>
+ <HorizontalFrontPorch units="Dot Clocks">88</HorizontalFrontPorch>
+ <HorizontalBackPorch units="Dot Clocks">148</HorizontalBackPorch>
+ <HorizontalSyncPulse units="Dot Clocks">44</HorizontalSyncPulse>
+ <HorizontalSyncSkew units="Dot Clocks">0</HorizontalSyncSkew>
+ <HorizontalLeftBorder units="Dot Clocks">0</HorizontalLeftBorder>
+ <HorizontalRightBorder units="Dot Clocks">0</HorizontalRightBorder>
+ <VerticalActive units="Dot Clocks">1080</VerticalActive>
+ <VerticalFrontPorch units="Lines">4</VerticalFrontPorch>
+ <VerticalBackPorch units="Lines">36</VerticalBackPorch>
+ <VerticalSyncPulse units="Lines">5</VerticalSyncPulse>
+ <VerticalSyncSkew units="Lines">0</VerticalSyncSkew>
+ <VerticalTopBorder units="Lines">0</VerticalTopBorder>
+ <VerticalBottomBorder units="Lines">0</VerticalBottomBorder>
+ <InvertDataPolarity>False</InvertDataPolarity>
+ <InvertVsyncPolairty>False</InvertVsyncPolairty>
+ <InvertHsyncPolarity>False</InvertHsyncPolarity>
+ <BorderColor>0x0</BorderColor>
+</Group>
+<Group id="Display Interface">
+ <InterfaceType units="QDI_DisplayConnectType">10</InterfaceType>
+ <InterfaceColorFormat units="QDI_PixelFormatType">3</InterfaceColorFormat>
+</Group>
+<Group id="DSI Interface">
+ <DSIChannelId units="DSI_Channel_IDType">1</DSIChannelId>
+ <DSIVirtualId units="DSI_Display_VCType">0</DSIVirtualId>
+ <DSIColorFormat units="DSI_ColorFormatType">36</DSIColorFormat>
+ <DSITrafficMode units="DSI_TrafficModeType">1</DSITrafficMode>
+ <DSILanes units="integer">4</DSILanes>
+   <DSIHsaHseAfterVsVe units='Bool'>False</DSIHsaHseAfterVsVe>
+   <DSILowPowerModeInHFP units='Bool'>False</DSILowPowerModeInHFP>
+   <DSILowPowerModeInHBP units='Bool'>False</DSILowPowerModeInHBP>
+   <DSILowPowerModeInHSA units='Bool'>False</DSILowPowerModeInHSA>
+ <DSILowPowerModeInBLLPEOF units='Bool'>True</DSILowPowerModeInBLLPEOF>
+   <DSILowPowerModeInBLLP units='Bool'>True</DSILowPowerModeInBLLP>
+   <DSIRefreshRate units='integer Q16.16'>0x3C0000</DSIRefreshRate>
+   <DSIClockHSForceRequest units='integer'>1</DSIClockHSForceRequest>
+   <DSIPhyDCDCMode units='Bool'>True</DSIPhyDCDCMode>
+ <DSIControllerMapping>
+  01
+ </DSIControllerMapping>
+</Group>
+<DSIInitSequence>
+
+</DSIInitSequence>
+<DSITermSequence>
+
+</DSITermSequence>
+
+<DSII2CI2CNumOfSlaves>0x8</DSII2CI2CNumOfSlaves>
+<DSII2CSlaveAddressList>0x38 0x3d 0x39 0x3f 0x42 0x2a 0x2c 0x77</DSII2CSlaveAddressList>
+<DSII2CFrequency>0x190</DSII2CFrequency> 
+<DSII2CGSBIPort>0xF</DSII2CGSBIPort>  
+<DSII2COffsetLength>0x1</DSII2COffsetLength>
+
+<I2CInitSequence>
+77 00 05
+FF 1
+3f 39 00
+3f 3f 80
+3f 88 40
+3f 28 40
+3f 88 00
+2c 00 00
+FF 1
+3f 39 00
+FF A
+42 7f 00
+FF 1
+42 ee 00
+42 ec 10
+42 ff 01
+3f 39 00
+FF 1
+3f 40 40
+42 7f 00
+FF 1
+42 4a 10
+42 03 18
+42 08 10
+42 3d 20
+3f 39 00
+FF 1
+3f 25 94
+3f 26 00
+42 7f 00
+FF 1
+42 05 4c
+42 05 4f
+2a 00 00
+FF 1
+2a 19 98
+2a 1a 08
+2a 1b 80
+2a 1c 07
+2a 1d 58
+2a 1e 00
+2a 1f 2c
+2a 20 00
+2a 21 94
+2a 22 00
+2a 14 38
+2a 15 04
+2a 16 04
+2a 17 05
+2a 18 24
+42 7f 00
+FF 1
+42 1e b0
+42 1f 00
+42 20 00
+42 21 08
+42 22 00
+42 23 00
+42 1b 37
+42 3b 00 
+42 3b 02
+42 33 04
+42 33 34
+42 2b 07
+42 2b 05
+42 2b 07
+42 2a 40
+42 2a 58
+42 0a 02
+42 0f 00
+42 0f 80
+3f 39 00
+FF 1
+3f 28 60
+3f 28 60
+</I2CInitSequence>
+<DisplayResetGpio>29</DisplayResetGpio>
+<DisplayResetInfo>0 10 1000 10000 0</DisplayResetInfo>

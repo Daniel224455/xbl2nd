@@ -1,0 +1,50 @@
+#/** @file
+#  
+#  Wireless Connectivity Power control Driver
+#  
+#  Copyright (c) 2019, Qualcomm Technologies Inc. All rights reserved.
+#  
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 11/12/19   owen    initial version
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = WCONN
+  FILE_GUID                      = 326A80CB-CED5-4625-BBBD-B740280D7ED3
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = WconnEntryPoint
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -Wno-missing-field-initializers
+
+[Sources.common]
+  WconnDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  WconnCoreTargetLib
+
+[Protocols]
+  gEfiPlatformInfoProtocolGuid
+
+[Guids]
+
+[Pcd]
+
+[Depex]
+   gEfiDalSysProtocolGuid

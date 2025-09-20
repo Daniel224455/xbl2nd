@@ -1,0 +1,64 @@
+/*=============================================================================
+  Readme file for setting up custom splash logo in UEFI.
+
+  Copyright (c) 2016, 2019 Qualcomm Technologies, Inc. 
+  All rights reserved.
+  Confidential and Proprietary - Qualcomm Technologies, Inc.
+
+=============================================================================*/
+
+------------------------
+Supported Image formats:
+------------------------
+    8-bit BMP
+    24-bit BMP
+    32-bit BMP
+    8-bit indexed BMP
+
+    Compressed bitmaps are not supported.
+
+
+------------------------
+Logo Custom Methods:
+------------------------
+
+    -----------------------------
+    Default: MainFv
+    -----------------------------
+    As the default option, custom logo should be packaged in the main UEFI FV as 'logo1.bmp' under logo common folder:
+    boot_images\QcomPkg\Logo\Common\
+
+
+    -----------------------------
+    Alternative: ImageFv
+    -----------------------------
+    Large custom logo should be saved in ImageFv.
+
+    Loading ImageFv Steps:
+    1. Enable the use of ImageFv loading in boot_images\QcomPkg\SDMPkg\[TARGET]\[LA|WP]\uefiplat.cfg
+        Set EnableDisplayImageFv = 0x1
+
+    2. Copy the custom logo to boot_images\QcomPkg\Logo\Custom\logo_custom.bmp
+
+        And add the entry for the logo file in boot_images\QcomPkg\SDMPkg\[TARGET]\[LA|WP]\ImageFv.fdf.inc
+
+        FILE FREEFORM = 697099e5-e75e-4285-85c8-ce70521c88cd {
+            SECTION UI = "logo_custom.bmp"
+            SECTION RAW = QcomPkg/Logo/Custom/logo_custom.bmp
+        }
+
+    3. Flash imagefv after compiling the build.
+        fastboot flash imagefv boot_images\QcomPkg\SDMPkg\[TARGET]\Bin\[LA|WP]\[DEBUG|RELEASE]\imagefv.elf
+
+
+------------------
+Target OS: Windows
+------------------
+    Copy custom logos to ACPI Partition
+    NOTE: Windows will still use the UEFI FV, but checks the ACPI partition first.
+
+
+------------------------
+Target OS: Linux/Android
+------------------------
+    Follow "Logo Custom Methods" for saving logos in mainfv or imagefv.

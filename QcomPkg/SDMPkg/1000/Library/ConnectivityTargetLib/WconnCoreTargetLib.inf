@@ -1,0 +1,52 @@
+#/** @file WconnCoreTargetLib.inf
+#
+#  Connectivity BSP Target specific INF file
+#
+#  Copyright (c) 2019 Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who          what, where, why
+# ----------   ---          ---------------------------------------------------------
+# 2019-11-12   owen         Initial version
+#
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = WconnCoreTargetLib
+  FILE_GUID                      = 2C204B40-C8CC-4624-B3BC-C60D5D05D62C
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = WconnCoreTargetLib
+
+[Sources.common]
+  ./../../Settings/Connectivity/WconnCoreTargetLib.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+
+[Guids]
+  gEfiEventExitBootServicesGuid
+  gEfiWconnGuid
+
+[Protocols]
+  gEfiTLMMProtocolGuid
+  gEfiRscHandlerProtocolGuid
+  gEfiNpaProtocolGuid
+
+[LibraryClasses]
+  BaseLib
+  UefiBootServicesTableLib
+  NpaApiLib
+
+[Pcd.Common]
+  gQcomTokenSpaceGuid.PcdLpm

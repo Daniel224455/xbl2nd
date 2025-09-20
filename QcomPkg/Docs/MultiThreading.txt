@@ -1,0 +1,59 @@
+/*=============================================================================
+   Readme file Multithreading in UEFI.
+
+  Copyright (c) 2018, 2020 Qualcomm Technologies, Inc. All rights reserved.
+
+                              EDIT HISTORY
+
+
+ when       who     what, where, why
+ --------   ---     -----------------------------------------------------------
+ 03/08/16   yg      Initial version
+=============================================================================*/
+
+  - Multithreading feature in UEFI is highly customizable based on need.
+  - UEFI is shipped with the feature enabled in conservative configuration
+     - ie multithreading enabled on single core
+  - Following info provides info on particular customization.
+  - When the feature is enabled, most of regular UEFI behavior should not change
+    with the code as delivered
+  - For any additional usecases for the customers to use this framework, seek
+    help to learn about the design, do's and don'ts etc.
+
+
+  Remove multithreading feature even from building.
+  -------------------------------------------------
+  - This is similar to how UEFI implementation is before the feature is added.
+  - Enable Null lib for the libraries SplitBoot, VirtCpu, LockLib and SystemSleepLib
+  - Switch the WatchDogLib from QcomPkg/Library/KernelLib/KernWDogLib.inf to QcomPkg/SDMPkg/Library/WatchDogLib/WatchDogLib.inf
+
+  Other configurations:
+  ---------------------
+  - MaxCoreCnt = 8
+      Max number of cores for scheduler to use (scheduler library is built with
+      max 8 SMP cores)
+
+  - EarlyInitCoreCnt = 1
+      How many cores to bringup early in UEFI, boot Core 0 is already running, so
+      if the count > 1 will get as many additional cores up.
+      Adding additional cores would only help if there are many CPU intensive
+      processing tasks during boot (possibly not required for normal boot).
+
+
+  Additional Info:
+  ----------------
+  - VirtCPU which links to ArmCpuDxe will replace InterruptDxe, TimerDxe and
+    some portions of ArmCpuDxe services.
+  - MMU and cache implementation of ArmCpuDxe is still used, only the interrupt
+    and exceptions related calls are redirected to VirtCpu
+  - Because of above, all the timer related services are now part of VirtCpu lib
+  - Interrupts are delivered to the scheduler and the timer notifications to Dxe
+    are simulated by timer thread.
+  - Since interrupt calls are now redirected to VirtCpu, UEFI modules should
+    refrain from directly disabling the interrupt by setting I bit. This might
+    require change to the assembly code as well. Instead use RaiseTPL to HIGH 
+    level would achieve the same as disabling interrupts
+    
+  - There will be some examples of how to use the framework to parallelize
+    things, one of them would be display panel init.
+

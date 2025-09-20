@@ -1,0 +1,46 @@
+## @file
+#  ZlibQcomLib produces Zlib compression/decompression algorithm.
+#  
+#  Implements RFC1952 and uses zlib for compression/decompression 
+#
+#  Copyright (c) 2018, Qualcomm Technologies, Inc. All rights reserved
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+##
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Zlib
+  FILE_GUID                      = 3A2CC633-BE00-4019-BE44-F9D04B61CB22
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = Zlib
+  
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -DNO_GZIP -DZ_SOLO -Wno-shift-negative-value -include zlibdebug.h
+  MSFT:*_*_*_CC_FLAGS = -DNO_GZIP -DZ_SOLO -Wno-shift-negative-value -include zlibdebug.h
+
+[Sources]
+  zutil.h
+  inffast.h
+  inffixed.h
+  inflate.h
+  inftrees.h
+  deflate.h
+  trees.h
+  zutil.c
+  adler32.c
+  inftrees.c
+  inflate.c
+  inffast.c
+  deflate.c
+  trees.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+
+
+[LibraryClasses]
+   BaseLib
+   DebugLib
+   BaseMemoryLib

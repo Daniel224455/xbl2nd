@@ -1,0 +1,80 @@
+# @file  
+#                   TrEEDxe.INF
+#
+#
+#  Copyright (c) 2011-2018, 2022 Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+# 
+#
+#
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when        who      what, where, why
+# --------    ---     ----------------------------------------------------------
+# 06/28/22    shl     Removed pack out, added pack in
+# 12/20/18    shl     Added and removed some protocols
+# 09/19/18    pr      Enabled TpmDxe
+# 09/13/18    shl     Revert to previous version
+# 06/31/18    shl     Split TreeDxe into two Dxes: TreeDxe and TpmDxe 
+# 03/26/18    yps     Add PackIt rule for AUZB
+# 06/24/15    bh      Add PackIt rule for LZB
+# 04/04/14    vk      Cleanup BuildOptions
+# 10/25/13    vk      Remove warning as error
+# 08/16/13    sahn    Added dependency on AcpiPlatformDxe
+# 01/10/13    niting  Switch to new Scm Dxe
+# 12/21/12    shl     Changed to qsee listener
+# 07/25/12    shl     Added flush tpm nv store support
+# 07/18/11    shl     Initial version
+#
+#==============================================================================
+
+[Defines]
+
+  INF_VERSION                 	 = 0x00010005
+  BASE_NAME                   	 = TrEEDxe
+  FILE_GUID                   	 = 765688F0-DFEE-44e8-A771-C9E80D224C45
+  MODULE_TYPE                 	 = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = TrEEDxeInitialize
+
+[Sources]
+  TrEEDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+
+[LibraryClasses]
+  UncachedMemoryAllocationLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  UefiLib
+  UefiDriverEntryPoint
+  DebugLib
+  BaseLib
+  PeHashLib
+  QcomLib
+  QcomBaseLib
+  PcdLib
+  ShmBridgeLib
+  Tpm2DeviceLib
+  
+[Guids]
+  gEfiEventExitBootServicesGuid	  ## CONSUMES 
+  gEfiHashAlgorithmSha1Guid       ## CONSUMES
+  gQcomTokenSpaceGuid
+  gEfiHashAlgorithmSha256Guid
+
+[Protocols]
+  gEfiTrEEProtocolGuid            ## PRODUCES
+  gEfiHashProtocolGuid            ## CONSUMES 
+
+[Depex]
+  TRUE
+
+[UserExtensions.PackIt.PackIn]
+  TzfTPMCmd.h

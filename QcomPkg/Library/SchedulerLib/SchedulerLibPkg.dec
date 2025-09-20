@@ -1,0 +1,42 @@
+#/** @file SchedulerLibPkg.dec
+# SchedulerLib package.
+#
+# Copyright (c) 2017 - 2018 Qualcomm Technologies, Inc. All rights reserved.
+#
+#**/
+#
+#==============================================================================
+#                              EDIT HISTORY
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 02/22/18    yg     Renamed file from Kernel to scheduler
+# 06/23/17    yg     Initial Revision
+#
+#==============================================================================
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+#  PACKAGE_NAME                   = SchedIntf
+  PACKAGE_GUID                   = D59FFBD5-ED86-47FB-9645-E4BC87176225
+  PACKAGE_VERSION                = 0.1
+
+################################################################################
+#
+# Include Section - list of Include Paths that are provided by this package.
+#                   Comments are used for Keywords and Module Types.
+#
+# Supported Module Types:
+#  BASE SEC PEI_CORE PEIM DXE_CORE DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SMM_DRIVER DXE_SAL_DRIVER UEFI_DRIVER UEFI_APPLICATION
+#
+################################################################################
+[Includes.common]
+  ./
+  ./Include
+
+[Guids.common]
+  # Scheduler interface HOB Guid
+  gEfiSchedIntfGuid  = { 0x8ec2bd8d, 0x56d7, 0x49ef, { 0x87, 0x96, 0x63, 0x17, 0x78, 0xf8, 0xeb, 0xf8 } }
+  
+
+

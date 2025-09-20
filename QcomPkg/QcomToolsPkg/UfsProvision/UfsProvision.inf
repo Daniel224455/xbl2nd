@@ -1,0 +1,42 @@
+#/** @file UfsProvision.inf
+#  
+#  UFS Provision application inf file.
+#  
+#  Copyright (c) 2018 Qualcomm Technologies, Inc.
+#  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ----------------------------------------------------------
+# 2018-10-30   jt      Initial version
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = UfsProvision
+  FILE_GUID                      = 98F100AB-8B4F-456A-BE1E-03BBD64CB44A  
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = UfsProvisionMain
+
+[Sources]
+  UfsProvision.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  QcomLib
+
+[Protocols]
+  gEfiUfsProvProtocolGuid
+

@@ -1,0 +1,46 @@
+#/** @SmbiosTargetLib.inf
+#  
+#  Build file for the SMBIOS target library.
+#  
+#  Copyright (c) 2019, Qualcomm Technologies Inc. All rights reserved.
+#  
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 12/02/19     rc      Add support for processor version string
+# 01/20/19     vb      Add support for reading feature_id fuse information
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SmbiosTargetLib
+  FILE_GUID                      = 40278824-6310-4A9D-AE8A-BFE2A1A6061B
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SmbiosTargetLib
+
+#
+#  VALID_ARCHITECTURES           = ARM
+#
+
+[Sources.common]
+  SmbiosTargetLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+  
+[FixedPcd]
+  gQcomTokenSpaceGuid.PcdProcessorInfoVersionStr
+
+[Protocols]
+  gEfiChipInfoProtocolGuid
+
+[Depex]
+  gEfiChipInfoProtocolGuid

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="NULL">
+
+  <device name="spinor/region1">
+    <props name="slot"         type="DALPROP_ATTR_TYPE_UINT32">  0                       </props>
+    <props name="partition"    type="DALPROP_ATTR_TYPE_UINT32">  0                       </props>
+    <props name="start_sector" type="DALPROP_ATTR_TYPE_UINT32">  0x6                     </props>
+    <props name="num_sectors"  type="DALPROP_ATTR_TYPE_UINT32">  0x84                    </props>
+  </device>
+
+  <device name="spinor/region2">
+    <props name="slot"         type="DALPROP_ATTR_TYPE_UINT32">  0                       </props>
+    <props name="partition"    type="DALPROP_ATTR_TYPE_UINT32">  0                       </props>
+    <props name="start_sector" type="DALPROP_ATTR_TYPE_UINT32">  0x8a                    </props>
+    <props name="num_sectors"  type="DALPROP_ATTR_TYPE_UINT32">  0x80                    </props>
+  </device>
+
+</driver>
+

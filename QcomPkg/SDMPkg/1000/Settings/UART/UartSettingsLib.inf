@@ -1,0 +1,43 @@
+# @file  UartSettingsLib.inf
+#
+#
+#  Copyright (c) 2016,2018 Qualcomm Technologies, Inc.  All Rights Reserved.
+# 
+#
+#
+#=============================================================================
+#                              EDIT HISTORY
+#  This section contains comments describing changes made to the module.
+#  Notice that changes are listed in reverse chronological order.
+#
+#
+#
+# when       who      what, where, why
+# --------   ---      --------------------------------------------------------
+# 1/25/18    VK       Remove unused libs
+# 8/18/16    VV       Initial Version
+#
+#=============================================================================
+
+[Defines]
+  INF_VERSION    = 0x00010005
+  BASE_NAME      = UartSettingsLib
+  MODULE_TYPE    = BASE
+  VERSION_STRING = 1.0
+  LIBRARY_CLASS  = UartSettingsLib
+
+[Sources]
+  UartSettings.c
+  ../../../../Library/UartQupv3Lib/UartApi.h
+  ../../../../Library/UartQupv3Lib/UartDefs.h 
+
+[LibraryClasses]
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec
+
+[Pcd]
+  gQcomTokenSpaceGuid.UartPlatform
+

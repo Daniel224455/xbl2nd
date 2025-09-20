@@ -1,0 +1,33 @@
+#/** @file TsensTargetLib.inf
+#
+#  Component description file for TSENS target module.
+#
+#  Copyright (c) 2016-2018 Qualcomm Technologies, Inc. All rights reserved.
+#
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = TsensTargetLib
+  FILE_GUID                      = D83F8E3B-4BF5-E1AB-8D07-D482A57EF0F4
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = TsensTargetLib
+
+#
+#  VALID_ARCHITECTURES           = ARM
+#
+
+[Sources.common]
+  HALtsens.c
+  HALtsensFuses.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+  QcomPkg/Library/TsensLib/TsensLibPkg.dec
+

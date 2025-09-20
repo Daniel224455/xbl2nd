@@ -1,0 +1,40 @@
+#/** @file SdccCoreTargetLib.inf
+#  
+#  SDCC BSP Target specific INF file
+#  
+#  Copyright (c) 2016 Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ---------------------------------------------------------
+# 2016-12-08   jt      Update source file
+# 2016-01-18   jt      Initial version. Branched from 8996 XBL
+#
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SdccCoreTargetLib
+  FILE_GUID                      = BBC525EC-C5DF-4DF2-ABE2-9C72566B37B0
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SdccTargetLib 
+
+[Sources.common]
+  ./../../../Settings/SDCC/core/SdccCoreBspLib.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+
+[LibraryClasses]
+  ArmLib
+  SdccClockLib 

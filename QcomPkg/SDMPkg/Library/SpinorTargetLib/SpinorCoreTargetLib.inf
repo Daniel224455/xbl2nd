@@ -1,0 +1,41 @@
+#/** @file SpinorCoreTargetLib.inf
+#  
+#  SPINOR Target specific settings INF file
+#  
+#  Copyright (c) 2017,2018 Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ---------------------------------------------------------
+# 2018-01-25   vk      Remove unused libs
+# 2017-06-29   md      Initial version. 
+#
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SpinorCoreTargetLib
+  FILE_GUID                      = BBC525EC-C5DF-4DF2-ABE2-9C72566B37B8
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SpinorCoreTargetLib 
+
+[Sources.common]
+  ./../../Settings/SPINOR/spinor_init_config.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec  
+  QcomPkg/SDMPkg/SDMPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  PcdLib 

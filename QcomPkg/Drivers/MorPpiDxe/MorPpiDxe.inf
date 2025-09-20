@@ -1,0 +1,77 @@
+#   
+#                    MorPpiDxe.INF
+#
+#
+#  Copyright (c) 2012-2019  Qualcomm Technologies, Inc. All rights reserved.
+# 
+#
+#
+
+#=============================================================================
+#                              EDIT HISTORY
+#  This section contains comments describing changes made to the module.
+#  Notice that changes are listed in reverse chronological order.
+#
+#
+#
+# when       who      what, where, why
+# --------  ---     --------------------------------------------------------
+#04/09/19   pj      Optimized ProcessMor
+#03/26/18   shl     Converted to TPM protocol
+#03/26/18   yps     Add PackIt rule for AUZB
+#06/24/15   bh      Add PackIt rule for LZB
+#12/03/14   sk      Changed library to protocol
+#04/04/14   vk      Remove warning related build options, added globally
+#03/18/14   sm      Added back warning as error
+#10/25/13   vk      Remove warning as error
+#04/08/13   shl     pcdLib cleanup
+#02/01/13   shl     Added QcomLib
+#10/28/11   shl     Initial version
+#
+#=============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = MorPpiDxe
+  FILE_GUID                      = FA23756A-E014-4C45-85B3-A082627BFA83
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = MorPpiDxeInitialize
+
+[Sources.common]
+  MorPpiDxe.c
+
+[Sources.AARCH64]
+  MorPpiMemClear.S     | GCC
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[UserExtensions.PackIt.PackOut.LZB]
+  ../MorPpiDxe
+
+[UserExtensions.PackIt.PackOut.AUZB]
+  ../MorPpiDxe
+
+[LibraryClasses]
+  UefiLib
+  DebugLib
+  QcomLib
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+
+[Guids]
+  gEfiMemoryOverwriteControlDataGuid    ## CONSUMES
+  gQcomTokenSpaceGuid                   ## CONSUMES
+
+[Protocols]
+  gQcomMorPpiProtocolGuid               ## PRODUCES
+  gEfiTpmProtocolGuid                   ## CONSUMES
+
+[Depex]
+  TRUE
+  

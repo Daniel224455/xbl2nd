@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="NULL">
+  <global_def>
+    <var_seq name="BootTempCheckStructIncFile" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">
+      ./../BootTempCheck/BootTempCheckBsp.c
+    </var_seq>
+  </global_def>
+  <device name="/core/power/boot_temp_check">
+    <props name="BOOT_TEMP_CHECK_BSP" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      BootTempCheckBsp
+    </props>
+  </device>
+</driver>

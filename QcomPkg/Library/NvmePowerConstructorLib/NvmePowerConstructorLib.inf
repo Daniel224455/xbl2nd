@@ -1,0 +1,30 @@
+## @file
+#  NvmePowerConstructorLib.inf
+#
+#  Library to power on QC NVME power rails.
+#
+#  Must be linked anonymously to NvmExpressDxe.
+#
+##
+
+[Defines]
+  INF_VERSION       = 0x00010017
+  BASE_NAME         = NvmePowerConstructorLib
+  FILE_GUID         = F4DF9C6B-5B35-4278-9D58-4F85307BFBE7
+  VERSION_STRING    = 1.0
+  MODULE_TYPE       = DXE_DRIVER
+  LIBRARY_CLASS     = NvmePowerConstructorLib|DXE_DRIVER
+  CONSTRUCTOR       = NvmePowerConstructor
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  DebugLib
+  BootConfigLib
+  NvmeCoreTargetLib
+
+[Sources]
+  NvmePowerConstructorLib.c
+

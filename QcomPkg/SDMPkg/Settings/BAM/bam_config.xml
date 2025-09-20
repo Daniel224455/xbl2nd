@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="NULL">
+
+
+<!-- =========================================================================== -->
+<!--  -->
+<!--  FILE:         bam_config.xml -->
+<!--  -->
+<!--  DESCRIPTION:  This file contains the DAL XML properties for the BAM -->
+<!--                Device Access Library. -->
+<!--  -->
+<!-- =========================================================================== -->
+<!--  -->
+<!--                              Edit History -->
+<!--  -->
+<!--  -->
+<!--  when       who     what, where, why -->
+<!--  ========   ==-     ======================================================- -->
+<!--  03/28/16   SS      created for WP platform -->
+<!--  -->
+<!-- =========================================================================== -->
+<!--              Copyright c 2018 QUALCOMM Technologies Incorporated. -->
+<!--                     All Rights Reserved. -->
+<!--                   QUALCOMM Proprietary/GTDR -->
+<!-- =========================================================================== -->
+  <global_def>
+    <var_seq name="BamStructIncFile" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">
+      ./../BAM/bamconfig_props.c
+     </var_seq>
+  </global_def>
+  <device name="/core/hwengines/bam">
+    <props name="bam_tgt_config" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+         bam_tgt_config
+    </props>
+ </device>
+</driver>
+
+

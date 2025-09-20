@@ -1,0 +1,52 @@
+# @file  
+#                    PpiApp.inf
+#
+#
+# Copyright (c) 2019 Qualcomm Technologies, Inc. All rights reserved.
+#
+#
+#=============================================================================
+#                              EDIT HISTORY
+#  This section contains comments describing changes made to the module.
+#  Notice that changes are listed in reverse chronological order.
+#
+#
+#
+# when       who      what, where, why
+# --------   ---      --------------------------------------------------------
+# 09/13/19   dp       Initial version
+#
+#=============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PpiApp
+  FILE_GUID                      = B237B6F9-5DA8-4575-852B-006CFD37A91E
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = PpiMain
+
+[Sources]
+  PpiApp.c
+
+[Packages]
+  MdePkg/MdePkg.dec  
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+  
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+  QcomLib
+  TestInterfaceLib
+  MemoryAllocationLib
+
+[Guids]  
+  gQcomTokenSpaceGuid  
+  
+[Protocols]
+  gQcomMorPpiProtocolGuid
+  gEfiTpmProtocolGuid
+  gQcomScmProtocolGuid
+

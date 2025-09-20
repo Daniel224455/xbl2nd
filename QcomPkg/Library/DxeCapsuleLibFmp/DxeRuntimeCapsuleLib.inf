@@ -1,0 +1,103 @@
+## @file
+#  Capsule library instance for DXE_RUNTIME_DRIVER.
+#
+#  Capsule library instance for DXE_RUNTIME_DRIVER module types.
+#
+#  Copyright (c) 2017-2019, Qualcomm Technologies, Inc. All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#  Portions Copyright (c) 2016 - 2018, Intel Corporation. All rights reserved.<BR>
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = DxeRuntimeCapsuleLib
+  MODULE_UNI_FILE                = DxeRuntimeCapsuleLib.uni
+  FILE_GUID                      = 19BE1E4B-1A9A-44c1-8F12-32DD0470516A
+  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = CapsuleLib|DXE_RUNTIME_DRIVER
+  CONSTRUCTOR                    = DxeCapsuleLibConstructor
+  CONSTRUCTOR                    = DxeRuntimeCapsuleLibConstructor
+  DESTRUCTOR                     = DxeCapsuleLibDestructor
+  DESTRUCTOR                     = DxeRuntimeCapsuleLibDestructor
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 EBC ARM AARCH64
+#
+
+[Sources]
+  DxeCapsuleLib.c
+  DxeCapsuleProcessLibNull.c
+  DxeCapsuleReportLibNull.c
+  DxeCapsuleRuntime.c
+  DxeCapsuleQcom.c
+  DxeCapsulePartition.c
+  DxeCapsuleRawFile.c
+# TODO: Giri: Check if these are needed in runtime library as well.
+  CapsuleCoalesce.c
+  ProcessCoalescedCapsules.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  MemoryAllocationLib
+  DxeServicesTableLib
+  UefiBootServicesTableLib
+  DevicePathLib
+  ReportStatusCodeLib
+  PrintLib
+  HobLib
+  BmpSupportLib
+  GenericBdsLib
+  SortLib
+  QcomLib
+  FwCommonLib
+
+[FeaturePcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSupportUpdateCapsuleReset
+
+[Pcd]
+  gQcomTokenSpaceGuid.PcdCapsuleStorageType                                  ## CONSUMES
+  gEfiMdeModulePkgTokenSpaceGuid.PcdMaxSizePopulateCapsule || PcdSupportUpdateCapsuleReset  ## Populate Image requires reset support.
+  gQcomTokenSpaceGuid.PcdSingleStageCapsuleUpdate               ## CONSUMES
+
+[Protocols]
+  gEsrtManagementProtocolGuid                   ## CONSUMES
+  gEfiFirmwareManagementProtocolGuid            ## CONSUMES
+  gEdkiiVariableLockProtocolGuid                ## SOMETIMES_CONSUMES
+  gEdkiiFirmwareManagementProgressProtocolGuid  ## SOMETIMES_CONSUMES
+
+[Guids]
+  gEfiFmpCapsuleGuid                      ## SOMETIMES_CONSUMES ## GUID
+  gWindowsUxCapsuleGuid                   ## SOMETIMES_CONSUMES ## GUID
+  gEfiSystemResourceTableGuid             ## SOMETIMES_CONSUMES ## GUID
+  ## SOMETIMES_CONSUMES ## Variable:L"CapsuleMax"
+  ## SOMETIMES_PRODUCES ## Variable:L"CapsuleMax"
+  gEfiCapsuleReportGuid
+  gEfiCapsuleVendorGuid                   ## SOMETIMES_CONSUMES ## Variable:L"CapsuleUpdateData"
+  gEfiEndOfDxeEventGroupGuid              ## CONSUMES ## Event
+  gEfiEventVirtualAddressChangeGuid       ## CONSUMES ## Event
+  gUpdateCapsulePartitionGuid             ## SOMETIMES_CONSUMES ## GUID
+  gEfiPartTypeSystemPartGuid              ## SOMETIMES_CONSUMES ## GUID
+  gEfiNvme0Guid                           ## SOMETIMES_CONSUMES ## GUID
+  gEfiUfsLU4Guid                          ## SOMETIMES_CONSUMES ## GUID
+
+[Depex]
+  gEfiVariableWriteArchProtocolGuid

@@ -1,0 +1,44 @@
+#/** @file KernelLib.inf
+#
+#  Component description file for Kernel interface Library module
+#
+#  Copyright (c) 2018 Qualcomm Technologies, Inc.  All Rights Reserved.
+#
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 02/21/18   yg      Initial version.
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = KernelLib
+  FILE_GUID                      = 9E0C7C3E-690A-4709-83A0-7CA8FDBBDBFB
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = KernelLib
+  CONSTRUCTOR                    = KernelLibInit
+
+[Sources]
+  KernelLib.c
+
+[Packages]
+  QcomPkg/QcomPkg.dec
+  MdePkg/MdePkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  
+[Guids]
+  gEfiSchedIntfGuid
+
+[Protocols]
+  gEfiKernelProtocolGuid
+

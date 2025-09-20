@@ -1,0 +1,41 @@
+#/** @file
+# RAM Disk driver.
+#
+# Copyright (c) 2014 Qualcomm Technologies, Inc.  All Rights Reserved.
+# Qualcomm Technologies Proprietary and Confidential
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = RamDiskDxe
+  FILE_GUID                      = a16b6928-fc40-44ca-abed-fb11191a8573  
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+
+  ENTRY_POINT                    = RamDiskInitialize
+
+[Sources.common]
+  RamDiskDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  DxeServicesLib
+  DxeServicesTableLib
+  DebugLib
+  RamDiskLib
+  UefiCfgLib
+  ParserLib
+
+[Protocols]
+  gEfiBlockIoProtocolGuid
+  gEfiDevicePathProtocolGuid
+
+[depex]
+  TRUE

@@ -1,0 +1,43 @@
+#/** @file BootConfigLibSec.inf
+#  
+#  BootConfigLib BSP Target Independent INF file
+#   Lib intended to be used in SEC
+#  
+#  Copyright (c) 2018 Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ---------------------------------------------------------
+# 04/02/18     kpa     Initial version
+#
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = BootConfigLib
+  FILE_GUID                      = A782EEEC-4472-7394-9B07-508C038376D3  
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = BootConfigLib 
+
+[Sources.common]
+  boot_config.c
+  BootConfigImem.c
+  BootConfigSec.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  UefiCfgLib
+  
+[Guids.common]
+  gQcomTokenSpaceGuid

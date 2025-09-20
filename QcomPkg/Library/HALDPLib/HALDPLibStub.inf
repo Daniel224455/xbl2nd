@@ -1,0 +1,31 @@
+#/** @file HALDPLib.inf
+#
+#  DP configuration library
+#
+#  Copyright (c) 2016-2018, Qualcomm Technologies, Inc.
+#  All Rights Reserved.
+#  Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = HALDPLibStub
+  FILE_GUID                      = 9FCE7FF7-F121-4C05-A970-E0A5332D6FA4
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = HALDPLibStub
+
+[BuildOptions]
+  RVCT:*_*_*_CC_FLAGS =
+
+[Sources.common]
+  dp_driverStub.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/Library/HALDPLib/HALDPLibStub.dec
+
+

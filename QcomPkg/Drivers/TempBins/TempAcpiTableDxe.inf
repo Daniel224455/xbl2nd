@@ -1,0 +1,29 @@
+## @file
+#  ACPI Table Protocol Driver - Temporary Binary
+#
+#  This driver initializes ACPI tables (Rsdp, Rsdt and Xsdt) and produces UEFI/PI 
+#  services to install/uninstall/manage ACPI tables.
+#
+#  Copyright (c) 2018, Qualcomm Technologies, Inc. All rights reserved.
+#  Portions Copyright (c) 2006 - 2016, Intel Corporation. All rights reserved.<BR>
+#  Portions Copyright (c) 2016, Linaro Ltd. All rights reserved.<BR>
+#  This program and the accompanying materials are
+#  licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = AcpiTableDxe 
+  FILE_GUID                      = 9622E42C-8E38-4a08-9E8F-54F784652F6B
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = InitializeAcpiTableDxe
+
+[Binaries]
+  PE32|AcpiTableDxe.efi

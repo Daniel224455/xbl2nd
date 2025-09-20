@@ -1,0 +1,43 @@
+#/** @file BootCdtLib.inf
+#
+#  Boot CDT Lib
+#  
+#  Copyright (c) 2020 Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ---------------------------------------------------------
+# 04/04/20   aus     Initial Revision
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = BootCdtLib
+  FILE_GUID                      = 54389430-dfc7-48e2-8915-33aa39618edd
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = BootCdtLib
+
+[Sources.common]
+  boot_cdt_array.c
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -Werror -DBOOT_PBL_H=\"pbl_sbl_shared.h\"  -DBUILD_BOOT_CHAIN 
+  
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec  
+  QcomPkg/SDMPkg/SDMPkg.dec
+  QcomPkg/SDMPkg/Library/XBLLoaderLib/XBLLoaderLibPkg.dec
+
+[LibraryClasses]
+  BaseLib
+

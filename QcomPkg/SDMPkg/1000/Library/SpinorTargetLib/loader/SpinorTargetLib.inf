@@ -1,0 +1,46 @@
+#/** @file SpinorTargetLib.inf
+#
+#  Spinor taget specific config.
+#
+#  Copyright (c) 2017 Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#=============================================================================
+#                              EDIT HISTORY
+#
+#
+# when        who   what, where, why
+# ---------   ---   ----------------------------------------------------
+# 201806-20   wek   Create
+#
+#=============================================================================
+
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SpinorTargetLib
+  FILE_GUID                      = 033C39F4-9D0F-43BD-BBEC-A388EA0A9D9E
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SpinorTargetLib
+
+[Sources]
+  spinor_access.c
+
+[Sources.common]
+  ./../../../../../Library/SpiNorCommonLib/spinor_access.h
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+  #QcomPkg/XBLLoaderApi.dec
+
+[LibraryClasses]
+  DALCommonLoaderLib
+
+

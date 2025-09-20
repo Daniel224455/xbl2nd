@@ -1,0 +1,181 @@
+;============================================================================
+; Name: dump_handles.cmm
+;
+; Description: Dump all protocol/handle database
+;
+; Copyright (c) 2019 Qualcomm Technologies, Inc.
+; All Rights Reserved.
+; Qualcomm Technologies Proprietary and Confidential.
+;
+;----------------------------------------------------------------------------
+
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+;
+;  when         who     what, where, why
+;  ----------   ---     -----------------------------------------------------
+;  01-22-2019   yg      Initial version
+;============================================================================;
+
+;
+;
+;   Usage : do dump_handles [<filename>]
+;
+;     <filename> : Optional file name to dump the handles into, if not given
+;                    its dumped into a temp file and the file path is printed
+;
+;
+
+
+;------------------------------------------------------------------------------
+;Entry Point
+;------------------------------------------------------------------------------
+local &TempFile
+
+entry &fname
+
+local &pcnt
+local &hcnt
+local &prot_entry
+local &prot_list
+local &pintf_obj
+local &prot_required
+
+  if ("&fname"=="")
+  (
+    &TempFile=OS.TMPFILE()
+    &TempFile="&TempFile.txt"
+    &fname="&TempFile"
+  )
+
+  print "&fname"
+
+  OPEN #1 &fname  /Write /Create
+
+  WRITE #1 ""
+  WRITE #1 "-----------------------------------------------------------------------------------"
+
+  &prot_required=0x964E5B21
+
+  ; Prints handles for all protocols comment and set the proper protocol above to print only 1
+  &prot_required=0
+
+  &Start_ptr=address.offset(mProtocolDatabase)
+  &Next_ptr=data.quad(RD:&Start_ptr)
+
+  &pcnt=0
+
+  while (&Next_ptr!=&Start_ptr)
+  (
+    &prot_entry=&Next_ptr-0x8
+    gosub print_protocol &prot_entry
+    entry &prot_list &pguid
+
+    if ((&prot_required==0)||(&pguid==&prot_required))
+    (
+      gosub print_handles &prot_list
+    )
+
+    &Next_ptr=data.quad(RD:&Next_ptr)
+    &pcnt=&pcnt+1
+  )
+
+  WRITE #1 "Total protocols count &pcnt"
+  WRITE #1 ""
+  WRITE #1 "-----------------------------------------------------------------------------------"
+  WRITE #1 ""
+
+  CLOSE #1
+  print "Done"
+  print ""
+enddo
+
+print_protocol:
+  entry &p_ptr
+
+  local &p1
+  local &p2
+  local &p3
+  local &p4
+  local &sig
+  local &plist
+
+  &sig=data.string(RD:&p_ptr)
+
+  &p1=data.long(RD:&p_ptr+0x18)
+  &p2=data.long(RD:&p_ptr+0x1C)
+  &p3=data.long(RD:&p_ptr+0x20)
+  &p4=data.long(RD:&p_ptr+0x24)
+  &plist=data.quad(RD:&p_ptr+0x28)
+
+  ;WRITE #1 FORMAT.HEX(11.,&p_ptr), "  " FORMAT.HEX(8.,&sig), "  " FORMAT.HEX(8.,&p1), "   " FORMAT.HEX(8.,&p2), "   " FORMAT.HEX(8.,&p3), "   " FORMAT.HEX(8.,&p4), "   " FORMAT.HEX(10.,&plist)
+  WRITE #1 "&p_ptr   &sig   " FORMAT.HEX(8.,&p1), "   " FORMAT.HEX(8.,&p2), "   " FORMAT.HEX(8.,&p3), "   " FORMAT.HEX(8.,&p4), "    &plist"
+
+return &plist &p1
+
+print_handles:
+  entry &prt_list_ptr
+
+  local &sig
+  local &hndl
+  local &intf
+  local &end_ptr
+
+  ; grab the previous item as end pointer
+  &end_ptr=data.quad(RD:&prt_list_ptr+0x8)
+  &hcnt=0
+
+  while (&prt_list_ptr!=&end_ptr)
+  (
+    &pintf_obj=&prt_list_ptr-0x20
+    &sig=data.string(RD:&pintf_obj)
+    &intf=data.long(RD:&pintf_obj+0x38)
+    &hndl=data.long(RD:&pintf_obj+0x18)
+
+    &prt_list_ptr=data.quad(RD:&prt_list_ptr)
+
+    WRITE #1 "                                      &pintf_obj   &sig  &intf   &hndl"
+
+    &hcnt=&hcnt+1
+  )
+
+  WRITE #1 "                     Total " FORMAT.decimal(3.,&hcnt), " handles"
+  WRITE #1 ""
+
+return
+
+enddo
+
+;
+;   Guid references if filtering required
+;
+;
+; 5B1B31A1   11D29562   A0003F8E   3B7269C9    gEfiLoadedImageProtocolGuid
+; 09576E91   11D26D3F   A000398E   3B7269C9    gEfiDevicePathProtocolGuid
+; BC62157E   4FEC3E33   3B2D2099   DF50D736    gEfiLoadedImageDevicePathProtocolGuid
+; 964E5B21   11D26459   A000398E   3B7269C9    gEfiBlockIoProtocolGuid
+; A77B2472   4E9FE282   C0C245A2   C1BC7BE2    gEfiBlockIo2ProtocolGuid
+; 95A9A93E   4926A86E   1899EFAA   87D972E7    gEfiEraseBlockProtocolGuid
+; CE345171   11D2BA0B   A0004F8E   3B7269C9    gEfiDiskIoProtocolGuid
+; 151C8EAE   472C7F2C   2898549E   886A4F19    gEfiDiskIo2ProtocolGuid
+; 8CF2F62C   4821BC9B   9EEC8D80   A0A121C4    gEfiPartitionInfoProtocolGuid
+; 6848DE61   4DEFEB61   17388E9A   1C8FEBCB    gEfiPartitionTypeGuid
+; FE2555BE   4686D716   DB79D0B9   0DB72159    gEfiPartitionRecordGuid
+; 85C1F7D2   4F31BCE6   7ED34D8F   AA5ED003    gEfiMemCardInfoProtocolGuid
+; AE1CDD2B   413AB59A   D256FF8D   E0B763FC    gEfiStorageWpProtocolGuid
+;
+; 8F644FA9   4DB1E850   440BE29C   A48D8E69    gEfiFirmwareVolumeBlockProtocolGuid
+; 220E73B6   44136BDB   74B90584   9A6108B1    gEfiFirmwareVolume2ProtocolGuid
+; 18A031AB   4D1AB443   090CC0A5   719F1E26    gEfiDriverBindingProtocolGuid
+;
+; 964E5B22   11D26459   A000398E   3B7269C9    gEfiSimpleFileSystemProtocolGuid
+; 387477C1   11D269C7   A000398E   3B7269C9    gEfiSimpleTextInProtocolGuid
+; DD9E7534   46987762   85F5148C   AA25A617    gEfiSimpleTextInputExProtocolGuid
+; 387477C2   11D269C7   A000398E   3B7269C9    gEfiSimpleTextOutProtocolGuid
+; D3B36F2C   11D4D551   9000469A   4DC13F27    gEfiConsoleOutDeviceGuid
+; D3B36F2D   11D4D551   9000469A   4DC13F27    gEfiStandardErrorDeviceGuid
+; D3B36F2B   11D4D551   9000469A   4DC13F27    gEfiConsoleInDeviceGuid
+;
+
+

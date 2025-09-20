@@ -1,0 +1,61 @@
+#/** @file SpiNorDxe.inf
+#
+#  SPI-NOR DXE INF file
+#
+#  Copyright (c) 2017-19 Qualcomm Technologies, Inc.
+#  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ---------------------------------------------------------
+# 2019/04/01   sa      Added WriteProtect Protocol.
+# 2018/04/24   jt      Add RPMB libs 
+# 2017/11/14   jt      Initial version
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SpiNorDxe
+  FILE_GUID                      = DA89CAAE-EDCB-4512-97A6-18F55A6CB2DC
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SpiNorDxeEntryPoint
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -Wno-missing-field-initializers -Wno-missing-braces
+
+[Sources.common]
+  SpiNorDxe.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  BaseMemoryLib
+  UefiDriverEntryPoint
+  BootConfigLib
+  UncachedMemoryAllocationLib
+  RpmbLib
+  RpmbListenerLib
+  DebugLib
+
+[Protocols]
+  gEfiBlockIoProtocolGuid
+  gEfiDevicePathProtocolGuid
+  gQcomScmProtocolGuid
+  gEfiEraseBlockProtocolGuid
+  gEfiStorageWpProtocolGuid
+
+[Depex]
+  TRUE
+

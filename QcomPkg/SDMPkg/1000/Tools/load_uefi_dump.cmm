@@ -1,0 +1,31 @@
+;============================================================================
+;  Name:
+;    load_uefi_dump.cmm
+;
+;  Description:
+;     Load UEFI crashdumps to T32 simulator
+;
+; Copyright (c) 2018 Qualcomm Technologies Incorporated.
+; All Rights Reserved.
+; Qualcomm Technologies Confidential and Proprietary
+;
+;----------------------------------------------------------------------------
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+
+;
+;when         who     what, where, why
+;----------   ---     ----------------------------------------------------------
+;2018-06-12   kpa     Initial Version
+;============================================================================;
+
+
+ENTRY &DumpPath &CoreNum
+
+LOCAL &CwDir
+&CwDir=OS.PPD()
+
+; Wrapper script for common load_uefi_dump.cmm
+CD.DO ../../Tools/load_uefi_dump_common.cmm &DumpPath &CwDir &CoreNum
+

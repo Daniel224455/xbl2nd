@@ -1,0 +1,42 @@
+#/** @file SdccCoreClockLib.inf
+#
+#  SDCC XBL Core Clock BSP Target specific INF file
+#
+#  Copyright (c) 2016 Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ---------------------------------------------------------
+# 2016-01-18   jt      Initial version. Branch from 8996 XBL 
+#
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SdccCoreClockLib
+  FILE_GUID                      = 09715E57-6602-4585-A026-0AC31222E221
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SdccClockLib
+
+[Sources.common]
+  ./../../Settings/SDCC/core/SdccCoreClockLib.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  SdccTargetLib
+  
+[Protocols]
+  gEfiClockProtocolGuid

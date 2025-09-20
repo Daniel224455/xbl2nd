@@ -1,0 +1,33 @@
+#/** @file LockLibNull.inf
+#
+#  Component description file for Lock Library module
+#
+#  Copyright (c) 2017 Qualcomm Technologies, Inc.  All Rights Reserved.
+#
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 07/24/17   yg      Initial version
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = LockLibNull
+  FILE_GUID                      = fff0c573-0137-4861-a49d-6d31e60035f3
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = LockLib
+
+[Sources]
+  LockLibNull.c
+
+[Packages]
+  QcomPkg/QcomPkg.dec
+  MdePkg/MdePkg.dec
+

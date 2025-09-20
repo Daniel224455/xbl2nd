@@ -1,0 +1,45 @@
+#/** @file SplitBootLib.inf
+#
+#  SplitBoot  library
+#
+#  Copyright (c) 2017 Qualcomm Technologies, Inc.  All Rights Reserved.
+#
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 06/19/17   yg      Initial version.
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SplitBootLib
+  FILE_GUID                      = 6F65470E-5EEC-4548-A81B-12E173348650
+  MODULE_TYPE                    = SEC
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SplitBootLib
+
+[Sources]
+  SplitBoot.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/Library/SchedulerLib/SchedulerLibPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  ArmLib
+  TimerLib
+  SchedulerLib
+  PowerSleepLib
+

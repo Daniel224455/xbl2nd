@@ -1,0 +1,42 @@
+;============================================================================
+;  Name:
+;    cookies_set.cmm
+;
+;  Description:
+;     Setting cookie locations and values
+;
+; Copyright (c) 2016-2017 Qualcomm Technologies Incorporated.
+; All Rights Reserved.
+; Qualcomm Technologies Confidential and Proprietary
+;
+;----------------------------------------------------------------------------
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+
+;
+;when         who     what, where, why
+;----------   ---     ----------------------------------------------------------
+;2017-10-27   kpa     Remove setting debug cookie
+;2017-05-23   kpa     Pass argument indicating standalone debug
+;2016-08-18   bh      Remove legacy items
+;2016-03-23   bh      Initial Version
+;============================================================================;
+
+global &UefiDebugCookieAddr
+
+ENTRY &PreSil
+
+&SharedImemBase=0x146BF000
+&DLOAD_COOKIE1_ADDR=0x01FD3000
+&UefiDebugCookieAddr=&SharedImemBase+944
+
+&UefiDebugCookie=0x0
+
+if ("&PreSil"=="SA")
+( 
+  &UefiDebugCookie=0x5A5A5A5A
+)
+D.S A:&UefiDebugCookieAddr %LE %LONG &UefiDebugCookie
+
+D.S AZ:&DLOAD_COOKIE1_ADDR %LE %LONG 0x0

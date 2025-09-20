@@ -1,0 +1,402 @@
+;============================================================================
+; Name: show_thread.cmm
+;
+; Description: Show preview of a specified thread
+;
+; Copyright (c) 2017 Qualcomm Technologies, Inc.
+; All Rights Reserved.
+; Qualcomm Technologies Proprietary and Confidential.
+;
+;----------------------------------------------------------------------------
+
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+;
+;  when         who     what, where, why
+;  ----------   ---     -----------------------------------------------------
+;  11-20-2017   yp      Add params support and auto listing on missing
+;  07-07-2017   yg      Initial version
+;============================================================================;
+
+;
+;
+;   Usage : do show_thread <thread_t ptr>
+;
+;     thread_t ptr : Pointer to the thread_t structure for the thread in
+;                    question that's not the current running thread.
+;
+;     This script only shows the preview of the stack frame, after pressing
+;      enter, all the registers are restored to continue execution of the
+;      current running thread
+;
+
+
+;------------------------------------------------------------------------------
+;Entry Point
+;------------------------------------------------------------------------------
+entry  &cmd &parm
+
+local &X30_bak
+local &X29_bak
+local &X30_thr
+local &X29_thr
+local &SP_bak
+local &PC_bak
+local &sig
+local &ThrSP
+local &StructOnly
+local &ListNext
+local &ThrPtr
+local &Blocker
+local &TName
+local &TN
+local &Prio
+local &TS
+local &State
+local &CurCpu
+local &PinnedCpu
+local &SP
+local &LR
+local &match_thread
+local &ListPtr
+local &thread
+local &titile_showed
+local &Showallthread
+local &match_address_enable
+
+;               Magic number:name:offset
+&THREAD_Struct="0x74687264:thread:0x8"
+&EVENT_Struct="0x65766E74:event:0x10"
+&MUTEX_Struct="0x6D757478:mutex:0x18"
+&TIMER_Struct="0x74696D72:timer:0x8"
+&WAIT_Struct="0x77616974:wait:0x8"
+&SEMAPHORE_Struct="0x73656D61:semaphore:0x8"
+
+&Showallthread="FALSE"
+&match_thread="FALSE"
+&titile_showed="FALSE"
+&ThrPtr=0
+&StructOnly=0
+
+Main:
+   if ("&cmd"==""||STRing.UPPER("&cmd")=="ALL")
+   (
+     if ("&parm"=="")
+     (
+       gosub GetlistPtr
+       entry &ListPtr
+     )
+     else
+     (
+        if(STRing.compare(STRing.LoWeR("&parm"),"0x????????"))
+        (
+          &ListPtr=&parm
+        )
+        else
+        (
+          print "Error:Wrong address of thread list"
+          enddo
+        )
+     )
+     gosub Showallthread &ListPtr
+   )
+   else if (STRing.UPPER("&cmd")=="HELP")
+   (
+      gosub Show_help
+   )
+   else
+   (
+      &match_thread="TRUE";
+      gosub Showthread &cmd
+      entry &ThreadPtr
+      if ("&ThreadPtr"=="dxe")
+      (
+        &ThrPtr=v.value(DxeThreadPtr)
+      )
+      else if ("&ThreadPtr"=="tmr")
+      (
+        &ThrPtr=v.value(TimerThread)
+      )
+      else if ("&ThreadPtr"!="")
+      (
+        &ThrPtr=&ThreadPtr
+      )
+      else
+     (
+       &ThrPtr=data.quad(SPR:0x30D04)  ; TPIDR_EL1
+       &StructOnly=1
+     )
+
+     &sig=data.long(D:&ThrPtr)
+
+     if (("&sig"!=String.Split("&THREAD_Struct",":",0.))||("&ThrPtr"==""))
+     (
+       print "Memory does not point to the Thread context"
+       enddo
+     )
+
+     if (&StructOnly==1)
+      (
+        v.v (thread_t*)&ThrPtr
+        enddo
+      )
+
+      &ThrSP=data.quad(D:&ThrPtr+0x50)
+      &PC_bak=r(PC)
+      &SP_bak=r(SP)
+      &X30_bak=r(X30)
+      &X29_bak=r(X29)
+
+      &X30_thr=data.quad(D:&ThrSP)
+      &X29_thr=data.quad(D:&ThrSP+0x78)
+
+      r.s SP &ThrSP
+      r.s PC &X30_thr
+      r.s X30 &X30_thr
+      r.s X29 &X29_thr
+
+      print ""
+      print ""
+      print "Showing the frame for the thread specified..."
+      print "Press enter to restore the registers back to continue debug.."
+      enter
+
+      r.s SP &SP_bak
+      r.s PC &PC_bak
+      r.s X30 &X30_bak
+      r.s X29 &X29_bak
+      print "Restored back to original thread"
+    )
+enddo
+
+Showthread:
+  entry &thread
+  &thread=STRing.Replace("&cmd","""","",0)
+  if ("&match_thread"=="TRUE")
+  (
+    if (STRing.compare(STRing.LoWeR("&thread"),"0x????????"))
+    (
+      &match_address_enable=1;
+    )
+    else
+    (
+      &match_address_enable=0;
+    )
+
+    gosub GetlistPtr
+    entry &ListPtr
+  )
+  &ListNext=&ListPtr
+  &thread_matched=0
+  while (&ListNext!=0)
+  (
+     &ThrPtr=&ListNext-0x8
+     &sig=data.long(D:&ThrPtr)
+     if ("&sig"==String.Split("&THREAD_Struct",":",0.))
+     (
+       &TN=&ThrPtr+0x2B0
+       &TName=data.string(D:&TN)
+       &Blocker=data.quad(D:&ThrPtr+0x40)
+       &Prio=data.long(D:&ThrPtr+0x28)
+       &TS=data.long(D:&ThrPtr+0x2c)
+       &CurCpu=data.long(D:&ThrPtr+0x38)
+       if ("&match_thread"=="TRUE")
+       (
+         if (&match_address_enable==1)
+         (
+           if (STRing.compare(STRing.LoWeR("&thread"),STRing.LoWeR("&ThrPtr")))
+             &thread_matched=1;
+         )
+         else if (STRing.scan(STRing.LoWeR("&thread"),STRing.LoWeR("&TName"),0)!=-1)
+         (
+           &thread_matched=1;
+         )
+       )
+       if (&thread_matched==1||"&Showallthread"=="TRUE")
+       (
+           gosub Showtitle
+           if (&CurCpu>8)
+           (
+             &CurCpu=" - "
+           )
+           &PinnedCpu=data.long(D:&ThrPtr+0x3c)
+           if (&PinnedCpu>8)
+           (
+             &PinnedCpu=" - "
+           )
+           &SP=data.long(D:&ThrPtr+0x50)
+           &LR=data.long(D:&SP)
+
+           if (&TS==0)
+           (
+             &State="Susp"
+           )
+           else if (&TS==1)
+           (
+             &State="Rdy "
+           )
+           else if (&TS==2)
+           (
+             &State="Run "
+           )
+           else if (&TS==3)
+           (
+             &State="Blk "
+           )
+           else if (&TS==4)
+           (
+             &State="Slp "
+           )
+           else if (&TS==5)
+           (
+             &State="Dead"
+           )
+
+           print " &ThrPtr:  " format.str("&TName",10.,' ') "  | 0x" format.hex(2,&Prio) " |  &State |  &CurCpu  |  &PinnedCpu |  &SP  | &LR"
+           gosub ShowBlocker &Blocker
+           if (&thread_matched==1)
+             return &ThrPtr
+       )
+       ;gosub ShowBlocker &Blocker
+     )
+
+    &ListNext=data.quad(D:&ListNext)
+    if (&ListNext==&ListPtr)
+    (
+      &ListNext=0
+    )
+  )
+  print " "
+  print " "
+  return
+
+GetlistPtr:
+    Local &ListPtr
+    &ListPtr=var.address(thread_list)
+    &ListPtr=string.split("&ListPtr", ":", 1.)
+    return &ListPtr
+
+Showallthread:
+    Entry &ListPtr
+    if ("&ListPtr"=="")
+    (
+      gosub GetlistPtr
+      entry &ListPtr
+    )
+    &Showallthread="TRUE"
+    gosub Showthread &ListPtr
+    return
+
+TraverseList:
+  entry &TempListPtr
+
+  local &tSig
+  local &LNode
+  local &FNode
+
+  &tSig=data.long(D:&TempListPtr)
+
+  if (&tSig!=0x77616974)
+  (
+    return
+  )
+
+  &LNode=data.long(D:&TempListPtr+0x8)
+  &FNode=&LNode
+
+  while (&LNode!=0)
+  (
+;    print "Node @ &LNode"
+    &LNode=data.long(D:&LNode)
+
+    if (&FNode==&LNode)
+    (
+      &LNode=0
+    )
+  )
+
+return
+ShowBlocker:
+  entry &Blocker
+  if (&Blocker!=0)
+     (
+         ; Show thread structure
+         ;v.v (thread_t*)(&ThrPtr)
+         &offset=String.Split("&EVENT_Struct",":",2.)
+         &BlockerPtr=&Blocker-&offset
+         ;&ObjType=data.long(D:&BlockerPtr-0x10)
+         &ObjType=data.long(D:&BlockerPtr)
+         if ("&ObjType"==String.Split("&EVENT_Struct",":",0.))
+         (
+           ;print "event Objtype is &ObjType"
+           &ObjTypeStr=String.Split("&EVENT_Struct",":",1.)
+           ; Show what is it blocked on
+           print %CONT " < Evt @ &BlockerPtr"
+         )
+         else
+         (
+           &offset=String.Split("&SEMAPHORE_Struct",":",2)
+           &BlockerPtr=&Blocker-&offset
+           &ObjType=data.long(D:&BlockerPtr)
+           if ("&ObjType"==String.Split("&SEMAPHORE_Struct",":",0.))
+           (
+             ;print "Semaphore Objtype is &ObjType"
+             ;&ObjTypeStr="Semaphore"
+             &ObjTypeStr=String.Split("&SEMAPHORE_Struct",":",1.)
+             ; Show what is it blocked on
+           ; print "                       &TName is blocked by Obj  &Blocker  Type  &ObjTypeStr"
+             print %CONT " < Sem @ &Blocker"
+           )
+           else
+           (
+             &offset=String.Split("&MUTEX_Struct",":",2)
+             &BlockerPtr=&Blocker-&offset
+             &ObjType=data.long(D:&BlockerPtr)
+             if ("&ObjType"==String.Split("&MUTEX_Struct",":",0.))
+             (
+               ;print "Mutex Objtype is &ObjType"
+               &ObjTypeStr=String.Split("&MUTEX_Struct",":",1.)
+               &ObjOwner=data.quad(DC:&Blocker-0x10)
+               ; Show what is it blocked on
+             ;   print "                       &TName is blocked by Obj  &Blocker  Type  &ObjTypeStr  Owner &ObjOwner"
+               print %CONT " < Mtx @ &Blocker Owner &ObjOwner"
+             )
+           )
+         )
+
+      ;  Show who are all waiting in the queue
+        gosub TraverseList &Blocker
+
+        ; gosub Show_Locks
+
+     ; print " "
+     )
+   return
+
+Show_Locks:
+
+  v.v %open  (LockType*)DxeLockPtr
+  Var.View %open  (mutex_t*)(*(((LockType*)DxeLockPtr))).MutexPtr
+  Var.view %open (mutex_t)SerialPortMutex
+
+return
+
+Show_help:
+    print "*********************************************************************************************"
+    print "*                                       Show thread                                         *"
+    print "* 1. show all thread  -- do show_thread.cmm or do show_thread.cmm all <thread_list address> *"
+    print "* 2. show one thread  -- do show_thread.cmm ""thread_name""/<thread_address>                  *"
+    print "*********************************************************************************************"
+    return
+Showtitle:
+    if ("&titile_showed"=="FALSE")
+    (
+        print ""
+        print ""
+        print "  thread_t*:  Name          Prio   State CurrCpu  PinCpu     SP            LR"
+        print "-----------------------------------------------------------------------------------"
+        &titile_showed="TRUE"
+    )
+    return
+enddo

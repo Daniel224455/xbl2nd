@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="NULL">
+
+  <global_def>
+    <var_seq name="PcieGenericBspFile" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">
+      ./../PCIE/core/PcieBsp.c
+    </var_seq>
+  </global_def>
+  <device name="/core/hwengines/pcie">
+    <props name="PCIE_BSP" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      PcieBsp
+    </props>
+    <props name="PCIE_BSP_1x4" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      PcieBsp1x4
+    </props>
+    <props name="PCIE_CLS_BSP" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      PcieClsBsp
+    </props>
+    <props name="PCIE_CLS_1_BSP" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      PcieCls1Bsp
+    </props>
+    <props name="PCIE_CLS_2_BSP" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      PcieCls2Bsp
+    </props>
+  </device>
+</driver>

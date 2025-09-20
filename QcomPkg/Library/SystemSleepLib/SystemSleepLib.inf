@@ -1,0 +1,53 @@
+#/** @file SystemSleepLib.inf
+#
+#  System Sleep mgmt library
+#
+#  Copyright (c) 2018 Qualcomm Technologies, Inc.  All Rights Reserved.
+#
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 02/12/18   yg      Initial version.
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SystemSleepLib
+  FILE_GUID                      = 763C6212-B041-44A3-AA0B-BC6BCFAAE65B
+  MODULE_TYPE                    = SEC
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SystemSleepLib
+
+[Binaries.AARCH64]
+   PE32|SystemSleepLib.lib
+
+[Packages]
+  QcomPkg/Library/SchedulerLib/SchedulerLibPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  ArmLib
+  TimerLib
+  SchedulerLib
+  PowerSleepLib
+  TargetInitLib
+  #LockLib
+
+[UserExtensions.PackIt.PackOut]
+  ./QtimerConsts.h
+  ./QtimerGicUtil.h
+  ./SleepCtxt.h
+  ./SysCtxtBakRestore.h
+

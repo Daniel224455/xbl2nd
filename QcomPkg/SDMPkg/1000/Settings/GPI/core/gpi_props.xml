@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="NULL">
+<!-- =========================================================================== -->
+<!--  -->
+<!--  FILE:         gpii_props.xml -->
+<!--  -->
+<!--  DESCRIPTION:  This file contains the DAL XML properties for the GPII -->
+<!--                Device Access Library. -->
+<!--  -->
+<!-- =========================================================================== -->
+<!--  -->
+<!--                              Edit History -->
+<!--  -->
+<!--  -->
+<!--  when       who     what, where, why -->
+<!--  ========   ==-     ======================================================- -->
+<!--  01/31/17   ts      Initial checkin for DAL props -->
+<!--   -->
+<!-- =========================================================================== -->
+<!--              Copyright c 2018 QUALCOMM Technologies Incorporated. -->
+<!--                     All Rights Reserved. -->
+<!--                   QUALCOMM Proprietary/GTDR -->
+<!-- =========================================================================== -->
+
+
+  <global_def>
+    <var_seq name="GpiConfigFile" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">./../GPI/core/gpi_cfg.c</var_seq>
+  </global_def>
+  <device name="/core/hwengines/gpi">
+      <props name="tgt_gpi_config" type="DALPROP_ATTR_TYPE_STRUCT_PTR">tgt_gpi_config</props>
+   </device>
+</driver>

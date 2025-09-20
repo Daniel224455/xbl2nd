@@ -1,0 +1,61 @@
+;============================================================================
+; Name: redump.cmm
+;
+; Description: Dump register context of the cpu core
+;
+; Copyright (c) 2017 Qualcomm Technologies, Inc.
+; All Rights Reserved.
+; Qualcomm Technologies Proprietary and Confidential.
+;
+;----------------------------------------------------------------------------
+
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+;
+;
+;
+;  when         who     what, where, why
+;  ----------   ---     -----------------------------------------------------
+;  06-15-2017   yg      Initial version
+;============================================================================;
+
+;------------------------------------------------------------------------------
+;Entry Point
+;------------------------------------------------------------------------------
+
+local &TTBR_Temp
+local &MAIR_Temp
+local &TCR_Temp
+local &SCTLR_Temp
+local &VBAR_Temp
+local &TPIDR_Temp
+
+entry
+
+    &TTBR_Temp=data.quad(SPR:0x30200)  ; TTBR0_EL1
+    &MAIR_Temp=data.quad(SPR:0x30A20)  ; MAIR_EL1
+    &TCR_Temp=data.quad(SPR:0x30202)   ; TCR_EL1
+    &SCTLR_Temp=data.long(SPR:0x30100) ; SCTLR_EL1
+    &VBAR_Temp=data.quad(SPR:0x30C00)   ; VBAR_EL1
+    &TPIDR_Temp=data.quad(SPR:0x30D04)  ; TPIDR_EL1
+
+    print "TTBR0_EL1 : ", FORMAT.HEX(8.,&TTBR_Temp)
+    print "MAIR_EL1  : ", FORMAT.HEX(8.,&MAIR_Temp)
+    print "TCR_EL1   : ", FORMAT.HEX(8.,&TCR_Temp)
+    print "SCTLR_EL1 : ", FORMAT.HEX(8.,&SCTLR_Temp)
+    print "VBAR_EL1  : ", FORMAT.HEX(8.,&VBAR_Temp)
+    print "TPIDR_EL1 : ", FORMAT.HEX(8.,&TPIDR_Temp)
+    print ""
+
+enddo
+
+    ;  Example:
+    ;    TPIDR_EL1
+    ;   op0   op1   CRn   CRm   op2
+    ;    3     0     D     0     4
+    ;
+    ; &TPIDR_Temp=data.quad(SPR:0x30D04)  ; TPIDR_EL1
+    ; 
+    ; for values to refer to arm arm v8 table C5-6
+

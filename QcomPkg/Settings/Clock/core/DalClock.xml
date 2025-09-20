@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="Clock">
+
+
+<!-- NOTE: DAL config has trouble parsing multi-line comment, so please put -->
+<!--       proper comment tags on each line                                 -->
+<!--                                                                        -->
+<!-- Clock Driver Properties file                                           -->
+<!-- Note we depend on the include path for the following directories to be -->
+<!-- available to the DAL config compiler:                                  -->
+<!-- "${INC_ROOT}/core/systemdrivers/hal/clk/api",                          -->
+<!-- "${INC_ROOT}/core/systemdrivers/clock/shared/inc",                     -->
+<!-- "${INC_ROOT}/core/systemdrivers/clock/chipset/<chipset>/bsp/inc"       -->
+
+
+  <device name="DALDEVICEID_CLOCK">
+     #if defined(DAL_CONFIG_IMAGE_UEFI)
+       #include "./../Clock/ClockChipset.xml"
+     #else
+       #include "ClockChipset.xml"
+     #endif
+  </device>
+</driver>

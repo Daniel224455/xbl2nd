@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PanelName>LQ133D1JW33B</PanelName>
+<PanelDescription>Sharp 4K eDP Video Mode Panel(2160x3840 24bpp)</PanelDescription>
+<Group id="Active Timing">
+ <HorizontalActive>0</HorizontalActive>
+ <HorizontalFrontPorch>0</HorizontalFrontPorch>
+ <HorizontalBackPorch>0</HorizontalBackPorch>
+ <HorizontalSyncPulse>0</HorizontalSyncPulse>
+ <HorizontalSyncSkew>0</HorizontalSyncSkew>
+ <HorizontalLeftBorder>0</HorizontalLeftBorder>
+ <HorizontalRightBorder>0</HorizontalRightBorder>
+ <VerticalActive>0</VerticalActive>
+ <VerticalFrontPorch>0</VerticalFrontPorch>
+ <VerticalBackPorch>0</VerticalBackPorch>
+ <VerticalSyncPulse>0</VerticalSyncPulse>
+ <VerticalSyncSkew>0</VerticalSyncSkew>
+ <VerticalTopBorder>0</VerticalTopBorder>
+ <VerticalBottomBorder>0</VerticalBottomBorder>
+ <InvertDataPolarity>False</InvertDataPolarity>
+ <InvertVsyncPolairty>True</InvertVsyncPolairty>
+ <InvertHsyncPolarity>False</InvertHsyncPolarity>
+ <BorderColor>0x0</BorderColor>
+</Group>
+<Group id="Display Interface">
+ <InterfaceType>18</InterfaceType>
+ <InterfaceColorFormat>3</InterfaceColorFormat>
+</Group>
+<Group id="eDP Interface">
+  <EDPRefreshRate>0x3c0000</EDPRefreshRate>
+  <EDPTraining>0</EDPTraining >
+  <EDPVoltageSwingLevel>0</EDPVoltageSwingLevel>
+  <EDPPreemphasisLevel>0</EDPPreemphasisLevel>
+  <EDPLinkRate>540000</EDPLinkRate>
+  <EDPDPCDRead>False</EDPDPCDRead>
+  <EDPEDIDRead>False</EDPEDIDRead>
+  <EDPNumberOfLanes>4</EDPNumberOfLanes>
+  <EDPHPDActiveLow>True</EDPHPDActiveLow>
+  <EDPPowerUpWaitInMs>0</EDPPowerUpWaitInMs>
+  <EDPMaxAuxRetry>20</EDPMaxAuxRetry>
+</Group>

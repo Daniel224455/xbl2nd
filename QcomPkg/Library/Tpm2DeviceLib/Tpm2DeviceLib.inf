@@ -1,0 +1,46 @@
+## @file
+#  Provides TPM 2.0 TIS/PTP functions for QC TPM, could be fTPM or dTPM
+#
+#=============================================================================
+#                              EDIT HISTORY
+#  This section contains comments describing changes made to the module.
+#  Notice that changes are listed in reverse chronological order.
+#
+#
+#
+# when      who      what, where, why
+# -------   ---      --------------------------------------------------------
+#10/28/11   shl      Initial version
+#=============================================================================
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Tpm2DeviceLib
+  MODULE_UNI_FILE                = Tpm2DeviceLib.uni
+  FILE_GUID                      = 22AD7FEC-91F5-4620-8786-AAD52A7F2FA4
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = Tpm2DeviceLib
+
+[Sources]
+  Tpm2DeviceLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  MdePkg/MdePkg.dec
+#  MdeModulePkg/MdeModulePkg.dec
+#  EmbeddedPkg/EmbeddedPkg.dec
+#  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  UefiLib
+  UefiBootServicesTableLib
+
+[Protocols]
+  gEfiTpmProtocolGuid       ## CONSUMES
+
+
+
+
+

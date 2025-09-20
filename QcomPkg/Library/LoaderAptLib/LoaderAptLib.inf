@@ -1,0 +1,47 @@
+#/** @file LoaderAptLib.inf
+#
+#  This module initializes apt sti
+#
+#  Copyright (c) 2017 Qualcomm Technologies, Inc . All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 26/07/18   vg    Added boot_sble_shared support
+# 02/07/17   pp    Initial revision.
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = LoaderAptLib
+  FILE_GUID                      = 441C3128-0CF2-4E00-A60F-602CF879921E 
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = LoaderAptLib
+
+[Sources]
+ ../../SDMPkg/Library/XBLLoaderLib/pbl_sbl_shared.h 
+  LoaderAptLibProd.c 
+
+[BuildOptions.ARM]
+  RVCT:*_*_*_CC_FLAGS = --diag_error=warning
+  
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -Werror -DBOOT_PBL_H=\"pbl_sbl_shared.h\"   
+[Packages]
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec  
+  MdePkg/MdePkg.dec  
+  
+[LibraryClasses]
+
+ 
+
+  
+

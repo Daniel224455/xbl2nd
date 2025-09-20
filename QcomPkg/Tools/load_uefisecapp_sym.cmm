@@ -1,0 +1,42 @@
+;============================================================================
+;  Name:
+;    load_uefisecapp_sym.cmm
+;
+;  Description:
+;     Load UEFISecApp symbols
+;
+; Copyright (c) 2019 Qualcomm Technologies Incorporated.
+; All Rights Reserved.
+; Qualcomm Technologies Confidential and Proprietary
+;
+;----------------------------------------------------------------------------
+
+;PRECONDITION: VariableDxe symbols are loaded
+
+;ARGS:
+;ElfPath - Path to uefi_sec.elf -- typically trustzone_images/apps/bsp/trustzone/qsapps/uefi_sec/build/<flavor>
+
+ENTRY &ElfPath
+  ; Sanity check - no argument
+  if ("&ElfPath"=="")
+  (
+    DIALOG.OK "Argument required!" "load_uefisecapp_sym.cmm <ElfPath>" "NOTE: VariableDxe symbols must be loaded"
+    END
+  )
+
+  ;if last char is a '\' cut it
+  &Len = string.length("&ElfPath")
+  &End = string.char("&ElfPath", &Len-1.)
+  if &End==0x5C
+  (
+    &ElfPath = string.cut("&ElfPath", -1.)
+  )
+
+  &Pos = string.scan("&ElfPath", "trustzone_images", 0.)
+  &SrcPath = string.mid("&ElfPath", 0., &Pos)
+
+  &Addr = VAR.ADDRESS(mUefiSecAppLoadAddr)
+  &Addr = DATA.QUAD(&Addr)
+
+  Data.LOAD.Elf "&ElfPath"\uefi_sec.elf &Addr /nocode /noclear /noreg /strippart "trustzone_images" /sourcepath "&SrcPath"trustzone_images\
+

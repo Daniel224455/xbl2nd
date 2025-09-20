@@ -1,0 +1,181 @@
+/*=============================================================================
+  Readme file for UEFI Crashdumps & WatchDog options
+
+  Copyright (c) 2016-2018 Qualcomm Technologies, Inc. All rights reserved.
+
+                              EDIT HISTORY
+
+when       who     what, where, why
+--------   ---     -----------------------------------------------------------
+10/03/18   yg      Updated WDog related options
+10/20/16   ai      Initial version
+=============================================================================*/
+
+ --------------
+| Introduction |
+ --------------
+
+  UEFI scenarios tend to be simple and favor debbuging live target through the use of JTAG and
+  T32 CMM scripts as described in DebuggingUEFI.txt. This is the preferred and recommended
+  approach to debugging UEFI issues.
+
+  However, UEFI also supports H/W watchdog for debug using crashdumps
+
+ --------------------------
+| HW Watchdog Introduction |
+ --------------------------
+  Hardware watchdog is supported by UEFI. The highlevel approach of the design is:
+  - Sec contains the WDog driver that manages the WDog hardware
+  - WDog driver in Sec also has a layer that manages the sanity of the multiple cores
+  - If all the cores are sane and responsive (ie able to handle interrupts and are firing)
+    then the module pets the watchdog (if enabled)
+  - If any core is not responsive or hung then the wdog bite is forced
+    - Note that a while (1) in a thread with interrupts enabled is still considered sane
+    - JTAG/T32 stopping any core keeping it from handling interrupts is considered NOT sane
+    - Assert should trigger WDog bite by disabling interrupts and looping in tight loop
+  - QcomWDogDxe is loaded during Dxe stage 
+  - This Dxe driver takes care of install watchdog protocol for external consumption (Note non
+    UEFI WDog protocol compliant), and also managing the RSC based notification handlers
+  - WDog is disabled by default. The status is logged out to UART when QCom Dxe driver is loaded
+  - Ensure the debug board switch configuration is such that PSHold deassert will result into MSM warm reset
+
+ -------------------------------
+| Options to enable HW watchdog |
+ -------------------------------
+  Watchdog is enabled based on the following options in the order of priority
+  
+  1. When debugging UEFI using JTAG debug scripts like debug_uefi.cmm, the watchdog is force disabled.
+     If not using above script, continue to step 2 below. 
+  
+  2. If variable "ForceEnableHWWdog" exists, Watchdogdxe will do what the veriable says:
+       TRUE to enable wdog
+       FALSE to disable wdog. 
+     By default this variable does not exist. If the variable does not exist, go to step 3.
+     
+     UEFI provides 2 ways to toggle this variable value
+       a) by UEFI BDS menu: UEFI Menu -> Toggle HW Watchdog
+       b) by EBL cmd: ToggleWdog
+       After toggling watchdog variable, a restart is required to reflect the changes.      
+
+  3. Look for PCD feature flag "gQcomTokenSpaceGuid.ForceEnableHWWdog" in DSC file:
+        TRUE -- the driver will enable watchdog
+        FALSE -- watchdog is disabled
+     The defualt value of the feature flag is set to FALSE (disabled).
+     
+     WDog enable status log messages are displayed as follows in the UART logs:
+             - 0x1FE5AD000 [ 1667] QcomWDogDxe.efi
+            HW Wdog from Variable Setting : Enabled
+            HW Wdog Enabled
+
+     The logs indicates which option affected the decision and what is did and if the WDog was enabled.
+  
+ --------------------------------
+| Parameters of watchdog service |
+ --------------------------------
+  - WDOG Bite Timeout value represents the duration programmed into Bite match value in HW
+  - WDog Pet Timer period represents the duration at which every Core needs to report to the
+    WDog managing module to avoid Bite.
+
+  QcomWdogDxe driver holds the default values:
+  WDOG_TIMEOUT_IN_SECS       25
+  WDOG_PET_TIME_IN_SECS       2
+
+  Above values can be overrided by calling into the QcomWdog protocol from client driver/app image
+
+ -----------
+| Debugging |
+ -----------
+
+  To collect and debug crashdumps, use the following procedure: 
+
+  1. Collect crashdumps using the "QPST Configuration" tool when the device is in Sahara crashdump mode.
+     This is typically indicated by the display showing "Crashdump Mode".
+     Dumps are automatically collected to the following location: 
+       C:\ProgramData\Qualcomm\QPST\Sahara\Port_COMXX
+
+  2. Launch T32 Simulator APPS window and run the load_uefi_dump.cmm script which takes the rampdump 
+     directory as an argument. For example:
+           cd.do load_uefi_dump.cmm C:\ProgramData\Qualcomm\QPST\Sahara\Port_COM10
+       after above loads the ramdump and symbols, use the following to switch the CPU's fast
+           cd.do load_uefi_dump.cmm NOLOAD <CPU NUM>
+
+  The rampdump and symbols will be loaded and debugging related windows (source code, call stack, registers,
+  etc.) will be displayed.
+
+
+  NOTE: It is recommended to use the load_uefi_dump.cmm script from the "ABL" QcomModulePkg/Tools directory 
+  for debugging ramdumps collected due to crash in ABL 
+
+   -------------------------
+  | Software Watchdog Timer |
+   -------------------------
+
+  NOTE: This section contains extra information regarding the UEFI Watchdog Architectural Protocol
+
+  UEFI internally uses a seperate S/W watchdog timer that is seperate from the H/W watchdog timer described above. This
+  s/w watchdog is supported by WatchdogTimerDxe which is a seperate driver from the QC Watchdog Driver (QcomWdogDxe)
+  described above.
+
+  UEFI configures the default s/w watchdog is configured for 10mins. When the s/w watchdog timer expires, the system will
+  reset. By default, the s/w watchdog timer is *DISABLED* under the following scenarios:
+  - Entering BDS menu
+  - Entering EBL (minimal shell)
+  - Entering Shell 2.0 (full shell)
+  - Entering Fastboot
+
+  The s/w watchdog timer is controlled through the Boot Services as described in the UEFI Spec. The following
+  code snippet demonstrates how to activate and disable the s/w watchdog timer:
+
+  /* Disable watchdog timer */
+  gBS->SetWatchdogTimer(0, 0, 0, NULL);
+
+  /* Start 10min watchdog timer */
+  gBS->SetWatchdogTimer(10 * 60, 0, 0, NULL);
+
+  Please refer to gBS->SetWatchDogTimer() in the UEFI spec for more details.
+
+   -------------
+  | Limitations |
+   -------------
+
+  UEFI crashdumps are not supported by Crashscope and other ramdump analysis tools used for loading/debugging
+  HLOS crashdumps. 
+
+  However, Crashscope may still be useful in analyzing dumps that are taken as a result of secure world TZ. 
+  In such cases, the non-secure world context must be restored through the state of the system backed up 
+  in the secure world.
+
+   ------------------------------------------------
+  | Standalone stack frame decoding from UART Logs |
+   ------------------------------------------------
+
+  Now UEFI UART logs will print a stack frame on some exceptions. If matching build object output folder
+  is available then a provided script can be run to decode the addresses output into matching function names.
+
+  To successfully decode the stack frame, the UART Log file provided should have UEFI's first log line "UEFI Start",
+  (not necessarily as first line), all the driver loading logs with addresses not intermingled with any other logs
+  and finally the stack frame output. Just full capture of the log output is good enough, it doesn't need to be
+  filtered to remove unnecessary parts. It should be noted that there has to be just one boot session log. Script
+  would consider only the first set of the drivers loaded and the first encountered stack frame. If logs from
+  multiple sessions are in the logs, behavior is undefined.
+
+  Dependency :
+    - Script needs the *.map.txt files which are generated as part of standard UEFI build
+    - Above mentioned map files should be present under the folder named "Build" from where the script is run
+      these could be in any deep folder underneath
+
+  Script : 
+    QcomPkg/Tools/stack_trace.py <uefi log output file path>
+
+  This script can be run from build root (boot_images) or from a folder where all the *.map.txt files have
+  been copied to Build folder. This script works best in Linux platform and has been limited tested on windows
+  
+  If processing of the logs and maps went through correctly, the script should output the stack frame as function
+  names with the module to which it belongs to
+  
+   ----------------------------------------------
+  | Exceptions because of MMU translation faults |
+   ----------------------------------------------
+  Any data abort or instruction abort that happens will also prints some MMU decoding of the page tables involved
+  that caused the translation failure. These portions of Uart logs also help to triage the problem.
+

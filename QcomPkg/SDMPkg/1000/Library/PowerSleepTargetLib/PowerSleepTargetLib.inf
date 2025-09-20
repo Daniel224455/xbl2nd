@@ -1,0 +1,33 @@
+#/** @file RailwayTargetLib.inf
+#  
+#  Build file for the Railway Target Library.
+#  
+#  Copyright (c) 2015-2016, Qualcomm Technologies, Inc. All rights reserved.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PowerSleepTargetLib
+  FILE_GUID                      = 914dba9b-eff4-4161-9567-a4aa2eba8226
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = PowerSleepTargetLib
+
+[BuildOptions]
+  RVCT:*_*_*_CC_FLAGS = -DTARGET_UEFI 
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -DTARGET_UEFI 
+  
+[Sources.common]
+  rsc_cfg.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  BaseLib

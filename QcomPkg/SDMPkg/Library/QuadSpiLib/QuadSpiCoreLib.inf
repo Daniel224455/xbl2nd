@@ -1,0 +1,21 @@
+[Defines]
+  INF_VERSION    = 0x00010005
+  BASE_NAME      = QuadSpiCoreLib
+  FILE_GUID      = DBE93C32-B78C-4770-BFC8-11F273AA035F
+  MODULE_TYPE    = BASE
+  VERSION_STRING = 1.0
+  LIBRARY_CLASS  = QuadSpiCoreLib
+
+[Sources]
+  quadspi.c
+
+[LibraryClasses]
+  TlmmLib
+  PlatformInfoCoreLib
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS   = -DCORE_LOGGING
+  MSFT:*_*_*_CC_FLAGS  = -DCORE_LOGGING

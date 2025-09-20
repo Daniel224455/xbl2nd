@@ -1,0 +1,45 @@
+#/** @file SchedulerLib.inf
+#
+#  Component description file for Scheduler instance wrapper module
+#
+#  Copyright (c) 2017 - 2018 Qualcomm Technologies, Inc.  All Rights Reserved.
+#
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 02/22/18    yg     Renamed file from Kernel to scheduler
+# 06/14/17    yg     Initial version.
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SchedulerLib
+  FILE_GUID                      = f10f548e-1b4a-4ab4-bc19-dc5735fd86b8
+  MODULE_TYPE                    = SEC
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SchedulerLib
+
+[Binaries.AARCH64]
+  PE32|AARCH64/lk.uefi.lib
+
+[Sources]
+  SchedulerLib.c
+
+[Packages]
+  QcomPkg/Library/SchedulerLib/SchedulerLibPkg.dec
+  QcomPkg/QcomPkg.dec
+  MdePkg/MdePkg.dec
+
+[Guids]
+  gEfiSchedIntfGuid
+
+[UserExtensions.PackIt.PackOut]
+  ./Src
+

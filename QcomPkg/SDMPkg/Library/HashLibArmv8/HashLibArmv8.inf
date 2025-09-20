@@ -1,0 +1,31 @@
+#/** @file HashLibArmv8.inf
+#  
+#  
+#   Copyright (c) 2017 Qualcomm Technologies, Inc.  All Rights
+#   Reserved. Qualcomm Technologies Proprietary and Confidential.
+#  
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 05/26/17   shl     Initial version.(03/28/18 jp ported from boot.xf.1.4)
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = HashLibArmv8
+  FILE_GUID                      = f5c379ed-a214-4752-bc52-ed69512ba14e
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = HashLibArmv8
+
+[Binaries.Arm]
+   PE32|HashLib.lib
+
+[Binaries.AARCH64]
+   PE32|HashLibArmv8.lib

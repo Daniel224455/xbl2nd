@@ -1,0 +1,36 @@
+{
+
+  # Build 1000 WP, Debug, Loader only
+  "1000ld" : ["--variant", "WP", "-r", "DEBUG", "-t", "SDM1000Pkg", "-C", "XBL_LOADER"],
+
+   # Build 1000 WP, Debug, RAM dump only
+  "1000rd" : ["--variant", "WP", "-r", "DEBUG", "-t", "SDM1000Pkg", "-C", "XBL_RAMDUMP"],
+
+  # Development build for testing
+  "dev" : ["--variant", "WP", "-r", "DEBUG", "-t", "SDM1000Pkg,QcomToolsPkg", "-C", "XBL_CORE"],
+  
+  # Development build clean
+  "devclean" : ["--variant", "WP", "-r", "DEBUG", "-t", "SDM1000Pkg,QcomToolsPkg", "-C", "XBL_CORE", "--build_flags", "cleanall"],
+
+  #Test Pkg
+  "tests" : ["--variant", "WP", "-r", "DEBUG", "-t", "QcomToolsPkg,QcomTestPkg"],
+
+  #SOC tests
+  "soctests" : ["--variant", "WP", "-r", "DEBUG", "-t", "QcomToolsPkg,QcomSocPlatTestPkg"],
+
+  #Tools Pkg
+  "tools" : ["--variant", "WP", "-r", "DEBUG", "-t", "QcomToolsPkg"],
+
+  # Build 1000 WP
+  "1000wp" : ["--variant", "WP", "-r", "DEBUG", "-t", "SDM1000Pkg,QcomToolsPkg"],
+
+  # Build 1000 WP, Debug
+  "1000wpdbg" : ["--variant", "WP", "-r", "DEBUG", "-t", "SDM1000Pkg,QcomToolsPkg,QcomTestPkg"],
+
+  # Build 1000 WP, Release
+  "1000wprel" : ["--variant", "WP", "-r", "RELEASE", "-t", "SDM1000Pkg,QcomToolsPkg,QcomTestPkg"],
+
+  # Build 1000 WP, Debug, UEFI only
+  "1000wpcoredbg" : ["--variant", "WP", "-r", "DEBUG", "-t", "SDM1000Pkg,QcomToolsPkg", "-C", "XBL_CORE"]
+}
+

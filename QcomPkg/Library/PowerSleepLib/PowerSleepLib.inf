@@ -1,0 +1,60 @@
+#/** @file PowerSleepLibRelease.inf
+#
+#  Contains Power Sleep library release.
+#
+#  Copyright (c) 2017-2018, Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PowerSleepLib
+  FILE_GUID                      = C81D98EA-04DB-4CB6-BE4E-DD9ECA03FDD7
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = PowerSleepLib
+
+#
+#  VALID_ARCHITECTURES           = ARM AARCH64
+#
+
+[BuildOptions]
+  RVCT:*_*_*_CC_FLAGS = -DTARGET_UEFI
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -DTARGET_UEFI
+
+
+[Binaries.AARCH64]
+   PE32|PowerSleepLib.lib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/Library/SchedulerLib/SchedulerLibPkg.dec
+
+[LibraryClasses]
+ PowerSleepTargetLib
+ BaseLib
+ ArmLib
+ SystemSleepLib
+ SchedulerLib
+
+[Protocols]
+  gEfiPsleepProtocolGuid
+  
+[UserExtensions.PackIt.PackOut]
+  ./asm.h
+  ./PowerSleepLibInternal.h
+

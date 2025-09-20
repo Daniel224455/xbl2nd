@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="VAdc">
+  <global_def>
+    <var_seq name="VAdcStructIncFile" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">
+      ./../ADC/loader/VAdcSettings.c
+     </var_seq>
+     <var_seq name="VAdcInternalStructIncFile" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">
+      ./../ADC/internal/VAdcInternalSettings.c
+     </var_seq>
+  </global_def>
+  <device name="/vadc/pmc1000_1">
+    <props name="VADC_BSP" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      VAdcBspPMC1000_1
+    </props>
+  </device>
+  <device name="/vadc/pmc1000l">
+    <props name="VADC_BSP" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      VAdcBspPMC1000L
+    </props>
+  </device>
+  <device name="/vadc/pmc1000_2">
+    <props name="VADC_BSP" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      VAdcBspPMC1000_2
+    </props>
+  </device>
+</driver>
+

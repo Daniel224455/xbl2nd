@@ -1,0 +1,59 @@
+#/** @file PmicGlinkDxe.inf
+#  
+#  QUALCOMM pmicGlink Driver INF file
+#  
+#  Copyright (c) 2017, Qualcomm Technologies Inc. All rights reserved.
+#  
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# --------     ---     ----------------------------------------------------------
+# 11/06/17     cs      initial release
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                 = 0x00010005
+  BASE_NAME                   = PmicGlinkDxe
+  FILE_GUID                   = 6D4A9CF7-CC0C-42B0-AA89-F6A6A8D99273
+  MODULE_TYPE                 = DXE_DRIVER
+  VERSION_STRING              = 1.0
+  ENTRY_POINT                 = PmicGlinkInit
+
+[Sources.common]
+  PmicGlinkDxe.c
+  pmic_glink.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -O0
+ 
+[LibraryClasses]
+  BaseMemoryLib
+  UefiLib
+  UefiDriverEntryPoint
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  BaseLib
+  QcomLib
+  ULogApiLib
+  PrintLib
+  DebugLib
+
+[Guids]
+
+[Protocols]
+  gpmicGlinkProtocolGuid
+  gEfiGLINKProtocolGuid
+  
+[Depex]
+  TRUE

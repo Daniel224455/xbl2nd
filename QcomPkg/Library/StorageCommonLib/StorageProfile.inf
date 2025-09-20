@@ -1,0 +1,52 @@
+#/** @file StorageProfile.inf
+#  
+#  StorageProfile INF file
+#  
+#  Copyright (c) 2016 Qualcomm Technologies, Inc.  
+#  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who   what, where, why
+# ----------   ---   ---------------------------------------------------------
+# 09-01-2016   bb    Initial version
+#
+#==============================================================================
+
+#
+# This inf file used to include the storage profile lib to drivers. Include this in 
+# the respective .dsc file where boot APIs are present (eg: Loader, UEFI, RAMDump etc) 
+#
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = StorageProfileLib
+  FILE_GUID                      = C280838B-9706-4F84-84A7-BE9872872D92
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = StorageProfileLib
+
+[Sources.common]
+  StorageProfile.c
+  
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  PcdLib
+  StorageBootCommonLib
+
+[FixedPcd]
+  gQcomTokenSpaceGuid.PcdBuildType
+

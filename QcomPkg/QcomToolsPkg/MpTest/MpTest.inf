@@ -1,0 +1,74 @@
+#/** @file MpTest.inf
+#
+#  MpTest Application inf file.
+#
+#  Copyright (c) 2017 - 2018 Qualcomm Technologies, Inc. All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ----------------------------------------------------------
+# 06/16/2017   yg      Initial Revision
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Mptest
+  FILE_GUID                      = DECAA93A-472A-E0E6-D1AF-2D93FEC89B40
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = MpTestMain
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = ARM AARCH64
+#
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -fvectorize -O0
+
+[Sources]
+  MpTest.c
+  ThrTest.c
+  AllocTest.c
+  PwrCollapseTest.c
+  BbmTest.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+  BaseLib
+  UefiBootServicesTableLib
+  QcomLib
+  QcomUtilsLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  KernelLib
+  LockLib
+  UncachedMemoryAllocationLib
+
+[Guids]
+  gEfiUefiPartitionTypeGuid
+  gEfiSdRemovableGuid
+  gQcomTokenSpaceGuid
+
+[Protocols]
+  gEfiClockProtocolGuid
+  gEfiTsensProtocolGuid
+  gQcomScmProtocolGuid
+  gQcomDisplayPwrCtrlProtocolGuid
+

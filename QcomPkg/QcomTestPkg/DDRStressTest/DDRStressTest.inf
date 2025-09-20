@@ -1,0 +1,73 @@
+#/** @file DDRStressTest.inf
+#
+#  DDRStressTest Application inf file.
+#
+#  Copyright (c) 2017 - 2018 Qualcomm Technologies, Inc. All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ----------------------------------------------------------
+# 11/10/2018   dais      Initial Revision
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = DDRStressTest
+  FILE_GUID                      = 39cf5707-3a68-4bcc-91fd-dca971d72268
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = DDRStressTestMain
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = ARM AARCH64
+#
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -fvectorize -O0
+
+[Sources]
+  DDRStressTest.c
+  DramScan_Algorithm.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+  BaseLib
+  UefiBootServicesTableLib
+  QcomLib
+  QcomUtilsLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  KernelLib
+  LockLib
+  UncachedMemoryAllocationLib
+
+[Guids]
+  gEfiUefiPartitionTypeGuid
+  gEfiSdRemovableGuid
+  gQcomTokenSpaceGuid
+
+[Protocols]
+  gEfiClockProtocolGuid
+  gEfiTsensProtocolGuid
+  gQcomScmProtocolGuid
+  gQcomDisplayPwrCtrlProtocolGuid
+  gEfiDDRGetInfoProtocolGuid
+  gEfiQcomEnvProtocolGuid
+

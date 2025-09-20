@@ -1,0 +1,68 @@
+#/*===============================================================================
+#  Copyright (c) 2017-2018 Qualcomm Technologies, Inc.  All Rights Reserved.
+#
+#  FILE:         PILDxe.inf
+#  DESCRIPTION:
+#
+#  REVISION HISTORY
+#  when       who         what, where, why
+#  --------   ---         --------------------------------------------------------
+#  06/14/17   yw         initial version
+#
+#================================================================================*/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PILDxe
+  FILE_GUID                      = 1d317734-4083-47c6-83ea-e3a42f2a6bff
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = PILDxeEntryPoint
+
+
+[Sources.common]
+  PILDxe.c
+  pil_tz.c
+  pil_loader.c
+  pil_ctx.c
+  pil_config.c
+
+[Packages]
+  QcomPkg/QcomPkg.dec
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  DALModEnvLib
+  DALFwkLib
+  BaseLib
+  UefiDriverEntryPoint
+  UefiLib
+  UefiBootServicesTableLib
+  BaseMemoryLib
+  DebugLib
+  MemoryAllocationLib
+  CacheMaintenanceLib
+  UncachedMemoryAllocationLib
+  TimetickLib
+  QcomLib
+  ParserLib
+  EfiFileLib
+  GuidedFvLib
+  ExtractGuidedSectionLib
+  LzmaDecompressLib
+  ZlibDecompressLib
+  UefiDecompressLib
+  LockLib
+
+[Guids]
+  gEfiSdRemovableGuid
+
+[Protocols]
+  gEfiPilProtocolGuid
+  gQcomScmProtocolGuid
+
+[Depex]
+  gEfiDalSysProtocolGuid
+

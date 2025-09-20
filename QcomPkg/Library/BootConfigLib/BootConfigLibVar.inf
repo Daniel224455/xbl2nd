@@ -1,0 +1,38 @@
+#/** @file BootConfigLib.inf
+#  
+#  BootConfigLib BSP Target Independent INF file
+#  
+#  Copyright (c) 2018 Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ---------------------------------------------------------
+# 04/02/18     kpa     Added BootConfigVar.c
+# 02/16/18     bd      Initial version
+#
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = BootConfigLib
+  FILE_GUID                      = 472A9B08-DEB3-4570-B8B4-9794525EE424  
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = BootConfigLib 
+
+[Sources.common]
+  boot_config.c
+  BootConfigVar.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  
+[Guids.common]
+  gQcomTokenSpaceGuid

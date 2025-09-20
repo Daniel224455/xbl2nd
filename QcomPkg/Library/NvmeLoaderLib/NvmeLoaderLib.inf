@@ -1,0 +1,52 @@
+#/** @file NvmeLoaderLib.inf
+#
+#  NVMe Driver for XBL Loader INF file
+#
+#  Copyright (c) 2018 Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when        who  what, where, why
+# ----------  ---  ---------------------------------------------------------
+# 2018-11-19  wek  Initial version
+#
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = NvmeLoaderLib
+  FILE_GUID                      = 3f3e54d9-2c21-4669-a31d-7b91dd54e034
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = NvmeLoaderLib
+
+[Sources.common]
+  nvme_api.c
+
+[BuildOptions.AARCH64]
+
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  BaseMemoryLib
+  ClockTargetLib
+  PCIeHostLib
+  NvmeLoaderTargetLib
+
+[Pcd.common]
+
+

@@ -1,0 +1,36 @@
+#/** @file XBLLoaderCommon.inf
+#
+#  XBL Common Services Lib for Boot loader & RAM Dump
+#  
+#  Copyright (c) 2018 Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 06/11/18   bb     Initial Revision
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = StorageBootCommonLib
+  FILE_GUID                      = 39E08A23-1989-42F8-8BCE-6DC456EB6360
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = StorageBootCommonLib
+
+[Sources.common]
+   StorageLoaderCommon.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec  
+  QcomPkg/SDMPkg/SDMPkg.dec
+  QcomPkg/SDMPkg/Library/XBLLoaderLib/XBLLoaderLibPkg.dec

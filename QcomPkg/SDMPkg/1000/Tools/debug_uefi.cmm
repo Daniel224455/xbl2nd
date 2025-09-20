@@ -1,0 +1,228 @@
+;============================================================================
+;  Name:
+;    debug_uefi.cmm
+;
+;  Description:
+;     Debug UEFI Environment
+;
+; Copyright (c) 2017,2018 Qualcomm Technologies Incorporated.
+; All Rights Reserved.
+; Qualcomm Technologies Confidential and Proprietary
+;
+;----------------------------------------------------------------------------
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+;
+;when         who     what, where, why
+;----------   ---     ----------------------------------------------------------
+;2018-07-02   kpa     Update script locations passed to T32 menu button setup
+;2018-04-03   kpa     port debug script updates from sdm855 to sdm1000
+;2018-02-25   kpa     Move debug scripts inside target tools dir
+;2017-12-07   kpa     Pass &UefiBinPathSubset before optional args to dxe_dbg.
+;2017-10-11   kpa     Update PreSil script load logic
+;2017-07-13   kpa     Add wrappers for sys.up , sys.d to enable customizations
+;2017-08-30   na      Add reset for easy debugging
+;2017-08-07   na      Folder structure updates
+;2017-07-13   na      Temp for 1000 presil
+;============================================================================;
+
+;============================================================================
+;  CMM script variables
+;============================================================================
+local &TargetPkg
+local &UefiRamEntryAddr
+local &RamFvAddr
+local &Target
+local &CwDir
+local &UefiBinPathSubset
+local &CommonTools
+global &Variant
+global &RelFolder
+global &UefiBase
+global &TargetInnerDir
+global &TargetMiddleDir
+
+;============================================================================
+;External Script Files
+local &set_target_specific_api 
+local &SystemUp
+local &SystemDown
+
+;---------------------------------------------------
+; Setup area and log
+;---------------------------------------------------
+winclear
+area.clear
+area.reset
+area.create UEFI_Logs 1000. 8192.
+area.select UEFI_Logs
+area.view UEFI_Logs
+
+;---------------------------------------------------
+; Entry point
+;---------------------------------------------------
+ENTRY &OptArgs &Modules &PreSil
+
+  &Target="1000"
+  &TargetPkg="SDM"+"Pkg"
+  &RelFolder="DEBUG"
+  
+  &OptArgs=convert.toupper("&OptArgs")
+  &Modules=convert.toupper("&Modules")
+  &PreSil=convert.toupper("&PreSil")
+  if ((string.scan("&OptArgs", "REL",0)!=-1))
+  (
+    &RelFolder="RELEASE"
+  )
+  
+  ; Check if PreSil Flag is set
+  if ("&PreSil"=="")
+  (
+    if ((string.scan("&Modules", "SA",0)!=-1)||(string.scan("&OptArgs", "SA",0)!=-1))
+    (
+      &PreSil="SA"
+    )  
+    if ((string.scan("&Modules", "FBC",0)!=-1)||(string.scan("&OptArgs", "FBC",0)!=-1))
+    (
+      &PreSil="FBC"
+    )      
+  )
+  y.reset
+
+  sys.option.imaskhll on
+  sys.option.imaskasm on
+  sys.option.enreset on
+
+
+  ; Setup present and other directories
+  &CwDir=os.ppd()
+  &TargetInnerDir="&CwDir"
+  &TargetMiddleDir="&CwDir"
+  
+  if ("&TargetPkg"=="SDMPkg")
+  (
+    &UefiBinPathSubset="&Target/Bin"
+    
+    ; Update TargetMiddleDir to point to tools folder one level up
+    ; ie change from QcomPkg/SDMPkg/<target>/tools to
+    ; QcomPkg/SDMPkg/tools
+    &TargetMiddleDir="&CwDir/../../tools"
+    
+    ;__FIX__ remove below line and corr dependency in other scripts    
+    &CwDir="&CwDir/../../tools"
+  )
+  else
+  (
+    &UefiBinPathSubset="Bin/&Target"
+  )
+  &CommonTools="&TargetMiddleDir/../../Tools"
+
+  ;Update path for
+  &set_target_specific_api="&TargetInnerDir/debug_uefi_target_api.cmm"
+  IF (!OS.FILE("&set_target_specific_api")) 
+  ( 
+    print "Error!! script not found : &set_target_specific_api. "
+    enddo
+  ) 
+  
+  ;--------------------------------------------------------------
+  ; Set Target Specific Subroutines. Cmm does not seem to allow 
+  ; to "include" another cmm with api defines instead invoke the
+  ; subroutine name along with the script defining it.
+  ;--------------------------------------------------------------
+  &SystemUp="do &set_target_specific_api SystemUp"
+  &SystemDown="do &set_target_specific_api SystemDown"  
+
+  gosub VariantCheck
+  entry &VariantRequested
+
+  do &CommonTools/cmm/variant_setup.cmm &Target &UefiBinPathSubset &VariantRequested
+  print "Setting Variant to &Variant"
+
+  GoSub SetArguments &Variant
+  &UefiBase=&UefiRamEntryAddr
+
+  gosub TargetSetup &PreSil
+
+  ;Load T32 UEFI awareness
+  do &CommonTools/cmm/t32_uefi_menu.cmm &TargetInnerDir
+
+  b.d
+
+  ;&UefiBinPathSubset to be passed before optional arguments &OptArgs
+  do &CommonTools/dxe_dbg.cmm &Target &TargetPkg &UefiRamEntryAddr &RamFvAddr &UefiDebugCookieAddr &UefiBinPathSubset &OptArgs &Modules 
+  cd &CwDir
+enddo
+
+;---------------------------------------------------
+;SetArguments
+;---------------------------------------------------
+SetArguments:
+  Entry &Varaint
+  &UefiRamEntryAddr=0x9FC00000
+  &RamFvAddr=0x9F800000
+
+  return
+
+TargetSetup:
+  Entry &PreSil
+  
+  if (string.scan("&OptArgs", "NORESET",0)==-1)
+  (
+    &SystemDown
+    &SystemUp
+  )
+
+  if (string.scan("&OptArgs", "SKIPPRESIL",0)!=-1)
+  (
+    &PreSil=""
+  )
+
+  do &TargetMiddleDir/cookies_set.cmm &PreSil
+
+  if (("&PreSil"=="SA")||("&PreSil"=="FBC"))
+  (
+    print "Running standalone UEFI"
+    do &TargetInnerDir/PreSil/pre_sil.cmm &PreSil
+
+    if ("&Modules"=="SA")
+    (
+        &Modules="go"
+    )
+
+    if ("&OptArgs"=="SA")
+    (
+        &OptArgs="RAM"
+        &Modules="go"
+    )	
+  )
+  else
+  (
+    if (string.scan("&OptArgs", "SKIPPRESIL",0)==-1)
+    (
+      b.set &UefiRamEntryAddr /o /disablehit 
+      go
+    )
+  )
+  wait !run()
+
+  return
+
+VariantCheck:
+  local &VarPos
+  local &VariantLength
+
+  &VariantLength=0x2
+
+  &VarPos=string.scan("&OptArgs", "VAR_", 0)
+  if (&VarPos==-1)
+    return
+
+  &VarExtract=string.ScanAndExtract("&OptArgs", "VAR_", "")
+  &VarExtract=string.split("&VarExtract", ",", 0)
+
+  &VarExtract=string.mid("&OptArgs", &VarPos+0x4, &VariantLength)
+
+  return &VarExtract
+

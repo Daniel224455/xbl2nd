@@ -1,0 +1,13 @@
+winclear
+
+sys.d
+sys.m.a
+b
+b.sel program onchip
+do symbol_Load.cmm
+y.spath.sbd ../..
+
+; b.s aux_shutdown\11
+
+ENDDO
+

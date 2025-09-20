@@ -1,0 +1,49 @@
+#/**
+#
+#  Variable policy engine test
+#
+#  Copyright (c) 2019 Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = VarPolTest
+  FILE_GUID                      = F41FA04C-0D61-4518-95B0-2378E61059A9
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = VarPolTestMain
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -O0 -fno-inline
+
+[Sources]
+  VariablePolicyTest.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  TestInterfaceLib
+  BaseLib
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  DebugLib
+
+[Guids]
+  gEfiGlobalVariableGuid                        ## CONSUMES
+
+[Ppis]
+
+[Protocols]
+  gVariablePolicyProtocolGuid
+
+[FeaturePcd]
+
+[Pcd]
+

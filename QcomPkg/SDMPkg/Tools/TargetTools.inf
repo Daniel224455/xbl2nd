@@ -1,0 +1,40 @@
+#/** @file TargetTools.inf
+#  
+#  INF used by packit.py for including target tools files into packed build.
+#  
+#  Copyright (c) 2016, 2017 Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+#
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 04/17/17   kpa     packout PreSil folder
+# 08/02/16   na      Add tlmm script
+# 08/01/16   bh      Add LogFS binary for flashing
+# 02/24/16   et      Initial revision
+#
+#==============================================================================
+
+[Sources]
+
+[UserExtensions.PackIt.PackIn]
+  ./
+  ./storage/UFS/
+  ./storage/SD/
+  ./storage/QSPINOR/
+  ./../../Tools/binaries/logfs_ufs_8mb.bin
+  ./tlmm
+  ./PMIC/qc_pm_log_analyzer
+  ./PMIC/qc_pm_log_analyzer/framework
+  ./PMIC/qc_pm_log_analyzer/generic_log_analyzer
+  ./PMIC/qc_pm_log_analyzer/generic_log_analyzer/gui
+  ./PMIC/qc_pm_log_analyzer/sram_log_analyzer
+  ./PMIC/qc_pm_log_analyzer/sram_log_analyzer/8998
+  ./PMIC/qc_pm_log_analyzer/sram_log_analyzer/encoding_dll
+  
+[UserExtensions.PackIt.PackOut]
+  ./PreSil

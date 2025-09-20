@@ -1,0 +1,45 @@
+#/** @file UsbfnDwc3LibNull.inf
+#  
+#  UsbfnDwc3Lib abstracts USB hardware specific access, stubs
+#  
+#  Copyright (c) 2015,2018 Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 05/09/15   plc     Initial revision.
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = UsbfnDwc3LibNull
+  FILE_GUID                      = C9577712-8CFF-42E4-BEC0-F3BD1C0ACB7A
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = UsbfnDwc3LibNull
+
+[Sources]
+  UsbfnDwc3LibNull.c
+  UsbfnDwc3Private.h
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  IoLib
+  EfiFileLib
+
+[Protocols]
+  gEfiAdcProtocolGuid                        ## Consumes

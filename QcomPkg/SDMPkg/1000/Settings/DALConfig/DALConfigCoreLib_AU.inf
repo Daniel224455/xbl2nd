@@ -1,0 +1,97 @@
+#/** @file DALConfigCoreLib.inf
+#
+#  DAL configuration library
+#
+#  Copyright (c) 2010-2019 Qualcomm Technologies, Inc. All rights reserved.
+#  Portions Copyright (c) 2009 - 2010, Apple Inc. All rights reserved.
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#==========================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = DALConfigLib
+  FILE_GUID                      = 9ddf0f91-94d3-41c5-9c3a-3634c98e8231
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = DALConfigLib
+  MACRO_NAME                     = core
+
+[Defines.AARCH64]
+  CUSTOM_MAKEFILE                = DALConfigCoreLib_LLVM_AU.mk
+[Defines.ARM]
+  CUSTOM_MAKEFILE                = DALConfigCoreLib_RVCT501.mk
+
+[Sources.common]
+  DALConfig_core.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/Library/AdcLib/build/AdcLibPkg.dec
+  QcomPkg/Library/TsensLib/TsensLibPkg.dec
+  QcomPkg/SDMPkg/Library/PcieConfigLib/PcieLibPkg.dec
+  QcomPkg/SDMPkg/Library/GpiDrvLib/GpiDrvLibPkg.dec
+  QcomPkg/SDMPkg/1000/Library/PmicLib/PmicAuLib.dec
+
+[LibraryClasses]
+  BaseLib
+  DALGenLibCore
+
+[UserExtensions.PackIt.PackIn]
+  DALConfigCoreLib.mk
+  DALConfigCoreLib_LLVM_AU.mk
+  image_cfg.xml
+  ..\..\..\..\Tools\devcfg\scripts\propgen.py
+  ..\..\..\..\Tools\devcfg\scripts\image_config.py
+  ..\..\..\Settings\devcfg\devcfg_rules.mk
+  ..\HWIO\core\DalHWIO.xml
+  ..\..\..\Settings\DALSystem\core\dalsystem_core.xml
+  ..\..\..\Settings\I2C\core\i2c_uefi_8998.xml
+  ..\ICB\core\icbcfg_arb.xml
+  ..\ICB\core\ul_data.c
+  ..\..\..\..\Settings\Clock\core\DalClock.xml
+  ..\..\..\..\Settings\PlatformInfo\PlatformInfo.xml
+  ..\PMIC\AU\pm_config_target.c
+  ..\PMIC\AU\pm_config_lock_bit.c
+  ..\PMIC\AU\pm_config_pam.c
+  ..\PMIC\AU\pm_config_target_core.xml
+  ..\PMIC\AU\pm_config_target.xml
+  ..\Clock\ClockChipset.xml
+  ..\Clock\core\ClockBSP.c
+  ..\Clock\core\ClockPropData.c
+  ..\HWIO\core\HWIOBaseMap.c
+  ..\Qusb\qusb.xml
+  ..\Qusb\qusb_phy_settings.c
+  ..\PCIE\core\pcie_props.xml
+  ..\PCIE\core\PcieBsp1x4.c
+  ..\PCIE\core\PcieBsp2x2.c
+  ..\PCIE\core\PcieBspCls.c
+  ..\PCIE\core\PcieBspCls1.c
+  ..\PCIE\core\PcieBsp.c
+  ..\GPI\core\gpi_props.xml
+  ..\GPI\core\gpi_cfg.c
+  ..\TSENS\tsens_props.xml
+  ..\TSENS\TsensBsp.c
+  ..\ADC\internal\core\adc_props.xml
+  ..\ADC\internal\core\vadc_props.xml
+  ..\ADC\internal\AdcInternalSettings.c
+  ..\ADC\internal\VAdcInternalSettings.c
+  ..\ADC\core\VAdcSettings.c
+  ..\..\..\Settings\BAM\bam_config.xml
+  ..\..\..\Settings\BAM\bamconfig_props.c
+  ..\I2C\core\i2c_devcfg_Sdm1000.xml
+  ..\I2C\core\i2c_devcfg.c
+  ..\SMMU\AU\iort.h
+  ..\SMMU\AU\iort.xml
+  ..\SPI\core\spi_devcfg_Sdm1000.xml
+  ..\SPI\core\spi_devcfg.h
+

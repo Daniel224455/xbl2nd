@@ -1,0 +1,84 @@
+#/** @file RpmhLib.inf
+# 
+#
+#  This file implements NPA EFI protocol interface.
+#
+#  Copyright (c) 2016-2017, Qualcomm Technologies, Inc. All rights reserved. 
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when        who     what, where, why
+# --------    ---     ----------------------------------------------------------
+#                     Initial Revision
+#=============================================================================
+
+[Defines]
+  INF_VERSION       = 0x00010005
+  BASE_NAME         = RpmhLib
+  FILE_GUID         = D5F20680-755A-4715-8139-5C8CA61A9845
+  MODULE_TYPE       = BASE
+  VERSION_STRING    = 1.0
+  LIBRARY_CLASS     = RpmhLib
+
+#
+#  VALID_ARCHITECTURES           = ARM
+#
+
+[BuildOptions]
+  RVCT:*_*_*_CC_FLAGS = -DTARGET_UEFI -DNPA_REMOTING_SUPPORTED -DFEATURE_WINCE_OAL -J QcomPkg/Library/MuslLib/musl/include
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -DTARGET_UEFI -DFEATURE_WINCE_OAL -DDRV_2_VALID -DULOG_RPMH_LOCK_TYPE=ULOG_LOCK_OS -DDALSYS_RPMH_SYNC_TYPE=DALSYS_SYNC_ATTR_RESOURCE
+
+[Sources.common]
+  # Header file inclusions
+  ../../../../Library/RpmhLib/inc/rpmh_drv_config.h
+  ../../../../Library/RpmhLib/inc/hal/rsc_hal.h
+  ../../../../Library/RpmhLib/os/dal/rpmh_image_os.h
+  
+  #Target header inclusion   
+  ./hal/1000/uefi/rsc_hal_hwio.h
+  
+  #Target Sources
+  ./cfg/1000/uefi/rpmh_drv_config.c
+
+  #Common Source Files  
+  ../../../../Library/RpmhLib/os/dal/rpmh_events.c
+  ../../../../Library/RpmhLib/os/dal/rpmh_image_os.c
+  ../../../../Library/RpmhLib/hal/src/rsc_hal.c
+  ../../../../Library/RpmhLib/common/src/inq.c
+  ../../../../Library/RpmhLib/common/src/rpmh_client.c
+  ../../../../Library/RpmhLib/common/src/rpmh_client_internal.c
+  ../../../../Library/RpmhLib/common/src/rpmh_cmdq.c
+  ../../../../Library/RpmhLib/common/src/rpmh_resource_commands.c
+  ../../../../Library/RpmhLib/common/src/rpmh_tcs.c
+    
+[LibraryClasses]
+ MuslLib
+ ULogApiLib
+ CoreUtilsLib
+ OfflineCrashDumpLib
+ PcdLib
+ BaseLib
+ ArmLib
+ UefiBootServicesTableLib
+ UefiLib
+ BaseMemoryLib
+ DebugLib
+ MemoryAllocationLib
+ DALModEnvLib
+ CmdDbApiLib
+ LockLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+  
+[Protocols]
+  

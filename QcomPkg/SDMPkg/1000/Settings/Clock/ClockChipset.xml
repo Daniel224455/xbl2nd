@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="Clock">
+
+     <global_def>
+     <var_seq name="ClockBSPStructIncFile" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">
+          ./../Clock/core/ClockBSP.c
+     </var_seq> 
+     <var_seq name="ClockBSPStructIncFile" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">
+          ./../Clock/core/ClockPropData.c
+     </var_seq> 
+     </global_def><device id="DALDEVICEID_CLOCK"> 
+
+    <!-- Clock Log Defaults -->
+    <props name="ClockLogDefaults" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      ClockLogDefaultConfig
+    </props>
+              
+    <!-- Initial rail voltage BSP data -->
+    <props name="ClockRailConfig" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      ClockRailConfig
+    </props>
+              
+    <!-- Clocks allowed to be suppressible -->
+    <props name="SuppressibleList" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      ClockSuppressibleList
+    </props>
+        
+    <!-- Clocks allowed to be always on -->
+    <props name="ClockAlwaysOnList" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      ClockAlwaysOnList
+    </props>
+        
+    <!-- Clocks allowed to be reference counter disabled -->
+    <props name="RefCountSuspendedList" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      ClockRefCountSuspendedList
+    </props>
+        
+    <!-- Clock ForceMemCoreAndPeriphList -->
+    <props name="ForceMemCoreAndPeriphList" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      ClockForceMemCoreAndPeriphList
+    </props>
+        
+    <!-- Clock BIST Dependencies -->
+    <props name="BISTDependencies" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      ClockBistDependencies
+    </props>
+
+    <!-- Clock BIST Exceptions -->
+    <props name="BISTExceptions" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      ClockBistExceptions
+    </props>
+
+    <!-- List of power domain names NOT to be enabled prior to running the BIST -->
+    <props name="ExcludedPowerDomains" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      ClockBistExcludedPowerDomainNames
+    </props>
+    
+    <!-- Clock excluded from BIST -->
+    <props name="ExcludeFromBist" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      ClockExcludeFromBist
+    </props>
+    
+    <!-- Clock Branch Only Raw Control List -->
+    <props name="BranchOnlyRawControlList" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      ClockBranchOnlyRawControlList
+    </props>
+    
+   </device> 
+ </driver>
+

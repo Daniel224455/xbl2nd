@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<dal>
+  <module name="config_data_table">
+    <driver name="NULL">
+      <device id="cdt_header">
+        <props name="magic-number" type="DALPROP_ATTR_TYPE_BYTE_SEQ">
+          0x43, 0x44, 0x54, 0x00, end
+        </props>
+        <props name="version" type="DALPROP_ATTR_TYPE_BYTE_SEQ">
+          0x01, 0x00, end
+        </props>
+        <props name="reserved1" type="DALPROP_ATTR_TYPE_BYTE_SEQ">
+          0x00, 0x00, 0x00, 0x00, end
+        </props>
+        <props name="reserved2" type="DALPROP_ATTR_TYPE_BYTE_SEQ">
+          0x00, 0x00, 0x00, 0x00, end
+        </props>
+      </device>
+      <device id="cdb0">
+        <props name="platform_id" type="DALPROP_ATTR_TYPE_BYTE_SEQ">
+          0x03, 0x08, 0x01, 0x00, 0x00, 0x00, end
+        </props>
+      </device>
+    </driver>
+  </module>
+</dal>

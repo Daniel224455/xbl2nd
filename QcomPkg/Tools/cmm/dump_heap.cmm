@@ -1,0 +1,110 @@
+;============================================================================
+; Name: dump_heap.cmm
+;
+; Description: Show dump of heap free list and pages
+;
+; Copyright (c) 2018 Qualcomm Technologies, Inc.
+; All Rights Reserved.
+; Qualcomm Technologies Proprietary and Confidential.
+;
+;----------------------------------------------------------------------------
+
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+;
+;  when         who     what, where, why
+;  ----------   ---     -----------------------------------------------------
+;  12-03-2018   yg      Initial version
+;============================================================================;
+
+;
+;
+;   Usage : do dump_heap.cmm
+;
+;     Symbols should have been loaded already
+
+
+;------------------------------------------------------------------------------
+;Entry Point
+;------------------------------------------------------------------------------
+entry
+
+local &free_list
+local &free_node
+local &base
+local &len
+local &prev
+local &next
+local &arena
+local &page_cnt
+local &map_addr
+local &mem_base
+local &arena_size
+local &allocd_pages
+local &free_pages
+local &temp
+local &pstat
+
+Main:
+  &free_list=var.address(theheap.free_list)
+  &free_list=string.split("&free_list", ":", 1.)
+
+  &free_node=data.quad(RD:&free_list+0x8)
+
+  print "-------------------------------------------"
+  print ""
+  print " Free nodes:"
+  print "-------------"
+
+  while (&free_node!=&free_list)
+  (
+    &prev=data.quad(RD:&free_node+0x0)
+    &next=data.quad(RD:&free_node+0x8)
+    &len=data.quad(RD:&free_node+0x10)
+
+     print " Base : &next     Len : &len"
+
+     &free_node=&next
+  )
+  print " "
+  print " Mem Arena:"
+  print "------------"
+
+  &arena=var.address(arena)
+  &arena=string.split("&arena", ":", 1.)
+
+  &page_cnt=data.quad(RD:&arena+0x40)
+  &map_addr=data.quad(RD:&arena+0x48)
+  &mem_base=data.quad(RD:&arena+0x50)
+  &arena_size=data.quad(RD:&arena+0x58)
+
+  print "Arena addr : &arena"
+  print "Page count : &page_cnt"
+  print "Map   addr : &map_addr"
+  print "Mem base   : &mem_base"
+  print "Mem size   : &arena_size"
+
+  &allocd_pages=0
+  &temp=0
+
+  while (&temp<&page_cnt)
+  (
+    &pstat=data.byte(RD:&map_addr+&temp)
+    if (&pstat==1)
+    (
+      &allocd_pages=&allocd_pages+1
+    )
+    &temp=&temp+1
+  )
+
+  &free_pages=&page_cnt-&allocd_pages
+  print "Free pages : &free_pages"
+  print "Alloc'd pgs: &allocd_pages"
+
+  print "-------------------------------------------"
+
+  ;d.dump csw_logs++0xFF /noascii
+
+END
+

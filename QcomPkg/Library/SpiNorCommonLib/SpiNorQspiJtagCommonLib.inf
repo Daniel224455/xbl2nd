@@ -1,0 +1,55 @@
+#/** @file SpiNorCommonLib.inf
+#
+#  Quad SPI NOR Library UEFI INF file
+#
+#  Copyright (c) 2016 Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ---------------------------------------------------------
+# 2016-01-18   eo      Initial version.
+#
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SpiNorCommonLib
+  FILE_GUID                      = 2efbb3fc-3c16-4049-a2d9-e9d0ad3198ec
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SpiNorJtagCommonLib
+
+[Sources.common]
+  spinor_api.c
+  spinor_utils.c
+  spinor_core.c
+  spinor_qspial.c
+
+[BuildOptions.AARCH64]
+
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  BaseMemoryLib
+  TimerLib
+  PcdLib
+  SpinorTargetLib
+
+[Pcd.common]
+
+

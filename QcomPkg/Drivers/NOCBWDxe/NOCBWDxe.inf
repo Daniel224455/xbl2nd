@@ -1,0 +1,38 @@
+#/** @file NOCBWDxe.inf
+#
+#  NOCBWDxe Driver INF file
+#
+#  Copyright (c) 2020, Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = NOCBWDxe
+  FILE_GUID                      = 88527AF0-4594-404D-9538-D448C0E33033
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = NOCBWDxeEntryPoint
+
+[Sources.common]
+  NOCBWDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  ArmPkg/ArmPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+  NpaApiLib
+
+[Protocols]
+  gEfiNpaProtocolGuid
+  gEfiNOCBWProtocolGuid
+
+[Depex]
+  TRUE

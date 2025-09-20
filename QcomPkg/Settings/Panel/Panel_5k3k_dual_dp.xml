@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PanelName>5k3kDualDPPanel</PanelName>
+<PanelDescription>Dual DP Panel (5120x2880 24bpp)</PanelDescription>
+<Group id='Active Timing'>
+ <HorizontalActive>2560</HorizontalActive>
+ <HorizontalFrontPorch>48</HorizontalFrontPorch>
+ <HorizontalBackPorch>80</HorizontalBackPorch>
+ <HorizontalSyncPulse>32</HorizontalSyncPulse>
+ <HorizontalSyncSkew>0</HorizontalSyncSkew>
+ <HorizontalLeftBorder>0</HorizontalLeftBorder>
+ <HorizontalRightBorder>0</HorizontalRightBorder>
+ <VerticalActive>2880</VerticalActive>
+ <VerticalFrontPorch>3</VerticalFrontPorch>
+ <VerticalBackPorch>28</VerticalBackPorch>
+ <VerticalSyncPulse>10</VerticalSyncPulse>
+ <VerticalSyncSkew>0</VerticalSyncSkew>
+ <VerticalTopBorder>0</VerticalTopBorder>
+ <VerticalBottomBorder>0</VerticalBottomBorder>
+ <InvertDataPolarity>False</InvertDataPolarity>
+ <InvertVsyncPolairty>True</InvertVsyncPolairty>
+ <InvertHsyncPolarity>False</InvertHsyncPolarity>
+ <BorderColor>0x0</BorderColor>
+</Group>
+<Group id='Display Interface'>
+ <InterfaceType>14</InterfaceType>
+ <InterfaceColorFormat>3</InterfaceColorFormat>
+</Group>
+<Group id='DP Interface'>
+ <EDPRefreshRate>0x1DFCA9</EDPRefreshRate>
+ <EDPDeviceIDMapping>
+  02 03 01
+ </EDPDeviceIDMapping>
+</Group>

@@ -1,0 +1,214 @@
+;****************************************************************************
+;** load_boot_crash_dump_64.cmm
+;**
+;** This script performs loading of the crash dumps to a simulator.
+;**
+;** Copyright 2018 by Qualcomm Technologies, Incorporated.  All Rights Reserved.
+;**
+;****************************************************************************
+;**
+;**                        EDIT HISTORY FOR MODULE
+;**
+;**
+;** when       who     what, where, why
+;** --------   ---     ------------------------------------------------------
+;** 09/10/18   msantos rewritten for version 2 of sbl crash dump (Aarch64)
+
+;****************************************************************************
+
+; Note: Script assumes that the SBL elf is already loaded
+
+entry &crash_dumps_path
+
+&crash_dump_cookie=0x45525220
+&bin_filename_struct="CD_STRCT.BIN"
+&bin_filename_bootddr="CD_BTDDR.BIN"
+&bin_filename_bootimem="CD_BTIMM.BIN"
+&bin_filename_sharedimem="CD_SHIMM.BIN"
+
+&default_dump_dir="C:\ProgramData\Qualcomm\QPST\Sahara\"
+
+WINPOS 0% 50% 68% 50% 0. 0. W001
+Area.create MAIN
+Area.view MAIN
+Area.select MAIN
+
+print "---------------------------------------------------------------"
+print "---------------SBL boot crash dump loader script---------------"
+print "---------------------------------------------------------------"
+
+;
+if (!symbol.exist(boot_crash_dump_data))
+(
+  print "Script could not find symbols."
+  print "Please load elf XBLLoader.dll, or use boot_debug.cmm."
+  print "exiting"
+  enddo
+)
+
+print
+print
+
+if os.dir("&default_dump_dir")
+(
+  ChDir "&default_dump_dir"
+)
+print "Select Port_COM folder containing your crash dump"
+dialog.dir *
+entry &crash_dumps_path
+if "&crash_dumps_path"==""
+(
+  print "Failed to select file. Exiting..."
+  enddo
+)
+print
+print
+
+
+; start simulator
+sys.up
+
+; load boot crash data into crash_dump_addr
+d.load.binary "&crash_dumps_path\&bin_filename_struct" boot_crash_dump_data /noclear
+
+; typecast loaded data and copy to internal trace variable for easy referencing
+;var.assign boot_crash_dump_data=(boot_crash_dump_type)&crash_dump_addr
+
+; check for the boot_crash_dump_data variable which will be used to 
+; load the dumps and the registers
+if (v.value(boot_crash_dump_data.crash_dump_cookie)!=&crash_dump_cookie)
+(
+  print "crash_dump_cookie not found in "&crash_dumps_path\&bin_filename_struct"."
+  print "this binary does not contain a crash dump." 
+  enddo
+)
+
+; currently supports version 2 of the structure.
+; reference for this structure is found in the following place:
+;   boot_error_handler.h    boot_crash_dump_type
+if (v.value(boot_crash_dump_data.version)==2)
+(
+  print "found version 2 of boot crash dump data struct."
+  print
+
+  ;set elr to elr1h
+  r.s m 0x05
+
+  ;set saved general registers
+  r.s x0 v.value(boot_crash_dump_data.regs[0])
+  r.s x1 v.value(boot_crash_dump_data.regs[1])
+  r.s x2 v.value(boot_crash_dump_data.regs[2])
+  r.s x3 v.value(boot_crash_dump_data.regs[3])
+  r.s x4 v.value(boot_crash_dump_data.regs[4])
+  r.s x5 v.value(boot_crash_dump_data.regs[5])
+  r.s x6 v.value(boot_crash_dump_data.regs[6])
+  r.s x7 v.value(boot_crash_dump_data.regs[7])
+  r.s x8 v.value(boot_crash_dump_data.regs[8])
+  r.s x9 v.value(boot_crash_dump_data.regs[9])
+  r.s x10 v.value(boot_crash_dump_data.regs[10])
+  r.s x11 v.value(boot_crash_dump_data.regs[11])
+  r.s x12 v.value(boot_crash_dump_data.regs[12])
+  r.s x13 v.value(boot_crash_dump_data.regs[13])
+  r.s x14 v.value(boot_crash_dump_data.regs[14])
+  r.s x15 v.value(boot_crash_dump_data.regs[15])
+  r.s x16 v.value(boot_crash_dump_data.regs[16])
+  r.s x17 v.value(boot_crash_dump_data.regs[17])
+  r.s x18 v.value(boot_crash_dump_data.regs[18])
+  r.s x19 v.value(boot_crash_dump_data.regs[19])
+  r.s x20 v.value(boot_crash_dump_data.regs[20])
+  r.s x21 v.value(boot_crash_dump_data.regs[21])
+  r.s x22 v.value(boot_crash_dump_data.regs[22])
+  r.s x23 v.value(boot_crash_dump_data.regs[23])
+  r.s x24 v.value(boot_crash_dump_data.regs[24])
+  r.s x25 v.value(boot_crash_dump_data.regs[25])
+  r.s x26 v.value(boot_crash_dump_data.regs[26])
+  r.s x27 v.value(boot_crash_dump_data.regs[27])
+  r.s x28 v.value(boot_crash_dump_data.regs[28])
+  r.s x29 v.value(boot_crash_dump_data.regs[29])
+  r.s x30 v.value(boot_crash_dump_data.regs[30])
+
+  ;set saved system registers (or print if no way to load)
+  per.set.simple spr:0x30101 %long v.value(boot_crash_dump_data.actlr_el1) ;actlr_el1 showing up as xxxx in sim
+  print "ccsidr_el1: 0x", v.value(boot_crash_dump_data.ccsidr_el1) ;ccsidr_el1
+  print "clidr_el1l 0x", v.value(boot_crash_dump_data.clidr_el1) ;clidr_el1
+  print "cntkctl_el1 0x", v.value(boot_crash_dump_data.cntkctl_el1) ;cntkctl_el1
+  per.set.simple spr:0x30102 %long v.value(boot_crash_dump_data.cpacr_el1) ;cpacr_el1
+  print "csselr_el1 0x", v.value(boot_crash_dump_data.csselr_el1) ;csselr_el1
+  r.s elr_el1 v.value(boot_crash_dump_data.elr_el1) ;elr_el1
+  per.set.simple spr:0x30520 %long v.value(boot_crash_dump_data.esr_el1) ;esr_el1
+  print "far_el1: 0x", v.value(boot_crash_dump_data.far_el1) ;far_el1
+  print "mair_el1: 0x", v.value(boot_crash_dump_data.mair_el1) ;mair_el1
+  print "mpidr_el1: 0x", v.value(boot_crash_dump_data.mpidr_el1) ;mpidr_el1 cant load into sim
+  print "sctlr_el1: 0x", v.value(boot_crash_dump_data.sctlr_el1) ;sctlr_el1
+  r.s spsr_el1 v.value(boot_crash_dump_data.spsr_el1) ;spsr_el1
+  print "tcr_el1: 0x", v.value(boot_crash_dump_data.tcr_el1) ;tcr_el1
+  per.set.simple spr:0x30d04 %quad v.value(boot_crash_dump_data.tpidr_el1) ;tpidr_el1
+  print "ttbr0_el1: 0x", v.value(boot_crash_dump_data.ttbr0_el1) ;ttbr0_el1
+  print "ttbr1_el1: 0x", v.value(boot_crash_dump_data.ttbr1_el1) ;ttbr1_el1
+  per.set.simple spr:0x30c00 %quad v.value(boot_crash_dump_data.vbar_el1) ;vbar_el1
+
+  r.s pc v.value(boot_crash_dump_data.pc) ;program counter
+
+  ; set stack pointer last because it seems to get overwritten by some previous commands
+  r.s sp v.value(boot_crash_dump_data.sp_el1)
+
+  ; set the values from boot_crash_struct
+  &sbl_ddr_addr=v.value(boot_crash_dump_data.sbl_ddr_addr)
+  &sbl_ddr_size=v.value(boot_crash_dump_data.sbl_ddr_size)
+  &sbl_ddr_dump_addr=v.value(boot_crash_dump_data.sbl_ddr_dump_addr)
+  &sbl_boot_imem_addr=v.value(boot_crash_dump_data.sbl_boot_imem_addr)
+  &sbl_boot_imem_size=v.value(boot_crash_dump_data.sbl_boot_imem_size)
+  &sbl_boot_imem_dump_addr=v.value(boot_crash_dump_data.sbl_boot_imem_dump_addr)
+  &sbl_shared_imem_addr=v.value(boot_crash_dump_data.sbl_shared_imem_addr)
+  &sbl_shared_imem_size=v.value(boot_crash_dump_data.sbl_shared_imem_size)
+  &sbl_shared_imem_dump_addr=v.value(boot_crash_dump_data.sbl_shared_imem_dump_addr)
+
+  ; put dump data into proper locations according to struct
+  d.load.binary "&crash_dumps_path\&bin_filename_bootddr" &sbl_ddr_addr /noclear
+  d.load.binary "&crash_dumps_path\&bin_filename_bootimem" &sbl_boot_imem_addr /noclear
+  d.load.binary "&crash_dumps_path\&bin_filename_sharedimem" &sbl_shared_imem_addr /noclear
+
+  ; show the crash dumps
+  d.dump &sbl_ddr_addr--(&sbl_ddr_size+&sbl_ddr_addr)
+  d.dump &sbl_boot_imem_addr--(&sbl_boot_imem_size+&sbl_boot_imem_addr)
+  d.dump &sbl_shared_imem_addr--(&sbl_shared_imem_size+&sbl_shared_imem_addr)
+  
+  print
+  print "SBL crash dumps loaded."
+  gosub SetupDebugWindows yes
+  
+  ; unroll the stack past boot_error_handler
+  frame.up
+  frame.up
+
+)
+else 
+(
+  print "Found incompatible boot_crash_dump_type version"
+)
+
+enddo
+
+;****************************************************************************
+; Setup and display the windows to debug the processor
+;****************************************************************************
+SetupDebugWindows:
+  
+  TOOLBAR ON
+  STATUSBAR ON
+
+  WINPOS 0.0 0.0 68% 65% 12. 1. W000 Normal "DATA.LIST"
+  DATA.list
+ 
+  WINPOS 68% 0. 32% 50% 0. 0. W002 Normal "REGISTERS"
+  register /spotlight
+ 
+  setup.var %open.on %hex %symbol
+
+  WINPOS  68% 50% 32% 48% 0. 0. W003 Normal "CALL STACK"
+  Var.Frame
+  
+  WINPOS  0.0 70% 68% 33% 0. 0. W004 Normal "BOOT LOG BUFFER"
+  v.dump boot_log_data.log_buffer_start /nohex /string
+  
+  return ; SetupDebugWindows

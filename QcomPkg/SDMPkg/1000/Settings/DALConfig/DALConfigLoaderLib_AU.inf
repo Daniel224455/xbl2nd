@@ -1,0 +1,80 @@
+#/** @file DALConfigLoaderLib.inf
+#
+#  DAL configuration Loader library
+#
+#  Copyright (c) 2014-2016, 2018-2019, Qualcomm Technologies, Inc.
+#  All rights reserved.
+#  Qualcomm Confidential and Proprietary
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = DALConfigLoaderLib
+  FILE_GUID                      = 8D0152C2-4ABA-4E9E-67FB-B18A98DC9582
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = DALConfigLoaderLib
+  MACRO_NAME                     = loader
+  CUSTOM_MAKEFILE                = DALConfigLoaderLib_AU.mk
+
+[Sources.common]
+  DALConfig_loader.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec
+  QcomPkg/Library/AdcLib/build/AdcLibPkg.dec
+  QcomPkg/Library/TsensLib/TsensLibPkg.dec
+  QcomPkg/Library/BootTempCheckLib/BootTempCheckLibPkg.dec
+  QcomPkg/SDMPkg/1000/Library/PmicLib/PmicAuLib.dec
+  #QcomPkg/SDMPkg/Library/VSenseTargetLib/VSenseLoaderLib.dec
+
+
+[LibraryClasses]
+  BaseLib
+  DALGenLibLoader
+
+[UserExtensions.PackIt.PackIn]
+  DALConfigLoaderLib_AU.mk
+  image_cfg.xml
+  ..\..\..\..\Tools\devcfg\scripts\propgen.py
+  ..\..\..\..\Tools\devcfg\scripts\image_config.py
+  ..\..\..\Settings\devcfg\devcfg_rules.mk
+  ..\..\..\Settings\DALSystem\loader\dalsystem_loader.xml
+  ..\..\..\Settings\I2C\loader\i2c_uefi_8998.xml
+  ..\ICB\loader\icbcfg_boot.xml
+  ..\ICB\loader\icbcfg_data.c
+  ..\PMIC\AU\pm_config_target.xml
+  ..\PMIC\AU\pm_config_target_loader.xml
+  ..\PMIC\AU\pm_config_target.c
+  ..\PMIC\AU\pm_config_lock_bit.c
+  ..\PMIC\AU\pm_spmi_config.c
+  ..\PMIC\AU\pm_pvc_config.c 
+  ..\..\..\..\Settings\PlatformInfo\PlatformInfo.xml
+  ..\..\..\..\Settings\ChipInfo\DalChipInfo.xml
+  ..\TSENS\tsens_props.xml
+  ..\TSENS\TsensBsp.c
+  ..\..\..\Settings\BootTempCheck\boot_temp_check_props.xml
+  ..\..\..\Settings\BootTempCheck\BootTempCheckBsp.c
+  ..\ADC\internal\loader\adc_props.xml
+  ..\ADC\internal\loader\vadc_props.xml
+  ..\ADC\internal\AdcInternalSettings.c
+  ..\ADC\internal\VAdcInternalSettings.c
+  ..\ADC\loader\VAdcSettings.c
+  ..\..\..\Settings\BAM\bam_config.xml
+  ..\..\..\Settings\BAM\bamconfig_props.c
+  ..\TLMM\loader\TLMMChipset.xml
+  ..\..\..\Settings\UFS\ufs_config_au.xml
+  ..\..\..\Settings\SMEM\smem_xbl_loader.xml
+  ..\..\..\Settings\SMEM\smem_partitions.c
+  ..\I2C\loader\i2c_devcfg_Sdm1000.xml
+  ..\I2C\loader\i2c_devcfg.c
+  ..\Qusb\qusb.xml
+  ..\Qusb\qusb_phy_settings.c
+  ..\SPINOR\spinor_access.xml
+  ..\SPI\loader\spi_devcfg_Sdm1000.xml
+  ..\SPI\loader\spi_devcfg.h

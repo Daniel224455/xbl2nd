@@ -1,0 +1,53 @@
+#/** @file StorageProfileStub.inf
+#  
+#  StorageProfileStub INF file
+#  
+#  Copyright (c) 2018 Qualcomm Technologies, Inc.  
+#  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who   what, where, why
+# ----------   ---   ---------------------------------------------------------
+# 09-01-2016   bb    Initial version
+#
+#==============================================================================
+
+#
+# This inf file used to include the stub version of storage profile lib to 
+# drivers. Include this in  the respective .dsc file where boot APIs are not
+# present (eg: JTag programmer, DeviceProgrammer etc) 
+#
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = StorageProfileLib
+  FILE_GUID                      = 96748D51-A546-468E-AD9A-89FF809CB330
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = StorageProfileLib
+
+[Sources.common]
+  StorageProfileStub.c
+  
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/XBLLoaderApi.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  PcdLib
+
+[FixedPcd]
+  gQcomTokenSpaceGuid.PcdBuildType
+

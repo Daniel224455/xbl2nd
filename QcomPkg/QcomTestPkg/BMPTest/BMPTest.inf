@@ -1,0 +1,58 @@
+#/** @file BMPTest.inf
+#
+#  Test for displaying Bitmaps
+#
+#  Copyright (c) 2015,2019 Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 09/28/19   kpa     Added gEfiImageFvNameGuid, gEfiPilProtocolGuid
+# 09/09/15   ai      Initial revision to demonstrate loading bitmaps
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = BMPTest
+  FILE_GUID                      = BAF86C14-573D-11E5-B660-B31919C960D8
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = BMPTestMain
+
+[Sources]
+  BMPTest.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  TestInterfaceLib
+  BaseLib
+  UefiBootServicesTableLib
+  MemoryAllocationLib
+  DebugLib
+  BMPLib
+  GuidedFvLib
+
+[Guids]
+  gEfiImageFvNameGuid
+
+[Ppis]
+
+[Protocols]
+  gEfiGraphicsOutputProtocolGuid
+  gEfiPilProtocolGuid
+
+[FeaturePcd]
+
+[Pcd]
+

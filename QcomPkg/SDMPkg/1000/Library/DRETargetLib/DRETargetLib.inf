@@ -1,0 +1,62 @@
+#/** @file DRETargetLib.inf
+#
+#  DRE Lib
+#  
+#  Copyright (c) 2020 Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+# when       who       what, where, why
+# --------   ---       ----------------------------------------------------------
+# 07/13/20   adawar     Added DRE change to poipuAU from hanaAU
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = DRETargetLib
+  FILE_GUID                      = 287554EC-BF1E-4275-867F-E260D2CBD774
+  MODULE_TYPE                    = SEC
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = DRETargetLib
+
+[BuildOptions]
+  RVCT:*_*_*_CC_FLAGS = -DSHARED_IMEM_DDR_PARAM_BASE=0xFE805190 -DSHARED_IMEM_DDR_TRAINING_COOKIE=0xFE805018 -DBUILD_BOOT_CHAIN
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -DDDRCC_PLL_EXTENSION_0 -DFEATURE_BOOT_EXTERN_DDR_COMPLETED -DFEATURE_BOOT_DDI_ENABLE -DSHARED_IMEM_DDR_PARAM_BASE=0xFE805190 -DSHARED_IMEM_DDR_TRAINING_COOKIE=0xFE805018 -DBUILD_BOOT_CHAIN -DUSE_LOADER_UTIL -Wno-tautological-compare
+  
+[Sources.common]
+  ../../../1000/Library/DRETargetLib/dre_test.c
+  ../../../1000/Library/DRETargetLib/dre_init.c
+
+  # Header file inclusions  
+  ../../../1000/Library/DRETargetLib/dre_hwio.h
+  ../../../../../QcomPkg/Include/api/boot/boot_logger.h
+  ../../../../Library/DDRLib/common/params/v5/ddr_params.h
+  
+[UserExtensions.PackIt.PackOut]
+
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+  QcomPkg/XBLLoaderApi.dec
+  QcomPkg/SDMPkg/1000/Library/DRETargetLib/DRETargetLibPkg.dec
+  QcomPkg/SDMPkg/1000/Library/DSFTargetLib_AU/DSFTargetLibPkg.dec
+  QcomPkg/SDMPkg/1000/Library/DSFTargetLib_AU/DSFTargetLibPkg.dec
+  QcomPkg/Library/DDRLib/DDRLibPkg.dec
+  
+[LibraryClasses]
+  XBLConfigLib
+
+[FeaturePcd]
+
+[FixedPcd]
+ gQcomTokenSpaceGuid.PcdBuildType
+[Guids]
+

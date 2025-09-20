@@ -1,0 +1,42 @@
+#/** @file PowerSleepLibNull.inf
+#  
+#  Null Power Sleep library functions.
+#  
+#  Copyright (c) 2017-2018, Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PowerSleepLib
+  FILE_GUID                      = 13a97093-426b-483a-999f-b8a4ec5c24b5
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = PowerSleepLib
+
+#
+#  VALID_ARCHITECTURES           = ARM AARCH64
+#
+
+[BuildOptions]
+  RVCT:*_*_*_CC_FLAGS = -DTARGET_UEFI 
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -DTARGET_UEFI 
+
+[Sources]
+  PowerSleepLibNull.c
+  
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="NULL">
+  <global_def>
+    <var_seq name="AdcStructIncFile" type="DALPROP_DATA_TYPE_STRUCT_INC_FILE">
+      ./../ADC/internal/AdcInternalSettings.c
+     </var_seq>
+  </global_def>
+  <device name="/core/hwengines/adc">
+    <props name="ADC_BSP" type="DALPROP_ATTR_TYPE_STRUCT_PTR">
+      AdcBsp_1000_PMC1000_PMC1000L
+    </props>
+  </device>
+</driver>
+

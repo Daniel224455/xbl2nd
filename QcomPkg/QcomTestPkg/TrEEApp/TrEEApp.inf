@@ -1,0 +1,61 @@
+#/** @file 
+#                      TrEEApp.inf 
+#  
+#  Component discription file for TrEE test/application module
+#  
+#  Copyright (c) 2011,2013-2015, Qualcomm Technologies Inc. All rights reserved.
+#
+#  
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 05/24/17   pr      Changes to reset device after test app executes
+# 07/10/15   bh      Packout for LZB
+# 05/19/15   sk      Added support for TCG 2.0
+# 04/04/14   vk      Remove warning related build options, added globally
+# 11/11/13   sm      Added TestInterfaceLib
+# 10/25/13   vk      Remove warning as error
+# 08/23/11   shl     Initial version.
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                     = 0x00010005
+  BASE_NAME                       = TrEEApp
+  FILE_GUID                       = EFE9EA28-DAD4-4E20-83BD-82114EEE4E7E                                  
+  MODULE_TYPE                     = UEFI_APPLICATION
+  VERSION_STRING                  = 1.0
+  ENTRY_POINT                     = TrEEAppMain
+
+[Sources.common]
+  TrEEApp.c
+
+[Packages]
+  QcomPkg/QcomPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+  UefiCfgLib
+  QcomLib
+  TestInterfaceLib
+  UncachedMemoryAllocationLib
+  MemoryAllocationLib
+
+[Guids]
+  gEfiACPITableLoadGuid
+
+[Protocols]
+  gEfiTrEEProtocolGuid
+  gEfiTpmProtocolGuid
+
+[Depex]
+  TRUE

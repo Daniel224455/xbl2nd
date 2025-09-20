@@ -1,0 +1,78 @@
+#/** @file cpt_MpTest2.inf
+#
+#  cpt_MpTest2 Application inf file.
+#
+#  Copyright (c) 2017 - 2018 Qualcomm Technologies, Inc. All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   ---     ----------------------------------------------------------
+# 10/15/2018   kpa     Prevent auto loading of cpt_MpTest2 by adding SOR depex
+# 09/12/2018   rw      Initial Revision
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = cpt_Mptest2
+  FILE_GUID                      = 2780B22E-C00B-487C-9CB1-BD3AB5AE1939
+  #MODULE_TYPE                    = UEFI_APPLICATION
+  MODULE_TYPE                    = UEFI_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = CPT_MpTest2Main
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = ARM AARCH64
+#
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -fvectorize
+  GCC:*_*_*_CC_FLAGS = -fvectorize
+
+[Sources]
+  cpt_MpTest2.c
+  cpt_mtest2.S
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  #UefiApplicationEntryPoint
+  UefiDriverEntryPoint
+  UefiLib
+  #BaseLib
+  UefiBootServicesTableLib
+  QcomLib
+  #QcomUtilsLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  KernelLib
+  LockLib
+  #UncachedMemoryAllocationLib
+
+[Guids]
+  gEfiUefiPartitionTypeGuid
+  gEfiSdRemovableGuid
+  gQcomTokenSpaceGuid
+
+[Protocols]
+  gEfiClockProtocolGuid
+  gEfiTsensProtocolGuid
+  gQcomScmProtocolGuid
+  gQcomDisplayPwrCtrlProtocolGuid
+
+[Depex]
+ #Protocol is irrelevant, adding to prevent auto load of test application
+ SOR  gEfiPlatformInfoProtocolGuid 

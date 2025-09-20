@@ -1,0 +1,88 @@
+#/** @file ChargerLibWp.inf
+#
+#  Contains Charger related Qualcomm library functions.
+#
+#  Copyright (c) 2016-2019, Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 01/28/19   kpa     Support loading BMP's from imagefv
+# 06/29/18   dc      Adding PON and UsbPwrCtrl Support
+# 08/05/16   va      Adding Charger led indication support
+# 07/07/16   sm      Added BMPLib
+# 03/25/16   va      Initial revision
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ChargerLib
+  FILE_GUID                      = BBA899DD-C638-4556-8218-4FA6D4B755F0
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = ChargerLib
+
+#
+#  VALID_ARCHITECTURES           = ARM AARCH64
+#
+
+[Sources]
+  ../../../../Library/ChargerLib/ChargerLibCommon_Fw.c
+  ../../../../Library/ChargerLib/ChargerLibDisplay.c
+  ../../../../Library/ChargerLib/target/1000/ChargerLibTarget.c
+  ../../../../Library/ChargerLib/target/1000/ChargerLibFG.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
+  UefiLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  BaseLib
+  PcdLib
+  QcomLib
+  ULogApiLib
+  QcomUtilsLib
+  #SleepLib
+  FuseControlLib
+  ParserLib
+  SerialPortLib
+  BMPLib
+  I2CApiLib
+  MountFvUtilsLib
+
+[Guids]
+  gEfiFileSystemInfoGuid
+  gEfiFileInfoGuid
+  gEfiImageFvNameGuid
+
+[Protocols]
+  gQcomPmicSchgProtocolGuid
+  gQcomPmicFgProtocolGuid
+  gEfiAdcProtocolGuid
+  gQcomPmicPwrOnProtocolGuid
+  gEfiVariableServicesProtocolGuid        ## CONSUMES
+  gEfiTsensProtocolGuid
+  gQcomPmicUsbProtocolGuid
+  gQcomPmicRtcProtocolGuid
+  gQcomPmicRgbLedProtocolGuid
+  gQcomDisplayUtilsProtocolGuid
+  gpmicGlinkProtocolGuid
+  gEfiPilProtocolGuid
+  gQcomUsbPwrCtrlProtocolGuid
+  gQcomPmicPonProtocolGuid
+
+[Depex]
+  TRUE

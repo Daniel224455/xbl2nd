@@ -1,0 +1,84 @@
+# @file  
+#                    MeasureBootDxe.inf
+#
+#
+# Copyright (c) 2011-2018 Qualcomm Technologies, Inc. All rights reserved.
+#
+#
+#=============================================================================
+#                              EDIT HISTORY
+#  This section contains comments describing changes made to the module.
+#  Notice that changes are listed in reverse chronological order.
+#
+#
+#
+# when       who      what, where, why
+# --------   ---      --------------------------------------------------------
+# 03/26/18   yps      Add PackIt rule for AUZB
+# 12/01/17   jt       Add NVMe guid 
+# 06/13/17   pr       Changes to fix Measurment issue for PCR4 register
+# 10/26/16   rp       Measureboot fix to read hashes from SMEM
+# 06/24/15   bh       Add PackIt rule for LZB
+# 04/23/15   vk       Add UFS support
+# 12/03/14   sk       Changed library to protocol
+# 04/04/14   vk       Remove warning related build options, added globally
+# 03/18/14   sm       Added back warning as error
+# 12/10/13   sm       Removed unused guids
+# 10/25/13   vk       Remove warning as error
+# 04/08/13   shl      PCD cleanup
+# 05/18/11   shl      Initial version
+#
+#=============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = MeasureBootDxe
+  FILE_GUID                      = 252CCE76-28E9-4B57-B91F-57770847B47B
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = MeasureBootDxeInitialize
+
+[Sources]
+  MeasureBootDxe.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[UserExtensions.PackIt.PackOut.LZB]
+  ../MeasureBootDxe
+  
+[UserExtensions.PackIt.PackOut.AUZB]
+  ../MeasureBootDxe
+
+[LibraryClasses]
+  UefiLib
+  PeHashLib  
+  QcomLib
+  SecBootBaseLib
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  BootConfigLib
+
+[Guids]
+  gEfiSalSystemTableGuid
+  gEfiSmbiosTableGuid
+  gEfiAcpiTableGuid
+  gEfiImageSecurityDatabaseGuid
+  gEfiGlobalVariableGuid
+  gEfiEmmcUserPartitionGuid 
+  gEfiUfsLU4Guid
+  gEfiNvme0Guid
+
+[Protocols]
+  gEfiTrEEProtocolGuid
+  gQcomAcpiPlatformProtocolGuid
+  gQcomMeasureBootProtocolGuid               ## PRODUCES
+  gEfiSMEMProtocolGuid
+
+[Depex]
+  TRUE

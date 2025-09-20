@@ -1,0 +1,53 @@
+#/** @file HALEDPLib.inf
+#
+#  DP configuration library
+#
+#  Copyright (c) 2019, Qualcomm Technologies, Inc.
+#  All Rights Reserved.
+#  Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = HALDPLibeDPOnly
+  FILE_GUID                      = 60155696-6548-11e9-87dd-2727a758a13e
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = HALEDPLib
+
+[BuildOptions]
+  RVCT:*_*_*_CC_FLAGS =
+
+[BuildOptions.AARCH64]
+GCC:*_*_*_CC_FLAGS = -DDPDRIVER_EDP_MODE
+
+[Sources.common]
+  dp_aux.c
+  dp_dpcd.c
+  dp_driver.c
+  dp_edid.c
+  dp_host.c
+  dp_link.c
+  dp_system.c
+  hal_dp_aux.c
+  hal_dp.c
+  hal_dp_hpd.c
+  hal_dp_mainlink.c
+  hal_dp_phy.c
+  hal_dp_phy_1_2_0.c
+  hal_dp_alt_mode_phy_1_2_0.c
+  hal_dp_phy_qmp_pll_7nm.c
+  edid.c
+  edp_psr.c
+  hal_edp_psr.c
+  dp_dsc.c
+  hal_dp_dsc.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/Library/HALDPLib/HALDPLibStub.dec
+
+

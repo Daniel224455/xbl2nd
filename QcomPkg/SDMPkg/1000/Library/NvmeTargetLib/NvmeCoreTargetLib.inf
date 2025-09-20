@@ -1,0 +1,51 @@
+#/** @file NvmeCoreTargetLib.inf
+#
+#  NVMe BSP Target specific INF file
+#
+#  Copyright (c) 2018 Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who   what, where, why
+# ----------   ---   ---------------------------------------------------------
+# 2018-06-15   wek   Initial version
+#
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = NvmeCoreTargetLib
+  FILE_GUID                      = D62A03F6-AB2D-48E5-9E10-0FD9732F26AC
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = NvmeCoreTargetLib
+
+[Sources.common]
+  ./../../Settings/Nvme/NvmeCoreTargetLib.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDMPkg/SDMPkg.dec
+
+[Guids]
+  gEfiEventExitBootServicesGuid
+  gEfiNvme0Guid
+
+[Protocols]
+  gQcomPmicGpioProtocolGuid
+  gEfiRscHandlerProtocolGuid
+
+[LibraryClasses]
+  BaseLib
+  UefiBootServicesTableLib
+  NpaApiLib
+
+[Pcd.Common]
+  gQcomTokenSpaceGuid.PcdLpm

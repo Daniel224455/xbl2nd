@@ -1,0 +1,20 @@
+{
+	"CFGL": {
+		"file1": {
+    	"file_name" : "/Build/SDM1000_xblconfig/Pmic.bin", 
+      "config_name": "/pmic_settings.bin",
+			"attributes": "0"
+		},
+		"file2": {
+                        "file_name" : "/QcomPkg/SDMPkg/1000/Settings/DSF_AU/release/6006_0200_1_dcb.bin",
+                        "config_name": "/6006_0200_1_dcb.bin",
+			"attributes": "0"
+		},
+		"file3": {
+						"file_name" : "/QcomPkg/SDMPkg/1000/Settings/XblConfig/AU/uefi_load_config.bin",
+      					"config_name": "/uefi_load_config.bin",
+			"attributes": "0"
+		}	
+	}
+}
+

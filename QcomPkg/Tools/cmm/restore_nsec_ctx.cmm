@@ -1,0 +1,246 @@
+;============================================================================
+; Name: restore_nsec_ctx.cmm
+;
+; Description: Restore NSec ctxt when PC is in secure side
+;
+; Copyright (c) 2017 Qualcomm Technologies, Inc.
+; All Rights Reserved.
+; Qualcomm Technologies Proprietary and Confidential.
+;
+;----------------------------------------------------------------------------
+
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+;
+;  when         who     what, where, why
+;  ----------   ---     -----------------------------------------------------
+;  07-07-2017   yg      Initial version
+;============================================================================;
+
+;
+;
+;   Usage : do restore_nsec_ctx <aa64_nsec_ctx> <core_num>
+;
+;     aa64_nsec_ctx : Pointer to the data structure that contains NSec ctxt.
+;                     each context structure per core is 0x1F8 bytes
+;     core_num : which core registers to restore (automate later)
+;
+;
+
+
+;------------------------------------------------------------------------------
+;Entry Point
+;------------------------------------------------------------------------------
+;entry  &CtxtPtr &CoreNum
+entry
+
+local &Reg
+local &CtxtPtr
+local &Ofst
+
+;winclear
+;plist
+;r
+
+;  Enable one of the core's address
+
+;   Core 0
+;  &CtxtPtr=0x1C0017A0
+
+;   Core 1
+  &CtxtPtr=0x1C001998
+
+;   Core 2
+;  &CtxtPtr=0x1C001B90
+
+;   Core 3
+;  &CtxtPtr=0x1C001D88
+
+  &Ofst=0
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X0 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X1 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X2 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X3 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X4 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X5 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X6 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X7 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X8 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X9 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X10 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X11 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X12 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X13 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X14 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X15 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X16 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X17 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X18 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X19 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X20 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X21 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X22 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X23 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X24 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X25 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X26 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X27 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X28 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X29 &Reg
+
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s X30 &Reg
+
+  &Ofst=&Ofst+0x8
+  &Reg=data.quad(D:&CtxtPtr+&Ofst)
+  &Ofst=&Ofst+0x8
+  r.s SP &Reg
+
+  ; sys_regs_ctx offset
+  &Ofst=0x108
+
+;   ELR_EL1      0x30401
+  &Reg=data.quad(D:&CtxtPtr+&Ofst+0x8)
+  data.set SPR:0x30401 %quad &Reg
+
+
+;   VBAR_EL1     0x30C00
+  &Reg=data.quad(D:&CtxtPtr+&Ofst+0x20)
+  data.set SPR:0x30401 %quad &Reg
+
+
+;   TTBR0_EL1    0x30200
+  &Reg=data.quad(D:&CtxtPtr+&Ofst+0x30)
+  data.set SPR:0x30C00 %quad &Reg
+
+
+;   TCR_EL1      0x30202
+  &Reg=data.quad(D:&CtxtPtr+&Ofst+0x38)
+  data.set SPR:0x30202 %quad &Reg
+
+
+;   TPIDR_EL1    0x30D04
+  &Reg=data.quad(D:&CtxtPtr+&Ofst+0x50)
+  data.set SPR:0x30D04 %quad &Reg
+
+
+;   SCTLR_EL1    0x30100
+  &Reg=data.quad(D:&CtxtPtr+&Ofst+0x58)
+  data.set SPR:0x30100 %quad &Reg
+
+
+;   MAIR_EL1     0x30A20
+  &Reg=data.quad(D:&CtxtPtr+&Ofst+0x68)
+  data.set SPR:0x30A20 %quad &Reg
+
+
+;  ELR_EL3 => PC
+  &Reg=data.quad(D:&CtxtPtr+&Ofst+0xB8)
+  r.s PC &Reg
+
+;  SCR_EL3   Switch to NS mode
+;  Data.Set C15:0x0011 %Long 0x1
+
+
+;  SPSR_EL3 => CPSR
+  &Reg=data.quad(D:&CtxtPtr+&Ofst+0xC8)
+  r.s CPSR &Reg
+
+;d.l
+;v.f
+;area
+
+enddo
+

@@ -1,0 +1,20 @@
+;============================================================================
+; Name: runtime_symbol_load.cmm
+; Parse info block and load symbols for drivers
+; 
+; Copyright (c) 2018 Qualcomm Technologies, Incorporated.
+; All Rights Reserved.
+; Qualcomm Confidential and Proprietary
+;
+;----------------------------------------------------------------------------
+;============================================================================
+;
+;
+;
+;when         who     what, where, why
+;----------   ---     ----------------------------------------------------------
+;2018-06-12   kpa     Initial Version
+;============================================================================;
+
+; Wrapper script for runtime_symbol_load_common.cmm 
+cd.do ../../Tools/runtime_symbol_load_common.cmm

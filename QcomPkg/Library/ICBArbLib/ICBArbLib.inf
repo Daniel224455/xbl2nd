@@ -1,0 +1,61 @@
+#/** @file ICBArbLib.inf
+#
+#  ICBArbLib Lib
+#  
+#
+#===========================================================================
+#    Copyright (c) 2017-2018 Qualcomm Technologies Incorporated.
+#                       All Rights Reserved.
+#                QUALCOMM Proprietary and Confidential
+#==========================================================================
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# --------     ---     ----------------------------------------------------------
+# 2017/02/01   op      Initial version
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ICBArbLib.inf
+  FILE_GUID                      = 76643cca-9b82-4563-9fa5-e25cd92d78e5
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = ICBArbLib
+
+[Sources]
+  # Include Header
+  ../../Include/api/kernel/libstd/stringl/stringl.h
+  ../../Include/api/systemdrivers/icbid.h
+  ../../Include/api/systemdrivers/ddiaxicfg.h
+
+  # Source code
+  axicfg.c
+  axicfgint.c
+  axicfgos.c
+  HALnoc.c
+  ul_arb.c
+  ul_int.c
+  ul_tree.c
+  
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec  
+
+[LibraryClasses]
+  NpaApiLib
+  DALModEnvLib
+  DALFwkLib
+  DALConfigLib
+  CmdDbApiLib
+  RpmhApiLib
+
+[Protocols]
+

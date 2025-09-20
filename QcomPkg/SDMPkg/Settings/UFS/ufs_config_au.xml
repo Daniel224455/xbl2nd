@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<driver name="NULL">
+
+    <device name="/core/storage/ufs">
+        <props name="NumLanes" type="DALPROP_ATTR_TYPE_UINT32">
+          2
+        </props>
+        <props name="EnableHighSpeed" type="DALPROP_ATTR_TYPE_UINT32">
+          1
+        </props>
+        <props name="NumGears" type="DALPROP_ATTR_TYPE_UINT32">
+          3
+        </props>
+    </device>
+</driver>
+

@@ -1,0 +1,131 @@
+#/** @file PmicDxeAu.inf
+#  
+#  PMIC Driver INF file
+#  
+#  Copyright (c) 2018 Qualcomm Technologies, Inc.  All Rights Reserved. 
+#  Qualcomm Technologies Proprietary and Confidential.
+#  
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# --------     ---     ----------------------------------------------------------
+# 04/23/18     pxm      PmixDxe for Au
+#==============================================================================
+
+
+[Defines]
+  INF_VERSION                 = 0x00010005
+  BASE_NAME                   = PmicDxe
+  FILE_GUID                   = 5776232e-082d-4b75-9a0e-fe1d13f7a5d9
+  MODULE_TYPE                 = DXE_DRIVER
+  VERSION_STRING              = 1.0
+  ENTRY_POINT                 = PmicInitialize
+
+[Sources.common]
+  Pmic.c
+  PmicRtcProtocol.c
+  PmicRtcConversions.c
+  PmicGpioProtocol.c
+  PmicVregProtocol.c
+  PmicLpgProtocol.c
+  Fg/PmicFgBasicProtocol.c
+  Fg/PmicFgCommon.c
+  Fg/PmicFgBattProfile.c
+  Fg/PmicFgSram.c
+  PmicVibProtocol.c
+  PmicHapticsProtocol.c
+  PmicWledProtocol.c
+  PmicPwrOnProtocol.c
+  PmicClkBuffProtocol.c
+  PmicSchgProtocol.c
+  PmicUsbProtocol.c
+  PmicRgbLedProtocol.c
+  PmicVersionProtocol.c
+  PmicIbbProtocol.c
+  PmicAbProtocol.c
+  PmicOledbProtocol.c
+  PmicLcdbProtocol.c
+  PmicPwmProtocol.c
+  PmicNpaTestProtocol.c
+  PmicTestProtocol.c
+  PmicFileLog.c
+  pm_core_utils.c
+
+#[BuildOptions.AARCH64]
+  #GCC:*_*_*_CC_FLAGS = -O0
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/Library/PmicLib/PmicCoreLib.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  PmicLib
+  PmicCoreLib
+  SPMIApiLib
+  UefiDriverEntryPoint
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  BaseLib
+  ParserLib
+  QcomLib
+  ULogApiLib
+  FuseControlLib
+  CmdDbApiLib
+  RpmhApiLib
+  NpaApiLib
+  TimetickLib
+  SerialPortLib
+  PrintLib
+  
+
+[Protocols]
+  gQcomPmicRtcProtocolGuid
+  gQcomPmicGpioProtocolGuid
+  gQcomPmicVregProtocolGuid
+  gQcomPmicLpgProtocolGuid
+  gEfiAdcProtocolGuid
+  gQcomPmicVibProtocolGuid
+  gQcomPmicHapticsProtocolGuid
+  gQcomPmicWledProtocolGuid
+  gEfiChipInfoProtocolGuid
+  gEfiPlatformInfoProtocolGuid
+  gQcomPmicPwrOnProtocolGuid
+  gQcomSPMIProtocolGuid
+  gQcomPmicClkBuffProtocolGuid
+  gQcomPmicPwmProtocolGuid
+  gEfiDppProtocolGuid
+  gQcomPmicRgbLedProtocolGuid
+  gQcomPmicVersionProtocolGuid
+  gQcomPmicSchgProtocolGuid
+  gQcomPmicUsbProtocolGuid
+  gQcomPmicNpaTestProtocolGuid
+  gQcomPmicIbbProtocolGuid
+  gQcomPmicAbProtocolGuid
+  gQcomPmicOledbProtocolGuid
+  gQcomPmicLcdbProtocolGuid
+  gQcomPmicPwmProtocolGuid
+  gQcomPmicFgProtocolGuid
+  gQcomPmicDriverTestProtocolGuid
+  #NpaDxe
+  gEfiNpaProtocolGuid
+  gQcomPmicGenericProtocolGuid
+  gQcomPmicHapticsProtocolGuid
+
+[Guids]
+  gEfiEmmcUserPartitionGuid
+  gEfiBDPPartitionGuid
+  gQcomTokenSpaceGuid
+
+[Depex]
+  gEfiDalSysProtocolGuid
+
+[Pcd]
+  gQcomTokenSpaceGuid.HostModeSupported
+  gQcomTokenSpaceGuid.PcdPsHoldAddress

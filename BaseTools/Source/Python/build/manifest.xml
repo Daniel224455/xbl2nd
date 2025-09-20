@@ -1,0 +1,10 @@
+<config>
+  <image_tree>
+    <name>BOOT.XF.3.0.1.c1</name>
+    <build_id>BOOT.XF.3.0.1.c1-00036-SC8180XWZB-3</build_id>
+    <branch_point_revision/>
+    <revision>00036</revision>
+    <spin>3</spin>
+    <client>SC8180XWZB</client>
+  </image_tree>
+</config>

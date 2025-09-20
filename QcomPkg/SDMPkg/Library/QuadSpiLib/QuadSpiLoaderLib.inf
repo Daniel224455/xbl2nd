@@ -1,0 +1,22 @@
+[Defines]
+  INF_VERSION    = 0x00010005
+  BASE_NAME      = QuadSpiLoaderLib
+  FILE_GUID      = 75D3DA49-CA36-42CF-B54D-25BEB4C63184
+  MODULE_TYPE    = BASE
+  VERSION_STRING = 1.0
+  LIBRARY_CLASS  = QuadSpiLoaderLib
+
+[Sources]
+  quadspi.c
+
+[LibraryClasses]
+  MuslLib
+  TlmmLib
+  PlatformInfoLoaderLib
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS   = -DBOOT_LOGGING
+  MSFT:*_*_*_CC_FLAGS  = -DBOOT_LOGGING

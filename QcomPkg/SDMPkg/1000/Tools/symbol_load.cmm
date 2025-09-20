@@ -1,0 +1,44 @@
+;============================================================================
+;  Name:
+;    symbol_load.cmm
+;
+;  Description:
+;     Loads UEFI symbols, after halting target
+;
+; Copyright (c) 2018 Qualcomm Technologies, Inc.
+; All Rights Reserved.
+; Qualcomm Technologies Proprietary and Confidential.
+;
+;----------------------------------------------------------------------------
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+;
+;
+;
+; when         who     what, where, why
+; ----------   ---     ----------------------------------------------------------
+;2018-10-22    kpa     Fix duplicate toolbars buttons on multiple script invoke
+;2018-07-02    kpa     Pass target package path to common script
+;2018-06-12    kpa     Initial Version
+;============================================================================;
+
+global &DebugScriptsDir
+
+local &CwDir
+
+  &CwDir=os.ppd()
+
+  ; Wrapper script for common symbol loading script
+  ; Pass TargetPkg Path for invoking target specific scripts
+  IF ("&DebugScriptsDir"=="")
+  (
+    &DebugScriptsDir="&CwDir"
+    print "Error!! DebugScriptsDir not Set, using current folder  &CwDir"
+  )
+
+  print "Build Target Dir: &DebugScriptsDir"
+
+  ; Call the actual script
+  cd.do &DebugScriptsDir/../../Tools/symbol_load_common.cmm &CwDir
+

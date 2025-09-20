@@ -1,0 +1,44 @@
+#/** @file DALConfigToolsLib.inf
+#
+#  DAL configuration Tools library
+#
+#  Copyright (c) 2015, Qualcomm Technologies, Inc.
+#  All rights reserved.
+#  Qualcomm Confidential and Proprietary
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = DALConfigToolsLib
+  FILE_GUID                      = 73B329EB-B3BE-4990-8C57-B14365A2ECF1
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = DALConfigToolsLib
+  MACRO_NAME                     = tools
+  CUSTOM_MAKEFILE                = DALConfigToolsLib.mk
+
+[Sources.common]
+  DALConfig_tools.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+    
+
+[LibraryClasses]
+  BaseLib
+  DALGenLibTools
+
+[UserExtensions.PackIt.PackIn]
+  DALConfigToolsLib.mk
+  image_cfg.xml
+  ..\..\..\..\Tools\devcfg\scripts\propgen.py
+  ..\..\..\..\Tools\devcfg\scripts\image_config.py
+  ..\..\..\Settings\devcfg\devcfg_rules.mk
+  ..\..\..\Settings\DALSystem\tools\dalsystem_tools.xml
+  ../Qusb/qusb.xml
+  ../Qusb/qusb_phy_settings.c
+ 

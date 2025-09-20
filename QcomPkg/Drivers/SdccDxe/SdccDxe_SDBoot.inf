@@ -1,0 +1,100 @@
+#/** @file SdccDxe_SDBoot.inf
+#  
+#  SDCC Driver UEFI INF file
+#  
+#  Copyright (c) 2018 Qualcomm Technologies, Inc.  
+#  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# ----------   -----   ----------------------------------------------------------
+# 2018/04/12   kp      Update Base Name
+# 2018/03/08   jt      Initial version, specifically for SD card boot in Hana #
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SdccDxe_SDBoot
+  FILE_GUID                      = 8063CC34-459F-0B38-AF28-3BACE2E435A6
+  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SdccDxeEntryPoint
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -Wno-missing-field-initializers -Wno-missing-braces
+  
+[Sources.common]
+  SdccDxe_SDBoot.c
+  SdccBlockIO2.c
+  
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  UefiRuntimeServicesTableLib
+  UefiRuntimeLib
+  UefiLib
+  UefiBootServicesTableLib
+  BaseMemoryLib
+  DebugLib
+  UefiDriverEntryPoint
+  IoLib
+  DALFwkLib
+  SdccHalLib
+  SdccCommonLib
+  UncachedMemoryAllocationLib
+  RpmbLib
+  RpmbListenerLib
+  UefiCfgLib
+  BootConfigLib
+  
+[Guids]
+  gEfiSdRemovableGuid
+  gEfiEmmcUserPartitionGuid
+  gEfiEmmcBootPartition1Guid 
+  gEfiEmmcBootPartition2Guid 
+  gEfiEmmcRpmbPartitionGuid
+  gEfiEmmcGppPartition1Guid 
+  gEfiEmmcGppPartition2Guid 
+  gEfiEmmcGppPartition3Guid 
+  gEfiEmmcGppPartition4Guid 
+  gEfiEventDetectSdCardGuid
+  gEfiEventExitBootServicesGuid 
+  gEfiEventVirtualAddressChangeGuid             ## CONSUMES ## Event
+  gEfiSDBootOptionGuid                        
+
+[Protocols]
+  gEfiBlockIoProtocolGuid
+  gEfiBlockIo2ProtocolGuid
+  gEfiCpuArchProtocolGuid
+  gEfiDevicePathProtocolGuid
+  gEfiMemCardInfoProtocolGuid
+#  gEfiClockProtocolGuid
+  gEfiSdccRpmbProtocolGuid
+  gEfiEmmcWpProtocolGuid
+  gEfiEraseBlockProtocolGuid
+  gQcomScmProtocolGuid 
+  gEfiEmmcSecureEraseProtocolGuid
+  gEfiSdccConfigProtocolGuid
+  
+[Pcd.common]
+  gQcomTokenSpaceGuid.SDCCExtSlotNumber
+  gQcomTokenSpaceGuid.SDCCEmmcSlotNumber
+  gQcomTokenSpaceGuid.SDCCEventBasedSDDetectEnabled
+  gQcomTokenSpaceGuid.SDCCEmmcHwResetEnabled
+
+[Depex]
+  gEfiClockProtocolGuid
+  AND
+  gEfiTimerArchProtocolGuid
+  

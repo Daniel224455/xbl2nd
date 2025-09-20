@@ -1,0 +1,206 @@
+;============================================================================
+; Name: memmap.cmm
+;
+; Description: Dump current GCD memory map entries, symbols should be loaded
+;
+; Copyright (c) 2012-2015,2018,2019 Qualcomm Technologies, Inc.
+; All Rights Reserved.
+; Qualcomm Technologies Proprietary and Confidential.
+;
+;----------------------------------------------------------------------------
+
+;============================================================================
+;
+;                        EDIT HISTORY FOR MODULE
+;
+;
+;
+;  when         who     what, where, why
+;  ----------   ---     -----------------------------------------------------
+;  2019-02-26   kpa     Fix memmap dump for preallocated memory buffer entries
+;  2018-07-13   kpa     Fix number of pages calculation
+;  2018-07-02   yg      Revert A: to RD: get correct data through caches
+;  2015-06-25   bh      Fix UEFI_Logs area issues
+;  2015-15-04   vk      Support 64 bit addresses
+;  2015-02-12   bh      Change RD: to A:
+;  2015-01-27   bh      Unify Scripts for 32/64-bit
+;  2013-06-03   vk      Initial version
+;============================================================================;
+
+;
+;NOTE:  symbols should be loaded
+;
+
+; ---------------------------------------------------------
+; Script entry point
+; ---------------------------------------------------------
+  area.create UEFI_Logs 1000. 8192.
+  area.view UEFI_Logs
+  print "+-----------------+"
+  print "|UEFI Memmap Dump |"
+  print "+-----------------+"
+  print " "
+  print "Memory Types"
+  print " 0 EfiReservedMemoryType"
+  print " 1 EfiLoaderCode"
+  print " 2 EfiLoaderData"
+  print " 3 EfiBootServicesCode"
+  print " 4 EfiBootServicesData"
+  print " 5 EfiRuntimeServicesCode"
+  print " 6 EfiRuntimeServicesData"
+  print " 7 EfiConventionalMemory"
+  print " 8 EfiUnusableMemory"
+  print " 9 EfiACPIReclaimMemory"
+  print " A EfiACPIMemoryNVS"
+  print " B EfiMemoryMappedIO"
+  print " C EfiMemoryMappedIOPortSpace"
+  print " D EfiPalCode"
+  print " E EfiMaxMemoryType"
+
+
+  local &Mem_Map_ptr
+  local &NextPtr
+  local &Count
+
+  &Count=0
+
+  local &MemmapList
+
+  do ../InitOffsets.cmm
+
+  &MemmapList=address.offset(gMemoryMap)
+  ;print "&MemmapList"
+  &Memmap_start_ptr=&MemmapList
+
+  if (&ARCHState==1)
+  (
+    &Mem_Map_ptr=data.long(RD:&Memmap_start_ptr)
+  )
+  else
+  (
+    &Mem_Map_ptr=data.quad(RD:&Memmap_start_ptr)
+  )
+
+  ;print "MT = Memory Type"
+  print "--------------------------------------------------------------------------------------------"
+  print "AddressRange                         Size                  Pages       Type  Attribute"
+  print "--------------------------------------------------------------------------------------------"
+
+  while (&Mem_Map_ptr!=&Memmap_start_ptr)
+  (
+    gosub print_gcd &Mem_Map_ptr+&MemMapGcdOffset
+    if (&ARCHState==1)
+    (
+      &NextPtr=data.long(RD:&Mem_Map_ptr)
+    )
+    else
+    (
+      &NextPtr=data.quad(RD:&Mem_Map_ptr)
+    )
+    &Mem_Map_ptr=&NextPtr
+  )
+
+  print "--------------------------------------------------------------------------"
+  print "Count = " %Decimal &Count
+  print "--------------------------------------------------------------------------"
+enddo
+
+validate_mem_type:
+  entry &iBaseAddr &EndAddr &MemType
+ 
+  local &MemoryStatTable
+  local &TypeIndex
+  local &EfiMaxType
+  
+  ;mMemoryTypeStatistics fields
+  ;;-----------------------------------------------------------
+  ;;(EFI_MEMORY_TYPE_STATISTICS) typedef (struct)
+  ;;-----------------------------------------------------------
+  ;;(struct) struct (0x30 bytes,
+  ;;                [0x0] EFI_PHYSICAL_ADDRESS BaseAddress,
+  ;;                [0x8] EFI_PHYSICAL_ADDRESS MaximumAddress,
+  ;;                [0x10] UINT64 CurrentNumberOfPages,
+  ;;                [0x18] UINT64 NumberOfPages,
+  ;;                [0x20] UINTN InformationIndex,
+  ;;                [0x28] BOOLEAN Special,
+  ;;                [0x29] BOOLEAN Runtime)
+  ;;-----------------------------------------  
+  local &BaseAddrOffset
+  local &MaxAddrOffset
+  local &NumPageOffset  
+  local &SpecialFlagOffset  
+  local &MemoryStatTableEntrySize
+  local &BaseAddr
+  local &MaxAddr
+  local &NumPage
+  local &SpecialFlag
+  
+  &TypeIndex = 0
+  &EfiMaxType = 0xF
+ 
+  &BaseAddrOffset=0x0
+  &MaxAddrOffset=0x8
+  &NumPageOffset=0x18  
+  &SpecialFlagOffset=0x28
+  &MemoryStatTableEntrySize=0x30
+  
+  &MemoryStatTable=address.offset(mMemoryTypeStatistics)
+  
+  while (&TypeIndex<&EfiMaxType)
+  (
+    &BaseAddr=data.quad(RD:(&MemoryStatTable+&BaseAddrOffset))
+    &MaxAddr=data.quad(RD:(&MemoryStatTable+&MaxAddrOffset))
+    &NumPage=data.quad(RD:(&MemoryStatTable+&NumPageOffset))
+    &SpecialFlag=data.byte(RD:(&MemoryStatTable+&SpecialFlagOffset))
+    if (&SpecialFlag==1)&&(&NumPage>0)&&(&iBaseAddr>=&BaseAddr)&&(&EndAddr<=&MaxAddr)
+    ( 
+      &MemType=&TypeIndex 
+    )
+    
+    &TypeIndex=&TypeIndex+1
+    &MemoryStatTable=&MemoryStatTable+&MemoryStatTableEntrySize
+  )
+
+  return &MemType
+
+print_gcd:
+  entry &gcd_ptr
+
+  local &BaseAddr
+  local &EndAddr
+  local &MemType
+  local &Attribute
+
+  &MemType=data.long(RD:&gcd_ptr)
+
+  if (&ARCHState==1)
+  (
+    &BaseAddr=data.long(RD:&gcd_ptr+&GcdBaseOffset)
+    &EndAddr=data.long(RD:&gcd_ptr+&GcdEndOffset)
+  )
+  else
+  (
+    &BaseAddr=data.quad(RD:&gcd_ptr+&GcdBaseOffset)
+    &EndAddr=data.quad(RD:&gcd_ptr+&GcdEndOffset)
+  )
+
+  &EndAddr=&EndAddr+1
+  ;print &gcd_ptr
+  ;print &gcd_ptr+&GcdBaseOffset
+  ;print &gcd_ptr+&GcdAttribOffset
+
+  &Attribute=data.quad(RD:&gcd_ptr+&GcdAttribOffset)
+
+  &Size=&EndAddr-&BaseAddr
+  &SizeStr=FORMAT.HEX(16.,&Size)
+  &Pages=(&Size/0x1000)
+  &PagesStr=FORMAT.HEX(8.,&Pages)
+
+  gosub validate_mem_type &BaseAddr &EndAddr &MemType
+  entry &MemType
+  
+  print FORMAT.HEX(16.,&BaseAddr), "--" FORMAT.HEX(16.,(&EndAddr-1)), "   0x&SizeStr", "    &PagesStr", "    &MemType   " , FORMAT.HEX(16.,&Attribute)
+  &Count=&Count+1
+  return
+
+enddo

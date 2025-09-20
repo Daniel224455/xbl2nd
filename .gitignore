@@ -1,2 +1,13 @@
 Build/
 tags/
+Conf/
+*.log
+BaseTools/workspace.txt
+.vscode
+QcomPkg/SDM845Pkg/Bin/
+QcomPkg/Tools/sectools/ext/colorama/__init__.pyc
+QcomPkg/Tools/sectools/ext/colorama/ansi.pyc
+QcomPkg/Tools/sectools/ext/colorama/ansitowin32.pyc
+QcomPkg/Tools/sectools/ext/colorama/initialise.pyc
+QcomPkg/Tools/sectools/ext/colorama/win32.pyc
+QcomPkg/Tools/sectools/ext/colorama/winterm.pyc

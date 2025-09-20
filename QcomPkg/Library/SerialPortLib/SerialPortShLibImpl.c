@@ -300,28 +300,9 @@ SerialPortRead(OUT UINT8 *user_buffer, IN UINTN bytes_requested)
  *  Here the buffering and port output control options are available
  * */
 UINTN
-SerialBufferedWrite (UINT8* Buffer, UINTN Bytes)
+SerialBufferedWrite (UINT8* Buffer, UINTN NumberOfBytes)
 {
-  UINTN Remaining;
-  Remaining = EnqueueData (Buffer, Bytes);
-  Buffer += (Bytes - Remaining);
-  Bytes = Remaining;
-  while ( Remaining != 0) {
-    DequeueSendBufferedData ();
-    Remaining = EnqueueData(Buffer, Bytes);
-	Buffer += (Bytes - Remaining);
-	Bytes = Remaining;
-  }
-
-  if (NoPortOut == TRUE)
-    return Bytes;
-
-  if (SyncIOEnable)
-    return SerialPortFlush ();
-  else
-    DequeueSendBufferedData ();
-
-  return 0;
+  return SerialPortWrite (Buffer, NumberOfBytes);
 }
 
 /* Control Port output and buffering options

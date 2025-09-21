@@ -1,0 +1,34 @@
+#/** @file LZ4DecompressLib.inf
+#  
+#  Copyright (c) 2017 Qualcomm Technologies, Inc.
+#  All Rights Reserved.
+#  Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = LZ4DecompressLib
+  FILE_GUID                      = 3F4916F4-7012-42A7-914B-8C5A53BAB87B
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = LZ4DecompressLib 
+  CONSTRUCTOR                    = LZ4DecompressLibConstructor
+
+[Sources]
+  LZ4DecompressLib.c
+
+[LibraryClasses]
+  LZ4Lib
+  BaseLib
+  DebugLib
+  ExtractGuidedSectionLib
+  
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[Guids]
+  gLZ4DecompressGuid  ## PRODUCES

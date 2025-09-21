@@ -1,0 +1,66 @@
+#/** @file HALDPLib.inf
+#
+#  DP configuration library
+#
+#  Copyright (c) 2016-2018, Qualcomm Technologies, Inc.
+#  All Rights Reserved.
+#  Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = HALDPLib
+  FILE_GUID                      = 5FC205F9-E0D6-4749-95DA-B686F471AB4C
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = HALDPLib
+
+[BuildOptions]
+  RVCT:*_*_*_CC_FLAGS =
+
+[Sources.common]
+  dp_aux.c
+  dp_dpcd.c
+  dp_driver.c
+  dp_edid.c
+  dp_host.c
+  dp_link.c
+  dp_system.c
+  hal_dp_aux.c
+  hal_dp.c
+  hal_dp_hpd.c
+  hal_dp_mainlink.c
+  hal_dp_phy_1_1_0.c
+  hal_dp_phy.c
+  edid.c
+
+[LibraryClasses]
+  DebugLib
+  UefiLib
+  UefiBootServicesTableLib
+  UncachedMemoryAllocationLib
+  BaseMemoryLib
+  MDPLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/Library/HALDPLib/HALDPLib.dec
+
+[Protocols]
+ gQcomPmicLpgProtocolGuid
+ gQcomPmicMppProtocolGuid
+ gQcomPmicGpioProtocolGuid
+ gQcomPmicVregProtocolGuid
+
+[Depex]
+ gQcomPmicLpgProtocolGuid
+ AND gQcomPmicMppProtocolGuid
+ AND gQcomPmicGpioProtocolGuid
+ AND gQcomPmicVregProtocolGuid
+
+[Pcd]
+ gQcomTokenSpaceGuid.PcdHPDPollCount
+

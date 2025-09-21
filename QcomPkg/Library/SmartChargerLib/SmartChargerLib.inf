@@ -1,0 +1,82 @@
+#/** @file ChargerLibWp.inf
+#  
+#  Contains Charger related Qualcomm library functions.
+#  
+#  Copyright (c) 2016-2017, Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 07/13/17   dc      Addomg UsbPwrCtrl Protocol
+# 08/05/16   va      Adding Charger led indication support
+# 07/07/16   sm      Added BMPLib  
+# 03/25/16   va      Initial revision
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SmartChargerLib
+  FILE_GUID                      = B348B8D3-D68F-4EB4-A844-56D4A1A9D082
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SmartChargerLib
+
+#
+#  VALID_ARCHITECTURES           = ARM AARCH64
+#
+
+[Sources]
+  SmartChargerLibCommon.c
+  SmartChargerLibFG.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
+  UefiLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  BaseLib
+  PcdLib
+  QcomLib
+  ULogApiLib
+  QcomUtilsLib
+  #SleepLib
+  FuseControlLib
+  ParserLib
+  SerialPortLib
+  BMPLib
+  ChargerExtHwLib
+
+[Guids]
+  gEfiFileSystemInfoGuid
+  gEfiFileInfoGuid
+
+[Protocols]
+  gQcomPmicVersionProtocolGuid
+  gQcomPmicSchgProtocolGuid
+  gQcomPmicFgProtocolGuid
+  gEfiAdcProtocolGuid 
+  gQcomPmicPwrOnProtocolGuid
+  gEfiVariableServicesProtocolGuid        ## CONSUMES
+  gEfiTsensProtocolGuid
+  gEfiGraphicsOutputProtocolGuid
+  gQcomPmicUsbProtocolGuid
+  gQcomPmicRtcProtocolGuid
+  gEfiUsbfnChgSrvProtocolGuid
+  gQcomPmicRgbLedProtocolGuid
+  gEfiUsbInitProtocolGuid
+  gQcomUsbPwrCtrlProtocolGuid
+
+[Depex]
+  TRUE

@@ -1,0 +1,47 @@
+#/** @file SystemFMPDxe.inf
+#
+#  DXE driver for Firmware Management Driver
+#
+#   Copyright (c) 2017, Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#**/
+
+# TODO: Giri: Try to move this to DXE_DRIVER
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SystemFMPDxe
+  FILE_GUID                      = 62dc5eb0-a425-40b5-90bf-970a86fdb8f7
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SystemFMPEntryPoint
+
+[Sources.common]
+  SystemFMPDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/XBLLoaderApi.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UncachedMemoryAllocationLib
+  DebugLib
+  UefiCfgLib
+  ParserLib
+  FwCommonLib
+  FwUpdateLib
+  FmpAuthenticationLib
+
+[Protocols]
+  gEfiFirmwareManagementProtocolGuid            ## PRODUCES
+
+[Guids]
+  gEfiCertPkcs7Guid                             ## CONSUMES
+
+[Depex]
+  gEfiVariableArchProtocolGuid      AND
+  gEfiVariableWriteArchProtocolGuid

@@ -1,0 +1,64 @@
+#/** @file HvxTest.inf
+#
+#  Qualcomm HVX Test application
+#
+#  Copyright (c) 2010-2016, Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 05/21/18   pweber  Added gEfiACPITableLoadGuid under Guids
+# 05/26/16   pgw     Initial revision
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = HvxTest
+  FILE_GUID                      = 4aa7417c-3033-4d29-9667-48a987b8a08e
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = UefiMain
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = ARM
+#
+
+[Sources]
+  HvxTest.c
+
+[Sources.AARCH64]
+  smc_util.s
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+  PcdLib
+  TestInterfaceLib
+  PeCoffLib
+
+[Guids]
+  gEfiACPITableLoadGuid
+
+[Ppis]
+
+[Protocols]
+  gQcomScmProtocolGuid
+  gEfiSimpleFileSystemProtocolGuid
+  gEfiLoadedImageProtocolGuid
+
+[FeaturePcd]
+
+[Pcd]

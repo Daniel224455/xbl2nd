@@ -1,0 +1,69 @@
+#/** @file CamSensorIMX318TestApp.inf
+#  
+#  Camera Sensor IMX318 Test App
+#
+#  Copyright (c) 2016-2017 Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#/*=============================================================================
+#                              EDIT HISTORY
+#
+# when       who     what, where, why
+# --------   ---     -----------------------------------------------------------
+#2017/05/05  VB      Updated  app to test Sony IMX318 camera sensor
+#2016/07/08  MFC/JW  Created  app to test Sony IMX230 camera sensor
+#=============================================================================*/
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Imx318Test
+  FILE_GUID                      = 3A681669-054E-42BC-B0FB-005317D67866
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = Imx318TestMain
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = ARM AARCH64
+#
+
+[BuildOptions]
+RVCT:*_*_*_CC_FLAGS = -DTARGET_UEFI
+
+[BuildOptions.AARCH64]
+  GCC:*_*_*_CC_FLAGS = -DTARGET_UEFI
+  
+[Sources]
+  IMX318Test.c
+  CCI_HAL.c
+  CCICmdBuilder.c
+  CCICtrl.c
+  CCILoader.c
+  CCIResourceManager.c
+  CCIService.c
+  
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDM845Pkg/Library/PmicLib/PmicLib.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+  UefiBootServicesTableLib
+  QcomLib
+  NpaApiLib
+  TestInterfaceLib
+  IoLib
+  
+[Protocols]
+  gEfiNpaProtocolGuid
+  gEfiTLMMProtocolGuid
+  gQcomPmicVregProtocolGuid
+  gEfiClockProtocolGuid
+  gQcomPmicGpioProtocolGuid
+  
+

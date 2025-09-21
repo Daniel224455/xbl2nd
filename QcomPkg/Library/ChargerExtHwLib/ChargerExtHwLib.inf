@@ -1,0 +1,64 @@
+#/** @file ChargerExtHwLib.inf
+#
+#  Contains External Charger H/w related Qualcomm library functions.
+#
+#  Copyright (c) 2017, Qualcomm Technologies, Inc.  All Rights Reserved.
+#  Qualcomm Technologies Proprietary and Confidential.
+#
+#**/
+
+#==============================================================================
+#
+#                     EDIT HISTORY
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 08/10/17   mr      Initial Version
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = ChargerExtHwLib
+  FILE_GUID                      = F8E34DAE-3B87-41EC-9D51-88C5E044168C
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = ChargerExtHwLib
+
+#
+#  VALID_ARCHITECTURES           = ARM AARCH64
+#
+
+[Sources]
+  ChargerExtHwLib.c
+  ChargerExtHwLibConfig.c
+  ChargerExtHwRohm.c
+  ChargerExtHwComm.c
+
+#[BuildOptions.AARCH64]
+# GCC:*_*_*_CC_FLAGS = -O0
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
+  UefiLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  BaseLib
+  QcomLib
+  ULogApiLib
+  QcomUtilsLib
+  SerialPortLib
+  PrintLib
+  I2CApiLib
+
+[Guids]
+
+[Protocols]
+  gEfiTLMMProtocolGuid
+
+[Depex]
+  TRUE

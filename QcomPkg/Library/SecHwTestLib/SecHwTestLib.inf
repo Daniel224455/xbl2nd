@@ -1,0 +1,33 @@
+#   
+#                    SecHwTestabilityLibRelease.inf
+#
+#
+#  Copyright (c) 2015  Qualcomm Technologies, Inc. All rights reserved.
+# 
+#
+#
+
+#=============================================================================
+#                              EDIT HISTORY
+#  This section contains comments describing changes made to the module.
+#  Notice that changes are listed in reverse chronological order.
+#
+#
+#
+# when       who      what, where, why
+# --------   ---      --------------------------------------------------------
+# 07/12/17   mj       Initial version
+#
+#=============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SecHwTestLib
+  FILE_GUID                      = C5462E25-2D44-4AD0-B343-F589A18DFCF4
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SecHwTestLib
+
+[Sources.arm]
+
+[Sources.AARCH64]

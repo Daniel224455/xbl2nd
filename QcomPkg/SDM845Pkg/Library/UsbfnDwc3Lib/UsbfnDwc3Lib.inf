@@ -1,0 +1,50 @@
+#/** @file UsbfnDwc3Lib.inf
+#  
+#  UsbfnDwc3Lib abstracts USB hardware specific access
+#  
+#  Copyright (c) 2015-2017, Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 10/20/17   gk      Updated new Pmic API for UsbPwrCtrlDxe for UEFI
+# 02/23/16   ck      Add Type-C support
+# 10/26/15   ck      Init Sdm845 Pre-Si support
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = UsbfnDwc3Lib
+  FILE_GUID                      = 1E383193-7A1C-4519-99B5-1C084E7A2004
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = UsbfnDwc3Lib
+
+[Sources]
+  UsbfnDwc3Lib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+  QcomPkg/SDM845Pkg/SDM845Pkg.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  IoLib
+  UsbConfigLib
+
+[Protocols]
+  #gQcomUsbPwrCtrlProtocolGuid           ## Consumes
+  
+[BuildOptions.AARCH64]
+  #GCC:*_*_*_CC_FLAGS = -O0
+[BuildOptions.ARM]
+  #RVCT:*_*_*_CC_FLAGS = -O0

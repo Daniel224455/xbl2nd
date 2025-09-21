@@ -1,0 +1,72 @@
+#/** @file MDPPlatformLib.inf
+#  
+#  MDP PLatform library
+#  
+#  Copyright (c) 2015-2018 Qualcomm Technologies, Inc.
+#  All Rights Reserved.
+#  Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 05/09/17   ml    Deprecated OEMPlatform library dependency.
+# 02/18/16   rs    Added Npa library and Pmic variables
+# 11/13/15   ml    Initial version for 8998
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = MDPPlatformLib
+  FILE_GUID                      = FE680889-1B2B-4D0C-81DD-43D76A384B92
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = MDPPlatformLib
+
+[Sources.common]
+  MDPPlatformLib.c
+  MDPPlatformLibPanelCommon.c
+  Panel_cls_sn65dsix6_wqhd_vid.c
+
+[LibraryClasses]
+  DebugLib
+  NpaApiLib
+
+[Protocols]
+ gEfiPlatformInfoProtocolGuid
+ gEfiChipInfoProtocolGuid
+ gQcomPmicWledProtocolGuid
+ gQcomPmicIbbProtocolGuid
+ gQcomPmicLabProtocolGuid
+ gQcomPmicMppProtocolGuid
+ gQcomPmicGpioProtocolGuid
+ gEfiTLMMProtocolGuid
+ gQcomI2CProtocolGuid
+ gQcomPmicClkBuffProtocolGuid
+ 
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+ 
+[FixedPcd]
+ gQcomTokenSpaceGuid.PcdPanelType
+ gQcomTokenSpaceGuid.PcdDisplayForceSwRenderer
+ gQcomTokenSpaceGuid.PcdPrimaryFlags
+ gQcomTokenSpaceGuid.PcdExtDisplayType
+  
+[Depex]
+ gEfiPlatformInfoProtocolGuid 
+ AND gEfiChipInfoProtocolGuid
+ AND gQcomPmicWledProtocolGuid
+ AND gQcomPmicIbbProtocolGuid
+ AND gQcomPmicLabProtocolGuid
+ AND gQcomPmicMppProtocolGuid
+ AND gEfiTLMMProtocolGuid
+ AND gQcomI2CProtocolGuid
+ AND gQcomPmicClkBuffProtocolGuid
+

@@ -1,0 +1,42 @@
+#/** @file LZ4Lib.inf
+#  
+#  Copyright (c) 2017 Qualcomm Technologies Inc. All Rights Reserved.
+#  Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#
+#**/
+/*=============================================================================
+                              EDIT HISTORY
+
+
+ when       who     what, where, why
+ --------   ---     -----------------------------------------------------------
+ 10/24/17   ps      initial version
+
+=============================================================================*/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = LZ4Lib
+  FILE_GUID                      = 12CBCA3F-60F7-4273-A1E3-A9E4D855EC56
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = LZ4Lib
+
+
+[Sources]
+  lz4.c
+  lz4.h
+  lz4hc.c
+  lz4hc.h
+  LZ4LibWrapper.c
+
+[LibraryClasses]
+  BaseMemoryLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  QcomPkg/QcomPkg.dec
+

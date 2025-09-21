@@ -1,0 +1,127 @@
+#/*===============================================================================
+#  Copyright (c) 2016-2017 Qualcomm Technologies, Inc.  All Rights Reserved.
+#
+#  FILE:                SocTestInitLib.inf
+#  DESCRIPTION:         example tests and top_level test init
+#
+#  REVISION HISTORY
+#  when       who     what, where, why
+#  --------   ---     ----------------------------------------------------------
+#  06/22/17   ianr    Created
+#  07/13/17   ianr    Bit behind on changelog, added HelloWorld, AsicAttribs, Display
+#================================================================================*/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = LLDTestLib
+  FILE_GUID                      = 4e136d29-4f57-452c-9fbc-57eb36a91026
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = LLDTestLib
+
+[Sources.common]
+  LLDTestList.c
+  
+  ChargerTest/ChargerTest.c
+
+  ../../QcomTestPkg/ChipInfoApp/ChipInfoApp.c
+  ../../QcomTestPkg/ChipInfoApp/ChipInfoAppDALFwk.c
+  ../../QcomTestPkg/ChipInfoApp/ChipInfoAppEFIProtocol.c
+
+  ButtonTest/ButtonTest.c
+  
+  MemoryValidationTest/MemoryValidationTest.c
+  
+  ../../QcomTestPkg/DisplayApp/DisplayApp.c
+  DisplayTest/DisplayTest.c
+  
+  CameraConnectivity/CCI_HAL.c
+  CameraConnectivity/CCICmdBuilder.c
+  CameraConnectivity/CCICtrl.c
+  CameraConnectivity/CCILoader.c
+  CameraConnectivity/CCIResourceManager.c
+  CameraConnectivity/CCIService.c
+  CameraConnectivity/IMX318Test.c
+
+  ../../QcomTestPkg/PMICTest/PMICTest.c
+  
+  SdccTest/SdccTestApp.c
+  
+  ../../QcomTestPkg/TsensTest/TsensTest.c
+  
+  ../../QcomTestPkg/UsbfnLoopbackApp/UsbfnDesc.c
+  ../../QcomTestPkg/UsbfnLoopbackApp/UsbfnIoTest.c
+  ../../QcomTestPkg/UsbfnLoopbackApp/UsbfnLbSm.c
+  ../../QcomTestPkg/UsbfnLoopbackApp/UsbfnLbSmImpl.c
+  ../../QcomTestPkg/UsbfnLoopbackApp/UsbfnLoopback.c
+
+[Packages]  
+  ArmPkg/ArmPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  CacheMaintenanceLib
+  DALFwkLib
+  DALModEnvLib
+  EfiFileLib
+  MemoryAllocationLib
+  NpaApiLib
+  ParserLib
+  PcdLib
+  QcomLib
+  TestInterfaceLib
+  TimerLib
+  UefiApplicationEntryPoint
+  UefiBootServicesTableLib
+  UefiLib
+  UefiCfgLib
+  UncachedMemoryAllocationLib
+
+[Guids]
+  gEfiEmmcUserPartitionGuid 
+  gEfiEmmcBootPartition1Guid
+  gEfiEmmcBootPartition2Guid  
+  gEfiEmmcGppPartition1Guid 
+  gEfiEmmcGppPartition2Guid 
+  gEfiEmmcGppPartition3Guid
+  gEfiEmmcGppPartition4Guid
+  gEfiEmmcRpmbPartitionGuid
+  gEfiUfsLU0Guid
+  gEfiUfsLU1Guid  
+  gEfiUfsLU2Guid  
+  gEfiUfsLU3Guid  
+  gEfiUfsLU4Guid  
+  gEfiUfsLU5Guid
+  gEfiUfsLU6Guid  
+  gEfiUfsLU7Guid  
+  gEfiUfsRPMBGuid
+  gInitUsbControllerGuid
+  
+[Protocols]
+  gQcomScmProtocolGuid
+  gQcomDisplayPwrCtrlProtocolGuid
+  gEfiDisplayPowerStateProtocolGuid
+  gEfiClockProtocolGuid
+  gEfiTLMMProtocolGuid                  ## Consumes
+  gEfiBlockIoProtocolGuid
+  gEfiSdccRpmbProtocolGuid
+  gEfiTsensProtocolGuid
+  gQcomPmicVersionProtocolGuid
+  gQcomPmicMppProtocolGuid
+  gQcomPmicGpioProtocolGuid
+  gEfiNpaProtocolGuid
+  gQcomPmicVregProtocolGuid
+  gEfiChipInfoProtocolGuid
+  gChargerExProtocolGuid
+  gEfiUsbInitProtocolGuid
+  gEfiUsbfnIoProtocolGuid
+  gEfiDDRGetInfoProtocolGuid
+  gQcomChargerProtocolGuid
+
+[Pcd.common]
+  gQcomTokenSpaceGuid.PcdQTimerEnabled

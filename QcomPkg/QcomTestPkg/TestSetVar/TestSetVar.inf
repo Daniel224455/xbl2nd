@@ -1,0 +1,55 @@
+#/** @file TestSetVar.inf
+
+#  
+#  Copyright (c) 2017-2018, Qualcomm Technologies Inc. All rights reserved.
+#
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when       who     what, where, why
+# --------   ---     ----------------------------------------------------------
+# 11/21/2017 ps      pack-in & pack-out rules added
+# 07/27/2017 bd      initial version
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = TestSetVar
+  FILE_GUID                      = 65ce161f-27a8-4de2-b83b-57b0239a7781
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = TestSetVarMain
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = ARM
+#
+
+[Sources]
+  TestSetVar.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  TestInterfaceLib
+  BaseLib
+  QcomLib
+  QcomUtilsLib
+
+[Guids]
+   
+[Ppis]
+
+[Protocols]
+
+[FeaturePcd]
+

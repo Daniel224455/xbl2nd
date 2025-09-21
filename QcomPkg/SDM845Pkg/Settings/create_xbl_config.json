@@ -1,0 +1,29 @@
+{
+	"CFGL": {
+		"file1": {
+    	"file_name" : "/Build/SDM845_xblconfig/Pmic.bin", 
+      "config_name": "/pmic_settings.bin",
+			"attributes": "0"
+		},
+		"file2": {
+			"file_name" : "/QcomPkg/SDM845Pkg/Settings/DSF/release/6000_0100_0_dcb.bin",
+      "config_name": "/6000_0100_0_dcb.bin",
+			"attributes": "0"
+		},
+    "file3": {
+			"file_name" : "/QcomPkg/SDM845Pkg/Settings/DSF/release/6000_0100_1_dcb.bin",
+      "config_name": "/6000_0100_1_dcb.bin",
+			"attributes": "0"
+		},
+    "file4": {
+			"file_name" : "/QcomPkg/SDM845Pkg/Settings/DSF/release/6000_0200_0_dcb.bin",
+      "config_name": "/6000_0200_0_dcb.bin",
+			"attributes": "0"
+		},
+    "file5": {
+			"file_name" : "/QcomPkg/SDM845Pkg/Settings/DSF/release/6000_0200_1_dcb.bin",
+      "config_name": "/6000_0200_1_dcb.bin",
+			"attributes": "0"
+		}
+	}
+}

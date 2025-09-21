@@ -1,0 +1,33 @@
+#/** @file            MorPpiDxeRelease.inf
+# 
+#    Contains Qualcomm MorPpi driver.
+# 
+#    Copyright (c) 2011,2014 Qualcomm Technologies, Inc. All rights reserved.
+#
+#**/
+#=============================================================================
+#                              EDIT HISTORY
+#  This section contains comments describing changes made to the module.
+#  Notice that changes are listed in reverse chronological order.
+#
+#
+#
+# when       who      what, where, why
+# --------   ---      --------------------------------------------------------
+# 12/03/14   sk       Initial revision
+#
+#=============================================================================
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = MorPpiDxe
+  FILE_GUID                      = 125E61D7-E824-4943-8BE9-1ADD2B197360
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = MorPpiDxeInitialize
+
+[Binaries.Arm]
+   PE32|MorPpiDxe.efi|RELEASE
+
+[Binaries.AARCH64]
+   PE32|MorPpiDxe.efi|RELEASE

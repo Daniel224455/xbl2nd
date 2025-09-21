@@ -1,0 +1,53 @@
+# @file
+#                    CommandLineReferenceApp.inf
+#
+#
+# Copyright (c) 2017, 2018 by Qualcomm Technologies, Inc. All Rights Reserved.
+#
+#
+#=============================================================================
+#                              EDIT HISTORY
+#  This section contains comments describing changes made to the module.
+#  Notice that changes are listed in reverse chronological order.
+#
+#
+#
+# when       who      what, where, why
+# --------   ---      --------------------------------------------------------
+# 07-17-17   ianr     Begin project
+#=============================================================================
+
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = LLDReferenceApp
+  FILE_GUID                      = F6BD9EDD-2BD6-4CAD-81CF-50148DBBC574
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = LLDReferenceAppMain
+
+[Sources]
+  LLDReferenceApp.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  PcdLib
+  LLDTestLib
+  TestInterfaceLib
+  UefiApplicationEntryPoint
+  UefiLib
+  
+[Protocols]
+  gEfiSimpleTextInputExProtocolGuid
+  gEfiBlockIoProtocolGuid
+  gEfiSdccRpmbProtocolGuid
+
+[Pcd.Common]
+  gQcomTokenSpaceGuid.PcdQTimerEnabled
+
+[BuildOptions]
+  *_*_*_DLINK_FLAGS = --wrap=AsciiPrint

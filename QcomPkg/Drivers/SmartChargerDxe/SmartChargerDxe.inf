@@ -1,0 +1,84 @@
+#/** @file SmartChargerDxe.inf
+#  
+#  SMART Charger INF file
+#  
+#  Copyright (c) 2017, Qualcomm Technologies Inc. All rights reserved.
+#  
+#**/
+
+#==============================================================================
+#                              EDIT HISTORY
+#
+#
+# when         who     what, where, why
+# --------     ---     ----------------------------------------------------------
+# 07/31/17     pbitra  Initial revision
+#
+#==============================================================================
+
+[Defines]
+  INF_VERSION                 = 0x00010005
+  BASE_NAME                   = SmartChargerDxe
+  FILE_GUID                   = 00AB017A-0141-4FD6-8A62-69FBD03732E7
+  MODULE_TYPE                 = DXE_DRIVER
+  VERSION_STRING              = 1.0
+  ENTRY_POINT                 = SmartChargerInitialize
+
+[Sources.common]
+  SmartCharger.c
+  SmartChargerPlatform.c
+  SmartChargerPlatform_File.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
+  UefiLib
+  UefiDriverEntryPoint
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  BaseLib
+  PcdLib
+  QcomLib
+  ULogApiLib
+  QcomUtilsLib
+  #SleepLib
+  FuseControlLib
+  ParserLib
+  SmartChargerLib
+  SmemLib
+
+[Protocols]
+  gSmartChargerProtocolGuid
+  gEfiChipInfoProtocolGuid
+  gEfiPlatformInfoProtocolGuid
+  gQcomSPMIProtocolGuid
+  gEfiDppProtocolGuid
+
+
+[Guids]
+  gEfiEventChargerEnableGuid
+  gEfiEventChargerDisableGuid
+  gEfiLogFSPartitionGuid
+  gQcomTokenSpaceGuid
+  gEfiFileSystemInfoGuid
+  gEfiFileInfoGuid
+  gOSAVendorGuid
+
+[Protocols]
+  gQcomDisplayPwrCtrlProtocolGuid         ## CONSUMES
+  gEfiClockProtocolGuid
+  gQcomPmicPwrOnProtocolGuid
+  gEfiVariableServicesProtocolGuid        ## CONSUMES
+  gEfiSimpleFileSystemProtocolGuid
+  gQcomPmicPonProtocolGuid
+  
+[Depex]
+  TRUE
+
+[Guids.common]
+  gQcomTokenSpaceGuid
+

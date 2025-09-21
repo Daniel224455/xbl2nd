@@ -937,8 +937,8 @@
   #
   # Variable Services
   #
-  #MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
-  QcomPkg/Drivers/VariableDxe/VariableDxe.inf
+  MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
+  #QcomPkg/Drivers/VariableDxe/VariableDxe.inf
 
   #
   # DPP Services
@@ -1081,7 +1081,7 @@
   #
   # PCI Host Bridge Driver
   #
-  QcomPkg/Drivers/PciHostBridgeDxe/PciHostBridgeDxe.inf
+  #QcomPkg/Drivers/PciHostBridgeDxe/PciHostBridgeDxe.inf
 
   #
   # DAL Drivers
@@ -1119,7 +1119,7 @@
   #
   # Display DXE Driver
   #
-  QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
+  #QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
 
   #
   # SoC Drivers

@@ -134,8 +134,9 @@
 
 #  Arch Protocol :  EfiVariableArchProtocolGuid,
 #  Arch Protocol :  EfiVariableWriteArchProtocolGuid,
-        INF QcomPkg/Drivers/VariableDxe/VariableDxe.inf
-
+        #INF QcomPkg/Drivers/VariableDxe/VariableDxe.inf
+        INF MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
+      
         #
         # Crashdump Driver
         #
@@ -199,7 +200,7 @@
 		# Adding Limits DxE
 		#
 	       INF QcomPkg/Drivers/LimitsDxe/LimitsDxe.inf
-        INF QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
+        #INF QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
 
         INF QcomPkg/Drivers/UsbfnDwc3Dxe/UsbfnDwc3Dxe.inf
         INF QcomPkg/Drivers/XhciPciEmulationDxe/XhciPciEmulationDxe.inf

@@ -130,8 +130,8 @@ FvNameGuid         = 631008B0-B2D1-410A-8B49-2C5C4D8ECC7E
   #
   # Variable Dxe
   #
-  #INF MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
-  INF QcomPkg/Drivers/VariableDxe/VariableDxe.inf
+  INF MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
+  #INF QcomPkg/Drivers/VariableDxe/VariableDxe.inf
   INF QcomPkg/Drivers/DppDxe/DppDxe.inf
   INF QcomPkg/Drivers/EmbeddedMonotonicCounter/EmbeddedMonotonicCounter.inf
   INF QcomPkg/Drivers/SimpleTextInOutSerialDxe/SimpleTextInOutSerial.inf
@@ -289,7 +289,7 @@ FvNameGuid         = 631008B0-B2D1-410A-8B49-2C5C4D8ECC7E
   #
   # Display/MDP DXE driver
   #
-  INF QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
+  #INF QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
 
   #
   # PlatformInfo Driver
@@ -405,7 +405,7 @@ FvNameGuid         = 631008B0-B2D1-410A-8B49-2C5C4D8ECC7E
   #
   # PCI Support
   #
-  INF QcomPkg/Drivers/PciHostBridgeDxe/PciHostBridgeDxe.inf
+  #INF QcomPkg/Drivers/PciHostBridgeDxe/PciHostBridgeDxe.inf
 
   #
   # Hash Driver

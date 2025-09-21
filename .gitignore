@@ -1,2 +1,5 @@
 Build/
 tags/
+Conf/
+BaseTools/workspace.txt
+*.log

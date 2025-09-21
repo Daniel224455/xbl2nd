@@ -57,7 +57,7 @@ DEFAULT_ARM_LICENSE_FILE = "7117@license-wan-arm1"
 DEFAULT_TARGET_REGEX = "^([a-zA-Z]{3,4})(\d([\d|x|X]{2,3}))Pkg$"
 DEFAULT_VARIANT_REGEX = '^[A-Z][A-Z]$'
 BUILDIT_BUILDINFO_TAG = "UserExtensions.Buildit.BuildInfo"
-BOOT_IMAGES_DIR = "boot_images"
+BOOT_IMAGES_DIR = "xbl2nd"
 QCOM_DIR = "QcomPkg"
 DEFAULT_COMPILER_ARCH = "AARCH64"
 COPY_IMAGES_AS_IS = ["jtagprogrammer"]
@@ -334,7 +334,7 @@ def main():
         variant = variants[index].upper()
       else:
         variant = ""
-      image_version_setup(os.environ["TARGETMSM"],variant)
+      #image_version_setup(os.environ["TARGETMSM"],variant)
       ARGUMENTS['$VAR'] = variant
       for release_mode in options.release.split(','):
         if release_mode.upper() == "RELEASE":
@@ -461,14 +461,14 @@ def create_image(options,variant_flavor,build_dirt,tools_dirt):
         tool_cmds = get_tool_cmd(tool_dirt)
         cmd_params = get_cmd_params(options,variant_flavor,process_action,tool_dirt)
         if process_action['ToolChain'] == "Copy":
-           shutil.copy2(cmd_params[0],cmd_params[1])
+           #shutil.copy2(cmd_params[0],cmd_params[1])
            continue
               
-        try:
-          subprocess.check_output(tool_cmds + cmd_params)
-        except Exception as error:
-         raise NameError("ERROR: buildex::excute command failed with error: \n"  \
-                                + str(error))
+        #try:
+        #  subprocess.check_output(tool_cmds + cmd_params)
+        #except Exception as error:
+        # raise NameError("ERROR: buildex::excute command failed with error: \n"  \
+        #                        + str(error))
       #break;
   return
 #####################################################################
@@ -896,44 +896,44 @@ def make_edk_tools():
 ##############################################################################
 # image_version_setup
 ##############################################################################
-def image_version_setup(target, variant):
-  image_version_dir = os.path.join(os.environ['WORKSPACE'], 'QcomPkg', 'Library', 'ImageVersionLib')
-  image_version_builder = os.path.join(os.environ['WORKSPACE'], 'QcomPkg', 'Tools', 'scripts', 'version_builder.py')
-  
-  version_files = [os.path.join(image_version_dir, 'oem_version.c'),
-                   os.path.join(image_version_dir, 'oem_uuid.c'),
-                   os.path.join(image_version_dir, 'qc_version.c')]
-                   
-  for vf in version_files:
-    if os.path.isfile(vf): os.remove(vf)
-  
-  version_build_cmd = ['python', image_version_builder, 
-                       '-t', image_version_dir,
-                       '-b', target + variant]
-  curr_dir = os.getcwd()
-  os.chdir(os.environ["WORKSPACE"])
-  print "[buildex.py] Generating image version file..."
-  
-  if platform.system() == "Windows":
-    print "\tPlease be patient. This step may take a while on Windows machines..."
-  
-  try:
-    subprocess.check_call(version_build_cmd)
-  except Exception as error:
-    if error.returncode == 1:
-      raise NameError("ERROR: buildex::image_version_setup:" + \
-                      "image version setup failed.")
-    elif error.returncode == 2:
-      raise NameError("ERROR: buildex::image_version_setup:" + \
-                      "image version setup failed with following error: " + \
-                      "manifest.xml not found!")
-  
-  for vf in version_files:
-    if not os.path.isfile(vf):
-      print "\nError: Image Version File not generated"
-      raise NameError("ERROR buildex::image_version_setup:" + \
-                      "image version setup failed to genearte file: " + vf)
-  print "Done"
+#def image_version_setup(target, variant):
+#  image_version_dir = os.path.join(os.environ['WORKSPACE'], 'QcomPkg', 'Library', 'ImageVersionLib')
+#  image_version_builder = os.path.join(os.environ['WORKSPACE'], 'QcomPkg', 'Tools', 'scripts', 'version_builder.py')
+#  
+#  version_files = [os.path.join(image_version_dir, 'oem_version.c'),
+#                   os.path.join(image_version_dir, 'oem_uuid.c'),
+#                   os.path.join(image_version_dir, 'qc_version.c')]
+#                   
+#  for vf in version_files:
+#    if os.path.isfile(vf): os.remove(vf)
+#  
+#  version_build_cmd = ['python', image_version_builder, 
+#                       '-t', image_version_dir,
+#                       '-b', target + variant]
+#  curr_dir = os.getcwd()
+#  os.chdir(os.environ["WORKSPACE"])
+#  print "[buildex.py] Generating image version file..."
+#  
+#  if platform.system() == "Windows":
+#    print "\tPlease be patient. This step may take a while on Windows machines..."
+#  
+#  try:
+#    subprocess.check_call(version_build_cmd)
+#  except Exception as error:
+#    if error.returncode == 1:
+#      raise NameError("ERROR: buildex::image_version_setup:" + \
+#                      "image version setup failed.")
+#    elif error.returncode == 2:
+#      raise NameError("ERROR: buildex::image_version_setup:" + \
+#                      "image version setup failed with following error: " + \
+#                      "manifest.xml not found!")
+#  
+#  for vf in version_files:
+#    if not os.path.isfile(vf):
+#      print "\nError: Image Version File not generated"
+#      raise NameError("ERROR buildex::image_version_setup:" + \
+#                      "image version setup failed to genearte file: " + vf)
+#  print "Done"
 
 #####################################################################
 # search all target path
@@ -1123,11 +1123,11 @@ def perform_merges(options,dll_paths, variant_flavor,process_action,merge_tool_d
       cxbl_cmd = get_cmd_params(options,variant_flavor,process_action,merge_tool_dirt)
                   
       # Run merge command
-      try:
-        subprocess.check_output( cxbl_tool_cmd + cxbl_cmd)
-      except Exception as error:
-        raise NameError("ERROR: buildex::perform_merges: " + \
-                        "Failed to merge with error: " + str(error))
+      #try:
+      #  subprocess.check_output( cxbl_tool_cmd + cxbl_cmd)
+      #except Exception as error:
+      #  raise NameError("ERROR: buildex::perform_merges: " + \
+      #                  "Failed to merge with error: " + str(error))
     
   #
   # createxbl multiple merge

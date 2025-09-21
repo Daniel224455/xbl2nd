@@ -2,7 +2,7 @@
    
   ScmDxe provides secure channel messaging functions to communicate with Trust Zone.
 
-  Copyright (c) 2014-2017 Copyright Qualcomm Technologies, Inc.  All Rights Reserved.
+  Copyright (c) 2014-2015 Copyright Qualcomm Technologies, Inc.  All Rights Reserved.
   Qualcomm Technologies Proprietary and Confidential.
    
 **/
@@ -13,7 +13,6 @@
 
  when       who     what, where, why
  --------   ---     -----------------------------------------------------------
- 10/24/17   pr      Copy SMC command failure return value to Rsp buffer
  02/18/15   sm      Changed SMC to not truncate parameters to 32bit
  12/22/14   sm      Changed allocation to happen on initialization
  07/16/14   sm      Branched from ScmDxe
@@ -215,8 +214,8 @@ ScmArmV8QseeSysCall(
   EFI_STATUS                  Status; 
   UINT32                      QseeSmcId;
   UINT32                      QseeParamId;
-  UINT64                      QseeParameters[SCM_MAX_NUM_PARAMETERS] = {0};
-  UINT64                      QseeResults[SCM_MAX_NUM_RESULTS] = {0};
+  UINT64                      QseeParameters[SCM_MAX_NUM_PARAMETERS];
+  UINT64                      QseeResults[SCM_MAX_NUM_RESULTS];
   UINT64                      QseeTrustedOsId;
   qsee_command_resp_info_t   *QseeRsp;
   UINT32                      ListenerId;
@@ -236,15 +235,13 @@ ScmArmV8QseeSysCall(
       QseeParameters,
       QseeResults,
       &QseeTrustedOsId
-      );	
+      );
     if(Status != EFI_SUCCESS)
     {
-	  QseeRsp = (qsee_command_resp_info_t*)Results;
-	  QseeRsp->result = QseeResults[0];
-      break;
+      goto ErrorExit;
     }
-	
-	QseeRsp = (qsee_command_resp_info_t*)QseeResults;   
+
+    QseeRsp = (qsee_command_resp_info_t*)QseeResults;
 
     if((QseeRsp->result == TZOS_RESULT_INCOMPLETE) && 
        (QseeRsp->resp_type == QSEE_LISTENER_ID))
@@ -288,6 +285,8 @@ ScmArmV8QseeSysCall(
     }
 
   } while(TRUE);
+
+ErrorExit:
 
   return Status;
 }
@@ -567,24 +566,26 @@ ReallocateReq:
     Parameters,
     Results
     );
+  if( Status != EFI_SUCCESS )
+  {
+    goto ErrorExit;
+  }
+
   QseeResponse = (qsee_command_resp_info_t*)Results;
 
   // Check QSEE result.
   if(QseeResponse->result != TZOS_RESULT_SUCCESS )
   {
-	// pass the result to caller through Rsp
-	*((UINT32 *)Rsp) = QseeResponse->result;
-    // for RPMB provision and erase specially return Status is bad in this case., Rsp can't be trusted.
+    // pass the result to caller through Rsp, this is for RPMB provision and erase specially
+    // other cases may be impacted, anyway return Status is bad in this case., Rsp can't be trusted.
     // only RPMB provision and erase cases care this value so far.
     if ( ( CmdId == APP_PROVISION_RPMB_KEY_COMMAND || CmdId == APP_RPMB_ERASE_COMMAND ) &&
            Rsp != NULL && RspLen != 0 )
     {
-	  Status = EFI_DEVICE_ERROR; 
-    }  
-  }  
+      *((UINT32 *)Rsp) = QseeResponse->result;
+    }
 
-  if( Status != EFI_SUCCESS )
-  {
+    Status = EFI_DEVICE_ERROR;
     goto ErrorExit;
   }
 
@@ -600,13 +601,6 @@ ReallocateReq:
          break;
 
       case  APP_SEND_DATA_CMD:
-	  	 /*
-		 * Copying request data back to request buffer added to address CR 2104354.
-		 * It was observed that couple of SMC commands process request buffer data directly 
-		 * or copy processed data back to request buffer only. In these cases to give processed
-		 * request data back to clients, below statement to copy request buffer added.
-		 */
-	     CopyMem ( Req, (UINT8*)ReqPtr, ReqLen );
          CopyMem ( Rsp, (UINT8*)ReqPtr + ReqLen, RspLen );
          break;
       default:

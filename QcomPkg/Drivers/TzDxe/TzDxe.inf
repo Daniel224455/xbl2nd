@@ -100,7 +100,7 @@
   gEfiClockProtocolGuid           ## CONSUMES
   gEfiTpmProtocolGuid             ## CONSUMES
   gEfiDppProtocolGuid             ## CONSUMES 
-  gEfiShmBridgeProtocolGuid       ## CONSUMES
+
 
 [Depex]
   gEfiBlockIoProtocolGuid

@@ -918,7 +918,7 @@
   #
   # TzDxe Driver
   #
-  QcomPkg/Drivers/TzDxe/TzDxe.inf
+  QcomPkg/Drivers/TzDxe/TzDxeLA.inf
 
   #
   # MeasureBootDxe Driver

@@ -113,7 +113,7 @@ FvNameGuid         = 631008B0-B2D1-410A-8B49-2C5C4D8ECC7E
   #
   # PIL Loader
   #
-  INF QcomPkg/Drivers/TzDxe/TzDxe.inf
+  INF QcomPkg/Drivers/TzDxe/TzDxeLA.inf
 
   #
   # MeasureBootDxe Driver

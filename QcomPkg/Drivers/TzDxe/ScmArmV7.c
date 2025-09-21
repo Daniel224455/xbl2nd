@@ -730,14 +730,6 @@ Reallocate:
            Status = EFI_OUT_OF_RESOURCES;
            goto ErrorExit;
          }
-		 /*
-		 * Copying request data back to request buffer added to address CR 2104354.
-		 * It was observed that couple of SMC commands process request buffer data directly 
-		 * or copy processed data back to request buffer only. In these cases to give processed
-		 * request data back to clients, below statement to copy request buffer added.
-		 */
-		 
-		 CopyMem ( Req, (VOID*)(UINTN)AppSendDataSyCall->req.req_ptr, AppSendDataSyCall->req.req_len );
          CopyMem ( Rsp, (VOID*)(UINTN)AppSendDataSyCall->req.rsp_ptr, AppSendDataSyCall->req.rsp_len );
          break;
       default:

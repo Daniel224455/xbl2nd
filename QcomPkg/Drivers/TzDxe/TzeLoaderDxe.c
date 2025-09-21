@@ -61,12 +61,13 @@
 #include <TzeLoaderDxe.h>
 #include <Library/SerialPortLib.h>
 #include <LoaderUtils.h>
-#include <Protocol/EFIShmBridge.h>
 
 QCOM_SCM_PROTOCOL *QcomScmProtocol = NULL;
 
 #define TZBSP_computed_VERSION(major, minor, patch) \
   (((major & 0x3FF) << 22) | ((minor & 0x3FF) << 12) | (patch & 0xFFF))
+
+
 
 /* Ideally we should not find more than 1 handle */
 HandleInfo HandleInfoList[4];
@@ -83,7 +84,6 @@ UINT32*          UncachedMem;
 UINTN            UncachedMemSize;
 #define          UNCACHED_MEM_DEFAULT_SIZE     (520 * 1024)
 UINT64 *log_buffer = NULL;
-static EFI_SHMBRIDGE_PROTOCOL *ShmBridgeProtocol;
 
 /*------------------------------------------------------------------------
                               PUBLIC METHODS
@@ -113,14 +113,10 @@ static EFI_TZE_LOADER_PROTOCOL TzeLoaderProtocol =
 static VOID *
 TzeUncachedAllocatePool(IN UINTN  AllocationSize)
 {
-  EFI_STATUS              Status;
-
   if (AllocationSize > UncachedMemSize)
   {
-    Status = ShmBridgeProtocol->ShmBridgeFree(ShmBridgeProtocol, UncachedMem);
-    // ShmBridgeFree won't be called for this allocation. Allocation will be freed 
-    // when the Shmbridge is being deleted upon ExitBootServices callback.
-    UncachedMem = (UINT32*)ShmBridgeProtocol->ShmBridgeAllocate(ShmBridgeProtocol, &AllocationSize, ShmBridgeBootSvcData);
+    UncachedSafeFreePool (UncachedMem);
+    UncachedMem = UncachedAllocatePool (AllocationSize);
     if (UncachedMem == NULL)
       return NULL;
     UncachedMemSize = AllocationSize;
@@ -259,65 +255,6 @@ ErrorExit:
   return Status;
 }
 
-/* 
- * Notifiy TZ assign app region from HLOS to HLOS_UNMAPPED
- */
-EFI_STATUS
-QseeAppRegionAssignSyscall(
-  UINT64 applications_region_addr,
-  UINT64 applications_region_size
-  )
-{
-    EFI_STATUS Status = EFI_OUT_OF_RESOURCES;
-    UINT64 Parameters[SCM_MAX_NUM_PARAMETERS] = {0};
-    UINT64 Results[SCM_MAX_NUM_RESULTS] = {0};
-    hyp_memprot_assign_t *p_qsee_syscall = (hyp_memprot_assign_t*)Parameters;
-    VOID * AssignBufferPtr;
-    hyp_memprot_ipa_info_t ipa = {applications_region_addr, applications_region_size};
-    UINT32 srcVM = AC_VM_HLOS;
-    memprot_dstVM_perm_info_t dstVM = {AC_VM_HLOS_UNMAPPED, (VM_PERM_R|VM_PERM_W), (UINT64)NULL, 0};
-    UINT64 BufferSize;
-
-    // Assign call buffer size, ipa+srcVM+dstVM
-    BufferSize = sizeof(hyp_memprot_ipa_info_t)+sizeof(srcVM)+sizeof(hyp_memprot_dstVM_perm_info_t);
-
-    // ShmBridgeFree won't be called for this allocation. Allocation will be freed 
-    // when the Shmbridge is being deleted upon ExitBootServices callback.
-    AssignBufferPtr = ShmBridgeProtocol->ShmBridgeAllocate(ShmBridgeProtocol, &BufferSize, ShmBridgeBootSvcData);
-
-    DEBUG((EFI_D_INFO, "QseeAppRegionAssignSyscall: Buffer 0x%llx size %x\n", AssignBufferPtr, BufferSize));
-
-    if (AssignBufferPtr != 0)
-    {
-    p_qsee_syscall->IPAinfolist = (UINT64)AssignBufferPtr;
-    p_qsee_syscall->IPAinfolistsize = sizeof(hyp_memprot_ipa_info_t);
-    CopyMem((VOID *)p_qsee_syscall->IPAinfolist, &ipa, sizeof(hyp_memprot_ipa_info_t));
-    p_qsee_syscall->sourceVMlist = (UINT64)AssignBufferPtr + sizeof(hyp_memprot_ipa_info_t);
-    p_qsee_syscall->srcVMlistsize = sizeof(srcVM);
-    CopyMem((VOID *)p_qsee_syscall->sourceVMlist, &srcVM, sizeof(srcVM));
-    // adding 4 bytes for ctx of memprot_dstVM_perm_info_t to be 64 bits aligned
-    p_qsee_syscall->destVMlist = (UINT64)AssignBufferPtr + sizeof(hyp_memprot_ipa_info_t) + sizeof(srcVM) + 4;
-    p_qsee_syscall->destVMlistsize = sizeof(memprot_dstVM_perm_info_t);
-    CopyMem((VOID *)p_qsee_syscall->destVMlist, &dstVM, sizeof(memprot_dstVM_perm_info_t));
-    p_qsee_syscall->spare = 0;
-
-    Status = QcomScmProtocol->ScmSipSysCall(QcomScmProtocol,
-                                            HYP_MEM_PROTECT_ASSIGN,
-                                            HYP_MEM_PROTECT_ASSIGN_PARAM_ID,
-                                            Parameters,
-                                            Results
-                                            );
-    if (EFI_ERROR(Status))
-    {
-        DEBUG((EFI_D_ERROR, "QseeAppRegionAssignSyscall failed, Status = (0x%x)\r\n", Status));
-    }
-        // Returned allocated buffer
-        ShmBridgeProtocol->ShmBridgeFree(ShmBridgeProtocol, AssignBufferPtr);
-    }
-
-    return Status;
-}
-
 /*
 * Notify TZ where to load QSEE sec apps
 */
@@ -333,7 +270,6 @@ QseeAppsRegionNotificationSyscall (
    UINT32 startTime = 0, endTime = 0;
 
    qsee_syscallp= (qsee_apps_region_notification_t*)AllocatePool(sizeof(qsee_apps_region_notification_t));
-
    if (NULL == qsee_syscallp)
    {
       return EFI_OUT_OF_RESOURCES;
@@ -428,14 +364,8 @@ TzeLoaderProtocolInit (
   EFI_STATUS              Status;
   UINT32                  LoadSecAppsFlag = 0;
   UINT32                  configFlag =0;
-  UINTN uSize = UNCACHED_MEM_DEFAULT_SIZE;
 
-  Status = gBS->LocateProtocol(&gEfiShmBridgeProtocolGuid, NULL, (VOID **)&ShmBridgeProtocol);
-  ASSERT_EFI_ERROR(Status);
-
-  // ShmBridgeFree won't be called for this allocation. Allocation will be freed 
-  // when the Shmbridge is being deleted upon ExitBootServices callback. 
-  UncachedMem = (UINT32*)ShmBridgeProtocol->ShmBridgeAllocate(ShmBridgeProtocol, &uSize, ShmBridgeBootSvcData);
+  UncachedMem = (UINT32*)TzeUncachedAllocatePool (UNCACHED_MEM_DEFAULT_SIZE);
   if (UncachedMem == NULL)
     return EFI_OUT_OF_RESOURCES;
   UncachedMemSize = UNCACHED_MEM_DEFAULT_SIZE;
@@ -456,7 +386,7 @@ TzeLoaderProtocolInit (
 
   /* Check if qsee logs are enabled (in uefiplat.cfg file) */
   Status = GetConfigValue("SecurityFlag", &configFlag);
-  if ((Status != EFI_SUCCESS) || ((configFlag & ENABLE_QSEE_LOGS_FLAG) != ENABLE_QSEE_LOGS_FLAG)) 
+  if ((Status != EFI_SUCCESS) || ((configFlag & 0x100) != 0x100)) 
   {
     DEBUG((EFI_D_INFO, "Failed to get QseeLogEnableFlag, Status=%r\n", Status));
   }
@@ -471,7 +401,7 @@ TzeLoaderProtocolInit (
 
   Status = GetConfigValue ("SecurityFlag", &LoadSecAppsFlag);
   // Default to enabled if flag is not found
-  if ((Status != EFI_SUCCESS) || ((LoadSecAppsFlag & LOAD_SEC_APPS_FLAG) == LOAD_SEC_APPS_FLAG))
+  if ((Status != EFI_SUCCESS) || ((LoadSecAppsFlag & 0x40) == 0x40))
   {
     Status = LoadSecureApps(&TzeLoaderProtocol, ImageHandle, SystemTable, NULL);
   }

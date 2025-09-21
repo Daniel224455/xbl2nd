@@ -13,12 +13,11 @@
 
  when       who     what, where, why
  --------   ---     -----------------------------------------------------------
- 09/19/18   pr      Changes to raise and restore TPL level
- 10/24/17   pr      Copy SMC command failure return value to Rsp buffer
  06/18/16   rj      Added register log buffer command
  02/18/15   sm      Changed SMC to not truncate parameters to 32bit
  12/22/14   sm      Changed allocation to happen on initialization
  07/16/14   sm      Branched from ScmDxe
+
  =============================================================================*/
 #include <Uefi.h>
 #include <Library/DebugLib.h>
@@ -30,7 +29,6 @@
 #include <Protocol/EFIScm.h>
 #include <Protocol/EFITrEE.h>
 #include <Library/UefiCfgLib.h>
-#include <Protocol/EFIShmBridge.h>
 #include "tz_interface_armv8.h"
 #include "qsee_interface_armv8.h"
 #include "tz_syscall.h"
@@ -59,7 +57,6 @@ typedef struct _SMC_ARG_LIST_64 {
 static SMC_ARG_LIST_64   *IndirectParameters = NULL;
 static VOID              *ReqPtr = NULL;
 static UINTN              CurrentReqSize = 0;
-static EFI_SHMBRIDGE_PROTOCOL *ShmBridgeProtocol;
 
 #define INITIAL_REQ_SIZE (8 * 1024)
 extern int DisplayQseeLog(UINT32, UINT32);
@@ -69,30 +66,17 @@ EFI_STATUS
 ScmArmV8Initialize (VOID)
 {
   EFI_STATUS Status = EFI_SUCCESS;
-  UINTN uSize = sizeof(SMC_ARG_LIST_64);
 
-  Status = gBS->LocateProtocol(&gEfiShmBridgeProtocolGuid, NULL, (VOID **)&ShmBridgeProtocol);
-  ASSERT_EFI_ERROR(Status);
-
-  // ShmBridgeFree won't be called for this allocation. Allocation will be freed 
-  // when the Shmbridge is being deleted upon ExitBootServices callback. 
-  IndirectParameters = (SMC_ARG_LIST_64*)ShmBridgeProtocol->ShmBridgeAllocate(ShmBridgeProtocol, &uSize, ShmBridgeBootSvcData);
-
+  IndirectParameters = (SMC_ARG_LIST_64*)UncachedAllocateAlignedPool( sizeof(SMC_ARG_LIST_64), TZ_MEM_ALIGNMENT_SIZE);
   if(IndirectParameters == NULL)
   {
     Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
 
-  uSize = INITIAL_REQ_SIZE;
-  // ShmBridgeFree won't be called for this allocation. Allocation will be freed 
-  // when the Shmbridge is being deleted upon ExitBootServices callback. 
-  ReqPtr = ShmBridgeProtocol->ShmBridgeAllocate(ShmBridgeProtocol, &uSize, ShmBridgeBootSvcData);
-
+  ReqPtr = UncachedAllocateAlignedPool( INITIAL_REQ_SIZE, TZ_MEM_ALIGNMENT_SIZE);
   if(ReqPtr == NULL)
   {
-    // Free allocation for IndirectParameters
-    ShmBridgeProtocol->ShmBridgeFree(ShmBridgeProtocol, IndirectParameters);
     Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
@@ -214,21 +198,13 @@ ScmArmV8SipSysCall(
   OUT UINT64               Results[SCM_MAX_NUM_RESULTS]
   )
 {
-	EFI_STATUS Status;
-	EFI_TPL    PreviousTpl;
-	
-	PreviousTpl = gBS->RaiseTPL(TPL_CALLBACK);
-
-	Status = ScmInternalArmV8SysCall(
+  return ScmInternalArmV8SysCall(
     SmcId,
     ParamId,
     Parameters,
     Results,
     NULL
     );
-
-	gBS->RestoreTPL(PreviousTpl);
-	return Status;
 }
 
 EFI_STATUS
@@ -243,8 +219,8 @@ ScmArmV8QseeSysCall(
   EFI_STATUS                  Status; 
   UINT32                      QseeSmcId;
   UINT32                      QseeParamId;
-  UINT64                      QseeParameters[SCM_MAX_NUM_PARAMETERS] = {0};
-  UINT64                      QseeResults[SCM_MAX_NUM_RESULTS] = {0};
+  UINT64                      QseeParameters[SCM_MAX_NUM_PARAMETERS];
+  UINT64                      QseeResults[SCM_MAX_NUM_RESULTS];
   UINT64                      QseeTrustedOsId;
   qsee_command_resp_info_t   *QseeRsp;
   UINT32                      ListenerId;
@@ -264,15 +240,13 @@ ScmArmV8QseeSysCall(
       QseeParameters,
       QseeResults,
       &QseeTrustedOsId
-      );	
+      );
     if(Status != EFI_SUCCESS)
     {
-	  QseeRsp = (qsee_command_resp_info_t*)Results;
-	  QseeRsp->result = QseeResults[0];
-      break;
+      goto ErrorExit;
     }
-	
-	QseeRsp = (qsee_command_resp_info_t*)QseeResults;   
+
+    QseeRsp = (qsee_command_resp_info_t*)QseeResults;
 
     if((QseeRsp->result == TZOS_RESULT_INCOMPLETE) && 
        (QseeRsp->resp_type == QSEE_LISTENER_ID))
@@ -316,6 +290,8 @@ ScmArmV8QseeSysCall(
     }
 
   } while(TRUE);
+
+ErrorExit:
 
   return Status;
 }
@@ -405,18 +381,16 @@ ScmArmV8SendCommand(
   tzos_rpmb_provision_key_t      *ProvisionRpmbKey;
   qsee_command_resp_info_t       *QseeResponse;
   tzos_log_buffer_type_t         *LogBufferSyscall;
-  EFI_TPL                        PreviousTpl;
-  struct tzdbg_log_t             *log = NULL;
-  UINT32                         QseeLogStart = 0;
-  UINT32                         QseeLogNewStart = 0;
 
-  PreviousTpl = gBS->RaiseTPL(TPL_CALLBACK);
+  struct tzdbg_log_t *log = NULL;
+  UINT32 QseeLogStart = 0;
+  UINT32 QseeLogNewStart = 0;
 
   // Coming from external of ScmDxe, check the pointer, other pointers are checked case by case.
   if( This == NULL )
   {
     goto ErrorExit;
-  }  
+  }
 
   //Create the QSEE commands here, need to consult with owner what is memory requirement here.
   switch( CmdId )
@@ -488,10 +462,7 @@ ScmArmV8SendCommand(
 ReallocateReq:
         if( ReqPtr == NULL )
         {
-          // ShmBridgeFree won't be called for this allocation. Allocation will be freed 
-          // when the Shmbridge is being deleted upon ExitBootServices callback. 
-          ReqPtr = ShmBridgeProtocol->ShmBridgeAllocate(ShmBridgeProtocol, &ReqSize, ShmBridgeBootSvcData);
-
+          ReqPtr = UncachedAllocateAlignedPool( ReqSize, TZ_MEM_ALIGNMENT_SIZE);
           if( ReqPtr == NULL )
           {
             Status = EFI_OUT_OF_RESOURCES;
@@ -504,9 +475,7 @@ ReallocateReq:
         {
           if ( ReqSize > CurrentReqSize )
           {
-             // In general, allocation will be freed when the Shmbridge is being deleted upon 
-             // ExitBootServices callback. Allocation being freeed happens only resize is required.
-             Status = ShmBridgeProtocol->ShmBridgeFree(ShmBridgeProtocol, ReqPtr);
+             UncachedFreeAlignedPool( ReqPtr );  
              ReqPtr = NULL;
              CurrentReqSize = 0;
              goto ReallocateReq;
@@ -623,7 +592,8 @@ ReallocateReq:
      log = (struct tzdbg_log_t *)log_buffer;
      QseeLogStart = (UINT32) (log->log_pos.offset);
   }
-  
+
+
   Status = ScmArmV8QseeSysCall(This,
     SmcId,
     ParamId,
@@ -637,25 +607,26 @@ ReallocateReq:
     DisplayQseeLog (QseeLogStart, QseeLogNewStart);
   }
 
+  if( Status != EFI_SUCCESS )
+  {
+    goto ErrorExit;
+  }
+
   QseeResponse = (qsee_command_resp_info_t*)Results;
+
   // Check QSEE result.
   if(QseeResponse->result != TZOS_RESULT_SUCCESS )
   {
-	// pass the result to caller through Rsp
-	
-    // for RPMB provision and erase specially return Status is bad in this case., Rsp can't be trusted.
+    // pass the result to caller through Rsp, this is for RPMB provision and erase specially
+    // other cases may be impacted, anyway return Status is bad in this case., Rsp can't be trusted.
     // only RPMB provision and erase cases care this value so far.
     if ( ( CmdId == APP_PROVISION_RPMB_KEY_COMMAND || CmdId == APP_RPMB_ERASE_COMMAND || CmdId == APP_RPMB_CHECK_PROV_STATUS_COMMAND ) &&
            Rsp != NULL && RspLen != 0 )
-    {      
+    {
       *((UINT32 *)Rsp) = QseeResponse->result;
-	 
-    }  
-   Status = EFI_DEVICE_ERROR; 		   
-  }  
-  
-  if( Status != EFI_SUCCESS )
-  {
+    }
+
+    Status = EFI_DEVICE_ERROR;
     goto ErrorExit;
   }
 
@@ -671,13 +642,6 @@ ReallocateReq:
          break;
 
       case  APP_SEND_DATA_CMD:
-	  	 /*
-		 * Copying request data back to request buffer added to address CR 2104354.
-		 * It was observed that couple of SMC commands process request buffer data directly 
-		 * or copy processed data back to request buffer only. In these cases to give processed
-		 * request data back to clients, below statement to copy request buffer added.
-		 */
-	     CopyMem ( Req, (UINT8*)ReqPtr, ReqLen );
          CopyMem ( Rsp, (UINT8*)ReqPtr + ReqLen, RspLen );
          break;
       default:
@@ -691,9 +655,9 @@ ReallocateReq:
 	
   }
 ErrorExit:
-  gBS->RestoreTPL(PreviousTpl);  
 
   return Status;
+
 }
 
 /** 
@@ -725,9 +689,6 @@ ScmArmV8RegisterCallback(
   tzos_register_listener_t           *AppRegisterListenerSyscall;
   qsee_command_resp_info_t           *QseeResponse;
   UINT32                              ii;
-  EFI_TPL                             PreviousTpl;
-
-  PreviousTpl = gBS->RaiseTPL(TPL_CALLBACK);  
 
   AppRegisterListenerSyscall                   = (tzos_register_listener_t*)Parameters;
   AppRegisterListenerSyscall->listener_id      = ListenerId;
@@ -763,7 +724,6 @@ ScmArmV8RegisterCallback(
     }
   }
 
-  gBS->RestoreTPL(PreviousTpl); 
   return Status;
 }
 
@@ -787,10 +747,7 @@ ScmArmV8DeRegisterCallback(
   UINT64                                Results[SCM_MAX_NUM_RESULTS] = {0};
   tzos_deregister_listener_t           *AppDeregisterListenerSyscall;
   qsee_command_resp_info_t             *QseeResponse;
-  EFI_TPL                              PreviousTpl;
 
-  PreviousTpl = gBS->RaiseTPL(TPL_CALLBACK);
-  
   for(ii = 0; ii < MAX_LISTENER_NUM; ii++)
   {
     if( ListenerTable[ii].ListenerId  == ListenerId)
@@ -831,7 +788,7 @@ ScmArmV8DeRegisterCallback(
   ListenerTable[ii].SharedBufferLen = 0;
 
 ErrorExit:
-  gBS->RestoreTPL(PreviousTpl);  
+
   return Status;
 }
 
@@ -855,10 +812,9 @@ ScmArmV8ExitBootServicesHandler(
   qsee_command_resp_info_t             *QseeResponse;
   EFI_TPM_PROTOCOL                     *pTPMProtocol;
   UINT32                               TreeTpmEnableFlag = 0;
-  EFI_TPL                              PreviousTpl;
 
   Status = GetConfigValue ("SecurityFlag", &TreeTpmEnableFlag);        // Get this flag from uefiplat.cfg. Depending on the flag, process call to this function
-  if ((Status == EFI_SUCCESS) && ((TreeTpmEnableFlag & TREE_TPM_ENABLE_FLAG) == TREE_TPM_ENABLE_FLAG))
+  if ((Status == EFI_SUCCESS) && ((TreeTpmEnableFlag & 0x2) == 0x2))
   {
       // Locate EFI_TPM_PROTOCOL. It used to send TPM commands to Winsecapp.
       Status = gBS->LocateProtocol ( &gEfiTpmProtocolGuid, 
@@ -881,8 +837,6 @@ ScmArmV8ExitBootServicesHandler(
   }
 
   AppDeregisterListenerSyscall               = (tzos_deregister_listener_t*)Parameters;
-
-  PreviousTpl = gBS->RaiseTPL(TPL_CALLBACK);  
 
   for(ii = 0; ii < MAX_LISTENER_NUM; ii++)
   {
@@ -908,8 +862,6 @@ ScmArmV8ExitBootServicesHandler(
     }
   }
 
-  gBS->RestoreTPL(PreviousTpl); 
-
 ErrorExit:
 
   return Status;
@@ -934,11 +886,8 @@ IsArmV8Smc(VOID)
   EFI_STATUS Status;
   UINT64 Parameters[SCM_MAX_NUM_PARAMETERS] = { 0 };
   UINT64 Results[SCM_MAX_NUM_RESULTS] = { 0 };
-  EFI_TPL PreviousTpl;
 
   Parameters[0] = TZ_INFO_GET_DIAG_ID;
-
-  PreviousTpl = gBS->RaiseTPL(TPL_CALLBACK);  
 
   Status = ScmInternalArmV8SysCall(
     TZ_INFO_IS_SVC_AVAILABLE_ID,
@@ -947,8 +896,6 @@ IsArmV8Smc(VOID)
     Results,
     NULL
     );
-
-  gBS->RestoreTPL(PreviousTpl);  
 
   if (EFI_ERROR(Status))
   {

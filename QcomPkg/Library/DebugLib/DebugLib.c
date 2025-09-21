@@ -48,6 +48,21 @@
 #define MAX_DEBUG_MESSAGE_LENGTH  0x200
 
 /**
+  The constructor function initialize the Serial Port Library
+
+  @retval EFI_SUCCESS   The constructor always returns RETURN_SUCCESS.
+
+**/
+RETURN_STATUS
+EFIAPI
+BaseDebugLibSerialPortConstructor (
+  VOID
+  )
+{
+  return SerialPortInitialize ();
+}
+
+/**
   Prints a debug message to the debug output device if the specified error level is enabled.
 
   If any bit in ErrorLevel is also set in PcdDebugPrintErrorLevel, then print
@@ -81,9 +96,9 @@ DebugPrint (
   //
   // Check driver debug mask value and global mask
   //
-  if ((ErrorLevel & PcdGet32(PcdDebugPrintErrorLevel)) == 0) {
-    return;
-  }
+  //if ((ErrorLevel & PcdGet32(PcdDebugPrintErrorLevel)) == 0) {
+  //  return;
+  //}
 
   //
   // Convert the DEBUG() message to an ASCII String

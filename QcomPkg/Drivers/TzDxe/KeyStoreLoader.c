@@ -36,7 +36,6 @@ GENERAL DESCRIPTION
 #include <Library/ArmLib.h>
 #include <Protocol/EFIScm.h>
 #include <Include/scm_sip_interface.h>
-#include <Protocol/EFIShmBridge.h>
 #include "KeyStoreLoader.h"
 #include "QcomLib.h"
 
@@ -169,7 +168,6 @@ EFI_STATUS LoadKeyStore(void)
   VOID                   *KeyStorePtr = NULL;
   UINTN                   KeyStoreSize = 0;
   EFI_BLOCK_IO_PROTOCOL   *BlkIo;
-  EFI_SHMBRIDGE_PROTOCOL *ShmBridgeProtocol;
 
   // Select the BlkIo handle that represents the partition by the referenced 
   // GUID type in GPT partition on Non removable media.
@@ -210,12 +208,7 @@ EFI_STATUS LoadKeyStore(void)
   /* Get the partition size and round it up to EFI_PAGE_SIZE */
   KeyStoreSize = ((BlkIo->Media->LastBlock)+1) * BlkIo->Media->BlockSize;
 
-  Status = gBS->LocateProtocol(&gEfiShmBridgeProtocolGuid, NULL, (VOID **)&ShmBridgeProtocol);
-  ASSERT_EFI_ERROR(Status);
-  // ShmBridgeFree won't be called for this allocation. Allocation will be freed 
-  // when the Shmbridge is being deleted upon ExitBootServices callback.
-  KeyStorePtr = ShmBridgeProtocol->ShmBridgeAllocate(ShmBridgeProtocol, &KeyStoreSize, ShmBridgeBootSvcData);
-
+  KeyStorePtr = UncachedAllocatePool (KeyStoreSize);
   if (KeyStorePtr == NULL)
   {
     DEBUG ((EFI_D_INFO, "UncachedAllocatePool -- \r\n"));

@@ -3,3 +3,5 @@ tags/
 Conf/
 BaseTools/workspace.txt
 *.log
+xbl2nd-*.img
+Resources/payload.bin

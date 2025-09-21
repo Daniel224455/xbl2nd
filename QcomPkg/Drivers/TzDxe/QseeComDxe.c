@@ -147,7 +147,7 @@ LoadSecureAppsLAHelper(
   if (version >= computed_version)
   {
     Status = GetConfigValue ("SecurityFlag", &CommonMbnLoadFlag);        // Get this flag from uefiplat.cfg. Depending on the flag, process call to this function
-    if ((Status != EFI_SUCCESS) || ((CommonMbnLoadFlag & COMMON_MBN_LOAD_FLAG) != COMMON_MBN_LOAD_FLAG))
+    if ((Status != EFI_SUCCESS) || ((CommonMbnLoadFlag & 0x4) != 0x4))
     {
       DEBUG ((EFI_D_INFO, "CommonMbnLoadFlag not found in uefiplat.cfg. Defaulting to 0.\r\n"));
       // Default to 0. Does not matter what the flag is

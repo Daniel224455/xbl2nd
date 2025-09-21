@@ -125,7 +125,7 @@
         INF FatPkg/EnhancedFatDxe/Fat.inf
         INF MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
         INF MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
-        INF QcomPkg/Drivers/TzDxe/TzDxe.inf
+        INF QcomPkg/Drivers/TzDxe/TzDxeLA.inf
 
 #QDSS Driver (Debugtrace)
         INF QcomPkg/Drivers/QdssDxe/QdssDxe.inf

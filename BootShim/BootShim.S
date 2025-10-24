@@ -28,7 +28,8 @@ _StackSize:
 	.quad 0
 
 	/* ARM64 Magic */
-	.ascii "ARM\x64"
+	.ascii "ARM"
+	.byte 0x64
 
 	/* Reserved */
 	.long 0

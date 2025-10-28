@@ -271,7 +271,8 @@ FvNameGuid         = 631008B0-B2D1-410A-8B49-2C5C4D8ECC7E
   #
   # Display/MDP DXE driver
   #
-  INF QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
+  #INF QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
+  INF QcomPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
 
   #
   # PlatformInfo Driver

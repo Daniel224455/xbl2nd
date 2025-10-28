@@ -236,7 +236,9 @@
 
   # SPMI Library
   SPMILib|QcomPkg/SDM845Pkg/Library/SPMILib/SPMILib.inf
-
+  
+  # FrameBuffer Library
+  FrameBufferBltLib|MdeModulePkg/Library/FrameBufferBltLib/FrameBufferBltLib.inf
 
 [LibraryClasses.Arm]
   ArmLib|ArmPkg/Library/ArmLib/ArmV7/ArmV7Lib.inf
@@ -890,7 +892,8 @@
   #
   # Display DXE Driver
   #
-  QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
+  #QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
+  QcomPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
 
   #
   # SoC Drivers

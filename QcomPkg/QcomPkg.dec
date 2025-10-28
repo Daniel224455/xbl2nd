@@ -789,6 +789,11 @@
 
   gQcomTokenSpaceGuid.PcdBootVariableStoreSize|0x2000|UINT32|0x00016000
 
+  # XBL2nd PCDs
+  gQcomTokenSpaceGuid.PcdMipiFrameBufferAddress|0x0|UINT32|0x00017000
+  gQcomTokenSpaceGuid.PcdMipiFrameBufferWidth|1080|UINT32|0x00017001
+  gQcomTokenSpaceGuid.PcdMipiFrameBufferHeight|2280|UINT32|0x00017002
+
 [PcdsFeatureFlag.common]
   # DMOV
   gQcomTokenSpaceGuid.PcdDmovSupportedDevicesADM0|TRUE|BOOLEAN|0x00001000

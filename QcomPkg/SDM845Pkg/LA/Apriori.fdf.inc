@@ -178,7 +178,8 @@
         INF QcomPkg/Drivers/TsensDxe/TsensDxe.inf
 
 
-        INF QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
+        #INF QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
+        INF QcomPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
         INF QcomPkg/Drivers/LimitsDxe/LimitsDxe.inf
 
         INF QcomPkg/Drivers/GpiDxe/GpiDxe.inf

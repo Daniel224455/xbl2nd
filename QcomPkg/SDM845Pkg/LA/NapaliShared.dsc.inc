@@ -1,40 +1,3 @@
-#==============================================================================
-# @file Core.dsc
-# SDM845 Core package.
-#
-# Copyright (c) 2015 - 2018 Qualcomm Technologies, Inc. All rights reserved.
-# Portions Copyright (c) 2009 - 2010, Apple Inc. All rights reserved.
-# This program and the accompanying materials
-# are licensed and made available under the terms and conditions of the BSD License
-# which accompanies this distribution.  The full text of the license may be found at
-# http://opensource.org/licenses/bsd-license.php
-#
-# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
-# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-#
-#==============================================================================
-
-################################################################################
-#
-# Defines Section - statements that will be processed to create a Makefile.
-#
-################################################################################
-[Defines]
-  PLATFORM_NAME                  = SDM845Pkg
-  PLATFORM_GUID                  = 23766BF3-7B8F-41BF-99A7-D06F68212A36
-  PLATFORM_VERSION               = 0.1
-  DSC_SPECIFICATION              = 0x00010005
-  SUPPORTED_ARCHITECTURES        = ARM|AARCH64
-  BUILD_TARGETS                  = DEBUG|RELEASE
-  SKUID_IDENTIFIER               = DEFAULT
-  FLASH_DEFINITION               = QcomPkg/SDM845Pkg/LA/Core.fdf
-
-[Defines.ARM]
-  OUTPUT_DIRECTORY               = Build/SDM845LA_Core_32
-
-[Defines.AARCH64]
-  OUTPUT_DIRECTORY               = Build/SDM845LA_Core
-
 [LibraryClasses.common]
   #
   # EDK2 Libraries
@@ -403,7 +366,6 @@
   GCC:*_*_*_CC_FLAGS = -DPRE_SIL
 !endif
 
-
 ################################################################################
 #
 # Pcd Section - list of all EDK II PCD Entries defined by this Platform
@@ -464,23 +426,6 @@
   gArmTokenSpaceGuid.PcdArmGicV3WithV2Legacy|FALSE
 
 [PcdsFixedAtBuild.common]
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"Qualcomm Technologies, Inc."
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"5.0"
-
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedPrompt|"EBL"
-  gEmbeddedTokenSpaceGuid.PcdPrePiCpuMemorySize|48
-  gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize|0
-  gEfiMdePkgTokenSpaceGuid.PcdMaximumUnicodeStringLength|1000000
-  gEfiMdePkgTokenSpaceGuid.PcdMaximumAsciiStringLength|1000000
-  gEfiMdePkgTokenSpaceGuid.PcdMaximumLinkedListLength|1000000
-  gEfiMdePkgTokenSpaceGuid.PcdSpinLockTimeout|10000000
-  gEfiMdePkgTokenSpaceGuid.PcdDebugClearMemoryValue|0xAF
-
-  # Disable perf
-  gEfiMdePkgTokenSpaceGuid.PcdPerformanceLibraryPropertyMask|1
-  gEfiMdePkgTokenSpaceGuid.PcdPostCodePropertyMask|0
-  gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|320
-
   # PcdDebugPropertyMask - From DebugLib.h:
   #   DEBUG_ASSERT_ENABLED       0x01
   #   DEBUG_PRINT_ENABLED        0x02
@@ -557,14 +502,6 @@
   gEmbeddedTokenSpaceGuid.PcdMemoryTypeEfiLoaderData|0
 
 #
-# SMBIOS related
-#
-  # OEM's can set their product info here
-  gQcomTokenSpaceGuid.PcdSystemMfrStr|"Qualcomm"
-  gQcomTokenSpaceGuid.PcdSystemProductNameStr|""
-  gQcomTokenSpaceGuid.PcdSystemProductFamilyStr|""
-
-#
 # ACPI related
 #
   gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiExposedTableVersions|0xC
@@ -577,97 +514,23 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultCreatorRevision|0x00000001
   gQcomTokenSpaceGuid.DisableWriteProtect|TRUE
 
+!if $(PRODMODE) == "PRODMODE"
+  # Version info needed on LCD Display
+  gQcomTokenSpaceGuid.VersionDisplay|FALSE
+!else
+  # Version info needed on debug port
+  gQcomTokenSpaceGuid.VersionDisplay|TRUE
+!endif
 
-#
-# Display PCDs
-#
-  gQcomTokenSpaceGuid.PcdPanelType|0
-  gQcomTokenSpaceGuid.PcdHPDPollCount|200
-  gQcomTokenSpaceGuid.PcdBacklightLevel|50
-  gQcomTokenSpaceGuid.PcdDisplayForceSwRenderer|FALSE
-  # gFBResLimit Table 0: 4k, 1: UHD, 2: WQHD, 3: FHD, 4: HD
-  gQcomTokenSpaceGuid.PcdFrameBufMaxRes|0
-  # External display type:  0: No external display, 1: DisplayPort, 2: HDMI
-  gQcomTokenSpaceGuid.PcdExtDisplayType|0
-  # External display mode Index : 0: Preferred mode, 1: Largest mode
-  gQcomTokenSpaceGuid.PcdSetExtMode|0
-  gQcomTokenSpaceGuid.PcdReservedMemorySize|0
-  gQcomTokenSpaceGuid.PcdReservedMemoryAlignment|64
-  gQcomTokenSpaceGuid.PcdBacklightLevel|50
-  gQcomTokenSpaceGuid.PcdPresentationMode|0
+  # Magic signature value that is used to indicate DebugLog Override
+  # capability in DebugLib of DXE
+  gQcomTokenSpaceGuid.PcdDebugLogOverrideMagic|0x534B4950
 
-#
-# LPM PCDs
-#
-
- gQcomTokenSpaceGuid.PcdLpm|0x030580A5
-
-#
-# Target Specific PCDs
-#
-
-  #########################################################################
-  #                               Memory Map
-  #########################################################################
-
-  gQcomTokenSpaceGuid.PcdMaxMemory|0x0
-
-  #################################
-  ## Presilicon definitions.
-  #################################
-  gQcomTokenSpaceGuid.PcdMemoryBase|0x80000000    # Starting address
-  gQcomTokenSpaceGuid.PcdMemorySize|0x60000000    # 1.5 GB
-
-  #################################
-  ## HLOS Base Offset and size.
-  #################################
-  gQcomTokenSpaceGuid.PcdHLOSMemoryBaseOffset|0x98200000 # remaining memory after this is HLOS
-
-  #################################
-  ## UEFI Memory Base Offset and Size.
-  #################################
-  gQcomTokenSpaceGuid.PcdUefiMemPoolBaseOffset|0x94E00000
-  gQcomTokenSpaceGuid.PcdUefiMemPoolSize|0x03300000     # 51 MB
-
-  # The HOB list will start here.
-  # NOTE: Hob.c is still referencing PcdPrePiHobBase
-  gQcomTokenSpaceGuid.PcdPrePiHobBase|0x94E00000
-
-  # Offset to UEFI memory
-  gQcomTokenSpaceGuid.PcdPreAllocatedMemorySize|0x00000000
-
-
-  #################################
-  ## FD Base offset (refer to .fdf for FD size)
-  #################################
-  gQcomTokenSpaceGuid.PcdEmbeddedFdBaseAddress|0x9FC00000
-
-  #################################
-  ## Shared Memory Base offset and size.
-  ## TODO: PcdSmemBaseAddress is currently used by smem library
-  #################################
-  gQcomTokenSpaceGuid.PcdSmemBaseAddress|0x86000000  #64-bit smem addr
-  gQcomTokenSpaceGuid.PcdSmemSize|0x00200000     # 2MB
-  ## Generic SMEM information that SMEM lib might need
-  ## LSB represents chip family, other bytes are unused for now.
-  gQcomTokenSpaceGuid.PcdSmemInformation|0x00000005  # 5 = Nazgul
-
-  # Maximum number of memory regions defined in the above memory map
-  gQcomTokenSpaceGuid.PcdMaxMemRegions|64
-
-  #################################
-  ## IMem Base Address and size.
-  #################################
-
-  gQcomTokenSpaceGuid.PcdIMemCookiesBase|0x146BF000
-  gQcomTokenSpaceGuid.PcdIMemCookiesSize|0x00001000
-
-  # Cookie (memory capture mode) Address for crash dump support
-  gQcomTokenSpaceGuid.PcdHLOSCrashCookieAddr|0x146BF018
-
-  # Uefi Debug Cookie Address and value
-  gQcomTokenSpaceGuid.PcdUefiDebugCookieOffset|0x944
-  gQcomTokenSpaceGuid.PcdUefiDebugCookie|0x55444247
+  # Hard/Warm Reset
+  gQcomTokenSpaceGuid.PcdUefiHardResetConfigure|TRUE
+  gQcomTokenSpaceGuid.PcdUefiWarmResetConfigure|TRUE
+  gQcomTokenSpaceGuid.PcdUefiHardResetEnabled|TRUE
+  gQcomTokenSpaceGuid.PcdUefiWarmResetEnabled|TRUE
 
   gArmTokenSpaceGuid.PcdCpuResetAddress|0x08000000    # warm reset should use this
 
@@ -716,6 +579,28 @@
   gQcomTokenSpaceGuid.PcdRealTimeClockAccuracy|200000000
   gQcomTokenSpaceGuid.PcdRealTimeClockSetToZero|1
 
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"Project XBL2nd"
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"5.0"
+
+  gEmbeddedTokenSpaceGuid.PcdEmbeddedPrompt|"EBL"
+  gEmbeddedTokenSpaceGuid.PcdPrePiCpuMemorySize|48
+  gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize|0
+  gEfiMdePkgTokenSpaceGuid.PcdMaximumUnicodeStringLength|1000000
+  gEfiMdePkgTokenSpaceGuid.PcdMaximumAsciiStringLength|1000000
+  gEfiMdePkgTokenSpaceGuid.PcdMaximumLinkedListLength|1000000
+  gEfiMdePkgTokenSpaceGuid.PcdSpinLockTimeout|10000000
+  gEfiMdePkgTokenSpaceGuid.PcdDebugClearMemoryValue|0xAF
+
+  # Disable perf
+  gEfiMdePkgTokenSpaceGuid.PcdPerformanceLibraryPropertyMask|1
+  gEfiMdePkgTokenSpaceGuid.PcdPostCodePropertyMask|0
+  gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|320    
+
+#
+# LPM PCDs
+#
+ gQcomTokenSpaceGuid.PcdLpm|0x030580A5
+
   #TODO: Need to correct based on frequency plan
   gQcomTokenSpaceGuid.PcdAppsProcFrequencyMhz|1190
 
@@ -754,46 +639,17 @@
   # ARM Pcds
   #
   gArmTokenSpaceGuid.PcdArmUncachedMemoryMask|0x0000000040000000
-  gArmTokenSpaceGuid.PcdCpuVectorBaseAddress|0x9FF8C000
 
   # Timer sync not required
   gQcomTokenSpaceGuid.PcdSyncTimerToMPP|FALSE
 
   # UART
-  gQcomTokenSpaceGuid.UartPlatform|"SDM845"
-
-  # USB
-  gQcomTokenSpaceGuid.InitUsbControllerOnBoot|FALSE
-  gQcomTokenSpaceGuid.HostModeSupported|FALSE
-  gQcomTokenSpaceGuid.USBSmmuStage1Supported|TRUE
+  gQcomTokenSpaceGuid.UartPlatform|"SDM845" 
 
 #!if ( gQcomTokenSpaceGuid.PcdExtDisplayType == 1 )
-  # DP over USB type-C: Enable high speed USB configuration
+# DP over USB type-C: Enable high speed USB configuration
   gQcomTokenSpaceGuid.HighSpeedOnlySupported|FALSE
-#!endif
-
-!if $(PRODMODE) == "PRODMODE"
-  # Version info needed on LCD Display
-  gQcomTokenSpaceGuid.VersionDisplay|FALSE
-!else
-  # Version info needed on debug port
-  gQcomTokenSpaceGuid.VersionDisplay|TRUE
-!endif
-
-  # offset to 4KB shared memory in System IMEM             : 0x8603F000
-  # offset to 200 bytes HLOS region within this 4KB memory : 0x658
-  # offset 0  : 4 byte physical address for DebugLog Override
-  gQcomTokenSpaceGuid.PcdDebugLogOverrideAddress|0x08642658
-
-  # Magic signature value that is used to indicate DebugLog Override
-  # capability in DebugLib of DXE
-  gQcomTokenSpaceGuid.PcdDebugLogOverrideMagic|0x534B4950
-
-  # Hard/Warm Reset
-  gQcomTokenSpaceGuid.PcdUefiHardResetConfigure|TRUE
-  gQcomTokenSpaceGuid.PcdUefiWarmResetConfigure|TRUE
-  gQcomTokenSpaceGuid.PcdUefiHardResetEnabled|TRUE
-  gQcomTokenSpaceGuid.PcdUefiWarmResetEnabled|TRUE
+#!endif  
 
   # PON Debounce
   gQcomTokenSpaceGuid.PcdPONDebounce|0x00000001 # max value 0x07
@@ -807,17 +663,19 @@
   # Default to EL1
   gQcomTokenSpaceGuid.PcdSwitchToEL1|TRUE
 
-[PcdsPatchableInModule]
-  ## This PCD defines the Console output column and the default value is 25 according to UEFI spec
-  #gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow|53
+  # offset to 4KB shared memory in System IMEM             : 0x8603F000
+  # offset to 200 bytes HLOS region within this 4KB memory : 0x658
+  # offset 0  : 4 byte physical address for DebugLog Override
+  gQcomTokenSpaceGuid.PcdDebugLogOverrideAddress|0x08642658
 
-  ## This PCD defines the Console output row and the default value is 80 according to UEFI spec
-  #gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn|75
+  # Uefi Debug Cookie Address and value
+  gQcomTokenSpaceGuid.PcdUefiDebugCookieOffset|0x944
+  gQcomTokenSpaceGuid.PcdUefiDebugCookie|0x55444247
 
-  # This PCD should be set to 0 then video resolution could be at highest resolution.
-  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|2240
-  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|1080
+  gArmTokenSpaceGuid.PcdCpuVectorBaseAddress|0x9FF8C000
 
+  # Offset to UEFI memory
+  gQcomTokenSpaceGuid.PcdPreAllocatedMemorySize|0x00000000      
 
 ################################################################################
 #
@@ -1267,19 +1125,4 @@
   }
 
   # EBL Shell
-  EmbeddedPkg/Ebl/Ebl.inf
-
-
-################################################################################
-#
-# UserExtensions.Buildit.BuildInfo - Extra info for buildit.py
-#
-################################################################################
-[UserExtensions.Buildit.BuildInfo]
-  COMPILER_ARCH = AARCH64
-  OUTPUT_NAME   = uefi.elf
-  SIGN_FD       = uefi
-  MERGE         = xbl.elf
-  SIGN          = sbl1
-  COMPILER_WIN  = CLANG39WIN
-  COMPILER_LINUX = CLANG39LINUX
+  EmbeddedPkg/Ebl/Ebl.inf  

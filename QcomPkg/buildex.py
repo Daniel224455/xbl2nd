@@ -236,6 +236,11 @@ def main():
                     help="Release mode for building, default is 'DEBUG,RELEASE'." \
                          " Both modes will be built.")
 
+  parser.add_option('-B', '--bldconf',
+                    action="store", default="",
+                    help="Specify custom path to buildconfig.json. "
+                         "Example: -B /path/to/buildconfig.json")
+
   (options, args) = parser.parse_args()
 
   init_conf_folder()
@@ -309,12 +314,20 @@ def main():
     ARGUMENTS["$TARGETROOT"] = os.environ["TARGETROOT"]
     ARGUMENTS["$TARGETID"] = os.environ["TARGETID"]
     
-    # find buildconfig.json in target folder
-    try:
-      json_path = search_build_json_path(target_path)
-    except Exception as error:
-      print error
-      sys.exit(SEARCH_BUILD_JSONS_PATH_ERROR_CODE)
+    # find or override buildconfig.json
+    if options.bldconf:
+      if os.path.isfile(options.bldconf):
+        json_path = options.bldconf
+        print "[buildex.py] Using custom buildconfig.json from:", json_path
+      else:
+        print "[buildex.py] Error: Specified buildconfig.json not found:", options.bldconf
+        sys.exit(SEARCH_BUILD_JSONS_PATH_ERROR_CODE)
+    else:
+      try:
+        json_path = search_build_json_path(target_path)
+      except Exception as error:
+        print error
+        sys.exit(SEARCH_BUILD_JSONS_PATH_ERROR_CODE)
       
     build_dirt = pre_parser_json_file(json_path)
     

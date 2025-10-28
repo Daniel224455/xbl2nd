@@ -1,0 +1,34 @@
+{
+  "Components" :[
+
+                 {
+                   "Name" : "XBL_Core" ,
+                   "Process" : [
+                                 {
+                                    "ToolChain" : "CLANG39" ,
+                                    "AArch" : "AARCH64" ,
+                                    "Params" : ["build","-p", "QcomPkg/SDM845Pkg/Devices/OnePlus/enchilada/Core.dsc", "-j", "QcomPkg/SDM845Pkg/Devices/OnePlus/enchilada/build_enchilada.log","-w","-a", "AARCH64","-b","$REL","-D","PRODMODE=$PRODMODE"]
+                                 },
+                                 {
+                                    "ToolChain" : "Pack" ,
+                                    "Params" : ["$BUILDROOT/Build/SDM845$VAR_Core/$REL_$COMPILER/FV/FVMAIN_COMPACT.Fv", "$BUILDROOT/Build/SDM845$VAR_Core/$REL_$COMPILER/FV/uefi.elf", "0x9FC00000","elf", "64"]
+                                 }
+                               ]
+                 }
+                ] ,
+   "CreateImages" : [
+
+                      {
+                        "Name" : "UEFI" ,
+                        "Process" : [
+                                       {
+                                         "ToolChain" : "Copy",
+                                         "Components" : ["XBL_Core"],
+                                         "Createfolders" : ["$BUILDROOT/$TARGETROOT/Bin/$TARGETID/$VAR/$REL/unsigned"],
+                                         "Params" : ["$BUILDROOT/Build/SDM845$VAR_Core/$REL_$COMPILER/FV/uefi.elf","$BUILDROOT/$TARGETROOT/Bin/$TARGETID/$VAR/$REL/unsigned"]
+                                       }
+                                    ]
+                      }
+          ]
+          
+ }

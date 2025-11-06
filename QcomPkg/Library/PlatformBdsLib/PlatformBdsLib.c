@@ -817,32 +817,13 @@ ACPITableLoadEmptyFuntion (
 VOID
 InitLcdDebugFlag (VOID)
 {
-  EFI_STATUS                Status;
-  UINTN                     VarSize;
   UINT32                    VarData;
 
-  if (RETAIL)
-  {
-    LcdDebugFlag = 0;  /* Production mode - no messages */
-    EnableShellFlag = 0;  /* Production mode - no shell    */
-  }
-  else
-  {
-    /* Read DispDebugInfo variable, and handle if it is not present, default no display */
-    VarSize = sizeof(UINT32);
-    Status = gRT->GetVariable (L"DispDebugInfo", &gQcomTokenSpaceGuid, NULL, &VarSize, &LcdDebugFlag);
+  LcdDebugFlag = 1;
 
-    if (EFI_ERROR(Status))
-      LcdDebugFlag = 0;  /* Default no info on LCD */
+  VarData = 1;
 
-    VarData = 0;
-    Status = GetConfigValue ("EnableShell", &VarData);
-
-    if (EFI_ERROR(Status))
-      EnableShellFlag = 0; /* Default no Shell*/
-    else
-      EnableShellFlag = VarData;
-  }
+  EnableShellFlag = VarData;
 }
 
 STATIC
@@ -1345,10 +1326,10 @@ PlatformBdsInitEx (BDS_INIT_OPTION *InitOption)
   }
 
   /* Load default debug application specified in config file */
-  LaunchDefaultBDSApps ();
+  //LaunchDefaultBDSApps ();
 
   /* Validate and take any action for the HW platform configuration */
-  ValidateHWConfig ();
+  //ValidateHWConfig ();
 
   /*  This is the place where UEFI Security is enabled, including UEFI Image Authentication.
    *  So any image executed before this call, has to be strictly from part of an already

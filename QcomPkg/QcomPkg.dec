@@ -793,6 +793,7 @@
   gQcomTokenSpaceGuid.PcdMipiFrameBufferAddress|0x0|UINT32|0x00017000
   gQcomTokenSpaceGuid.PcdMipiFrameBufferWidth|1080|UINT32|0x00017001
   gQcomTokenSpaceGuid.PcdMipiFrameBufferHeight|2280|UINT32|0x00017002
+  gQcomTokenSpaceGuid.PcdMipiFrameBufferBpp|32|UINT32|0x00017003
 
 [PcdsFeatureFlag.common]
   # DMOV

@@ -122,7 +122,11 @@
   SecCfgLib|QcomPkg/Library/SecCfgLib/SecCfgLib.inf
   SecHwTestLib|QcomPkg/Library/SecHwTestLib/SecHwTestLib.inf
   SecImgAuthTargetLib|QcomPkg/Library/NullLibs/SecImgAuthLibNull/SecImgAuthLibNull.inf
+!if $(TARGET) == RELEASE  
+  SerialPortLib|QcomPkg/Library/SerialPortLibRel/SerialPortShLib.inf
+!else
   SerialPortLib|QcomPkg/Library/SerialPortLib/SerialPortShLib.inf
+!endif    
   ClockLoaderLib|QcomPkg/Library/ClockLoaderLib/ClockLoaderLib.inf
   ICBLib|QcomPkg/Library/ICBLib/ICBLib.inf
   ICBArbLib|QcomPkg/Library/ICBArbLib/ICBArbLib.inf
@@ -266,7 +270,11 @@
   PrintHostLib|QcomPkg/Library/PrintHostLib/PrintHostLib.inf
   ProcLib|QcomPkg/Library/ProcLib/ProcLib.inf
   SecFuseLib|QcomPkg/Library/SecFuseLib/SecFuseLib.inf
-  SerialPortLib|QcomPkg/Library/SerialPortLib/SerialPortLib.inf
+!if $(TARGET) == RELEASE    
+  SerialPortLib|QcomPkg/Library/SerialPortLibRel/SerialPortLib.inf
+!else
+  SerialPortLib|QcomPkg/Library/SerialPortLib/SerialPortLib.inf  
+!endif  
   UartLib|QcomPkg/Library/UartQupv3Lib/UartCoreLib.inf
   UartSettingsLib|QcomPkg/SDM845Pkg/Settings/UART/UartSettingsLib.inf
   ShLib|QcomPkg/Library/ShLib/ShLibMgr.inf
@@ -435,8 +443,8 @@
   #   CLEAR_MEMORY_ENABLED       0x08
   #   ASSERT_BREAKPOINT_ENABLED  0x10
   #   ASSERT_DEADLOOP_ENABLED    0x20
-!if $(PRODMODE) == "PRODMODE"
-  gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x2b
+!if $(TARGET) == "RELEASE"
+  gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x00
 !else
   gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x2f
 !endif
@@ -461,10 +469,10 @@
   #   DEBUG_CACHE     0x00200000  // Memory range cachability changes
   #   DEBUG_VERBOSE   0x00400000  // Detailed debug messages that may significantly impact boot performance
   #   DEBUG_ERROR     0x80000000  // Error
-!if $(PRODMODE) == "PRODMODE"
+!if $(TARGET) == "RELEASE"
   # Only enable Errors and Boot Manager if Production Mode Flag is set
-  gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80000400
-  gEfiMdePkgTokenSpaceGuid.PcdFixedDebugPrintErrorLevel|0x80000400
+  gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x00000000
+  gEfiMdePkgTokenSpaceGuid.PcdFixedDebugPrintErrorLevel|0x00000000
 !else
   gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x800fee0f
   gEfiMdePkgTokenSpaceGuid.PcdFixedDebugPrintErrorLevel|0x800fee0f
@@ -1110,7 +1118,11 @@
   #
   QcomPkg/Drivers/SerialDxe/SerialDxe.inf {
     <LibraryClasses>
+      !if $(TARGET) == RELEASE
+      SerialPortLib|QcomPkg/Library/SerialPortLibRel/SerialPortLib.inf
+      !else
       SerialPortLib|QcomPkg/Library/SerialPortLib/SerialPortLib.inf
+      !endif
       UartLib|QcomPkg/Library/UartQupv3Lib/UartCoreLib.inf
       UartSettingsLib|QcomPkg/SDM845Pkg/Settings/UART/UartSettingsLib.inf
 

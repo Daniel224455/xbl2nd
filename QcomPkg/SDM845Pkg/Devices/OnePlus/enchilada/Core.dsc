@@ -44,7 +44,8 @@
   gQcomTokenSpaceGuid.PcdMipiFrameBufferAddress|0x9D400000
   gQcomTokenSpaceGuid.PcdMipiFrameBufferWidth|1080
   gQcomTokenSpaceGuid.PcdMipiFrameBufferHeight|2280
-  
+  gQcomTokenSpaceGuid.PcdMipiFrameBufferBpp|32
+    
 #
 # SMBIOS related
 #

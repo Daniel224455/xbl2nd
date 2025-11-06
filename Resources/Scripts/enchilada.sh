@@ -1,10 +1,10 @@
 # XBL2nd packing mechanism
 
 # Build an Android kernel that is actually UEFI disguised as the Kernel.
-cat ./BootShim/BootShim.bin "./Build/SDM845LA_Core/DEBUG_CLANG39LINUX/FV/SDM845_EFI.fd" > "./Build/SDM845LA_Core/DEBUG_CLANG39LINUX/FV/SDM845_EFI.fd-bootshim"||exit 1
-gzip -c "./Build/SDM845LA_Core/DEBUG_CLANG39LINUX/FV/SDM845_EFI.fd-bootshim" > "./Build/SDM845LA_Core/DEBUG_CLANG39LINUX/FV/SDM845_EFI.fd-bootshim.gz"||exit 1
+cat ./BootShim/BootShim.bin "./Build/SDM845LA_Core/${RELEASE}_CLANG39LINUX/FV/SDM845_EFI.fd" > "./Build/SDM845LA_Core/${RELEASE}_CLANG39LINUX/FV/SDM845_EFI.fd-bootshim"||exit 1
+gzip -c "./Build/SDM845LA_Core/${RELEASE}_CLANG39LINUX/FV/SDM845_EFI.fd-bootshim" > "./Build/SDM845LA_Core/${RELEASE}_CLANG39LINUX/FV/SDM845_EFI.fd-bootshim.gz"||exit 1
 # This will be our second-stage payload which can be loaded from ABL.
-cat "./Build/SDM845LA_Core/DEBUG_CLANG39LINUX/FV/SDM845_EFI.fd-bootshim.gz" ./Resources/Blobs/enchilada.dtb > ./Resources/payload.bin||exit 1
+cat "./Build/SDM845LA_Core/${RELEASE}_CLANG39LINUX/FV/SDM845_EFI.fd-bootshim.gz" ./Resources/Blobs/enchilada.dtb > ./Resources/payload.bin||exit 1
 
 # Create a bootable Android boot image.
 python3 ./Resources/Scripts/mkbootimg.py \

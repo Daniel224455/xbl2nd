@@ -303,7 +303,7 @@ SerialPortRead(OUT UINT8 *user_buffer, IN UINTN bytes_requested)
 UINTN
 SerialBufferedWrite (UINT8* Buffer, UINTN NumberOfBytes)
 {
-  return SerialPortWrite (Buffer, NumberOfBytes);
+  return 0;
 }
 
 /* Control Port output and buffering options
@@ -761,7 +761,7 @@ SerialPortWriteCritical(IN UINT8 *Buffer, IN UINTN NumberOfBytes)
   m_Color.Foreground = FB_BGRA8888_YELLOW;
 
   while (Buffer < Final) {
-    FbConPutCharWithFactor(*Buffer++, FBCON_COMMON_MSG, SCALE_FACTOR);
+    //FbConPutCharWithFactor(*Buffer++, FBCON_COMMON_MSG, SCALE_FACTOR);
   }
 
   m_Color.Foreground = CurrentForeground;

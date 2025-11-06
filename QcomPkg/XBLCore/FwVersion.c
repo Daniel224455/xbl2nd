@@ -107,8 +107,10 @@ DisplayEarlyInfo(VOID)
     DEBUG ((EFI_D_ERROR, "Error reading config file name\n"));
   else
   {
+    #if (!PRODMODE)
     if ((ImgVerAsciiStr != NULL) && (FileNameBuffLen != 0))
       DEBUG ((EFI_D_WARN, "CONF File   : %a\n", ImgVerAsciiStr));
+    #endif  
   }
 
   VerStr = FixedPcdGetPtr(PcdFirmwareVersionString);
@@ -260,13 +262,13 @@ DisplayEarlyInfo(VOID)
   } else {
     FinalVersionString[MAX_VERSION_STR_LENGTH-1] = 0;
   }
-
+  #if (!PRODMODE)
   DEBUG ((EFI_D_ERROR, "UEFI Ver    : %a\n", FinalVersionString));
-
+  #endif
   BuildGuidDataHob (&gQcomFwVersionStringGuid, &FinalVersionString, AsciiStrSize(FinalVersionString));
   BuildGuidDataHob (&gQcomFwVersionHexGuid, &Version, sizeof(UINT32));
   BuildGuidDataHob (&gQcomRelDateStringGuid, &RelDateString, AsciiStrSize(RelDateString));
-
+  #if (!PRODMODE)
   if(sizeof (UINTN) == 0x8)
     DEBUG ((EFI_D_ERROR, "Build Info  : 64b %a %a\n", __DATE__, __TIME__));
   else
@@ -284,7 +286,8 @@ DisplayEarlyInfo(VOID)
      ASSERT (FALSE);
      CpuDeadLoop();
   }
-
+  #endif
+  #if (!PRODMODE)
   if (PRODMODE_ENABLED)
     DEBUG ((EFI_D_ERROR, "PROD Mode   : TRUE\n"));
   else
@@ -294,7 +297,7 @@ DisplayEarlyInfo(VOID)
     DEBUG ((EFI_D_ERROR, "Retail      : TRUE\n"));
   else
     DEBUG ((EFI_D_ERROR, "Retail      : FALSE\n"));
-
+  #endif
 }
 
 

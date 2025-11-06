@@ -653,10 +653,11 @@ Main (IN  VOID  *StackBase, IN  UINTN StackSize)
   UefiFdBase = FixedPcdGet64(PcdEmbeddedFdBaseAddress);
   SecHeapMemBase = UefiFdBase + SEC_HEAP_MEM_OFFSET;
   HobStackSize = StackSize;
+  #if (!PRODMODE)
   /* Start debug output */
-  CHAR8  Buffer[100];
   UINTN  CharCount;
-  
+  CHAR8  Buffer[100];
+
   CharCount = AsciiSPrint (
                 Buffer,
                 sizeof (Buffer),
@@ -664,19 +665,20 @@ Main (IN  VOID  *StackBase, IN  UINTN StackSize)
                 PcdGetPtr (PcdFirmwareVersionString), __TIME__, __DATE__,
                 "\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r"                           
                 );
-
+  #endif
   // Because we are directly bit banging the serial port instead of going through the DebugLib, we need to make sure
   // the serial port is initialized before we write to it
   UartInit();
   SerialPortInitialize ();
+  #if (!PRODMODE)
   DEBUG((EFI_D_WARN, "\r\n"));
   SerialPortWrite((UINT8 *)Buffer, CharCount);
   PrintUefiStartInfo();
-
+  #endif
   InitializeCpuExceptionHandlers (NULL);
-
+  #if (!PRODMODE)
   PrintTimerDelta();
-
+  #endif
   /* Enable program flow prediction, if supported */
   ArmEnableBranchPrediction ();
 
@@ -698,10 +700,10 @@ Main (IN  VOID  *StackBase, IN  UINTN StackSize)
 	
   /* Add the FVs to the hob list */
   BuildFvHob (PcdGet64(PcdFlashFvMainBase), PcdGet64(PcdFlashFvMainSize));
-
+  #if (!PRODMODE)
   /* Should be done after we have setup HOB for memory allocation  */
   PrintRamPartitions ();
-  
+  #endif
   Status = EarlyCacheInit (UefiFdBase, UEFI_FD_SIZE);
   if (EFI_ERROR(Status))
   {

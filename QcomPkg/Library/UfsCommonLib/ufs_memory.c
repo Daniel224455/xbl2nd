@@ -91,6 +91,23 @@ extern UINT32 ReliableWriteCount;
 
 #define GET_PHYADDR(x)    ((uint64_t)x)
 
+void ufs_print_inquiry_str(ufs_host_t *hba)
+{
+  uint32_t j = 0;
+  uint8 vid_buf[32];
+  char log_buf[64];
+
+  for (j=0;j<28;j++)
+  {
+    vid_buf[j] = hba->inquiry_vid[j] != 0 ? hba->inquiry_vid[j] : ' ';
+  }
+
+  vid_buf[j] = '\0';
+
+  snprintf(log_buf, 64, "UFS INQUIRY ID: %s", vid_buf);
+  ufs_bsp_log_error(log_buf);
+}
+
 int32_t ufs_mem_init (struct ufs_handle *hufs)
 {
    ufs_host_t *hba;
@@ -739,6 +756,9 @@ int32_t ufs_scsi_inquiry (struct ufs_handle *hufs)
    osal_memcpy (hba->inquiry_vid, param + 8, 28);
    hba->has_scsi_inquiry = 1;
    
+   // Print the inquiry string to console
+   ufs_print_inquiry_str(hba);
+
    return rc;
 }
 

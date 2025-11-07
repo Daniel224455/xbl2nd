@@ -611,7 +611,7 @@ BdsEntry (
   //
   PERF_END (NULL, "DXE", NULL, 0);
   PERF_START (NULL, "BDS", NULL, 0);
-  DEBUG ((EFI_D_INFO, "[Bds] Entry...\n"));
+  DEBUG ((EFI_D_WARN, "[Bds] Entry...\n"));
 
   PERF_CODE (
     BdsAllocateMemoryForPerformanceData ();
@@ -904,7 +904,7 @@ BdsEntry (
     // Execute Key####
     //
     PERF_START (NULL, "BdsWait", "BDS", 0);
-    BdsWait (HotkeyTriggered);
+    //BdsWait (HotkeyTriggered);
     PERF_END   (NULL, "BdsWait", "BDS", 0);
 
     //

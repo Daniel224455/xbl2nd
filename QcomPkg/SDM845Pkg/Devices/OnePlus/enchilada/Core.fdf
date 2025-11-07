@@ -364,8 +364,8 @@ FvNameGuid         = 631008B0-B2D1-410A-8B49-2C5C4D8ECC7E
   #
   # BDS
   #
-  INF QcomPkg/Drivers/QcomBds/QcomBds.inf
-
+  #INF QcomPkg/Drivers/QcomBds/QcomBds.inf
+  INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
   #
   # QDSS Driver (Debugtrace)
   #
@@ -452,8 +452,26 @@ FvNameGuid         = 631008B0-B2D1-410A-8B49-2C5C4D8ECC7E
     SECTION RAW = QcomPkg/Drivers/QcomChargerDxe/BATTERY.PROVISION
   }
   
-
-
+  # ACPI
+  INF MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf
+  INF MdeModulePkg/Universal/Acpi/AcpiPlatformDxe/AcpiPlatformDxe.inf
+  INF MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
+  FILE FREEFORM = 7E374E25-8E01-4FEE-87F2-390C23C606CD {
+    SECTION RAW = QcomPkg/SDM845Pkg/AcpiTables/Csrt.acpi
+  !if $(TARGET) == DEBUG
+    SECTION RAW = QcomPkg/SDM845Pkg/AcpiTables/dbg2.acpi
+  !endif
+    SECTION RAW = QcomPkg/SDM845Pkg/AcpiTables/Facp.acpi
+    SECTION RAW = QcomPkg/SDM845Pkg/AcpiTables/Facs.acpi
+    SECTION RAW = QcomPkg/SDM845Pkg/AcpiTables/Gtdt.acpi
+    SECTION RAW = QcomPkg/SDM845Pkg/AcpiTables/IORT.acpi
+    SECTION RAW = QcomPkg/SDM845Pkg/AcpiTables/Madt.acpi
+    SECTION RAW = QcomPkg/SDM845Pkg/AcpiTables/Mcfg.acpi
+    SECTION RAW = QcomPkg/SDM845Pkg/AcpiTables/Pptt.acpi
+    SECTION RAW = QcomPkg/SDM845Pkg/AcpiTables/TPM2.acpi
+    SECTION RAW = QcomPkg/SDM845Pkg/Devices/OnePlus/enchilada/DSDT/DSDT.aml
+    SECTION UI = "AcpiTables"
+  }
 
 [FV.FVMAIN_COMPACT]
 FvAlignment        = 8

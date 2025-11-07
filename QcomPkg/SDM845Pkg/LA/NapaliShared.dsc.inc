@@ -51,6 +51,12 @@
   LockBoxLib|MdeModulePkg/Library/LockBoxNullLib/LockBoxNullLib.inf
 
   #
+  # XBL2nd: BDS Libraries
+  #
+  UefiBootManagerLib|MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf
+  PlatformBootManagerLib|MdeModulePkg/Library/PlatformBootManagerLibNull/PlatformBootManagerLibNull.inf
+  
+  #
   # Qualcomm target independent libraries
   #
   NULL|QcomPkg/Library/QcomBaseLib/QcomBaseLib.inf
@@ -1114,6 +1120,13 @@
   QcomPkg/Drivers/UFSDxe/UFSDxe.inf
 
   #
+  # ACPI Drivers
+  #
+  MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf
+  MdeModulePkg/Universal/Acpi/AcpiPlatformDxe/AcpiPlatformDxe.inf
+  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
+  
+  #
   # Debug Protocol
   #
   QcomPkg/Drivers/SerialDxe/SerialDxe.inf {
@@ -1131,7 +1144,8 @@
   #
   # Bds
   #
-  QcomPkg/Drivers/QcomBds/QcomBds.inf
+  #QcomPkg/Drivers/QcomBds/QcomBds.inf
+  MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
 
   #QCOM Charger app
   QcomPkg/Application/QcomChargerApp/QcomChargerApp.inf {

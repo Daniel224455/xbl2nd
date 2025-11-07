@@ -145,8 +145,8 @@
         INF MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
         INF QcomPkg/Drivers/FontDxe/FontDxe.inf
         #INF MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
-        INF QcomPkg/Drivers/QcomBds/QcomBds.inf
-
+        #INF QcomPkg/Drivers/QcomBds/QcomBds.inf
+        INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
         INF QcomPkg/Drivers/TLMMDxe/TLMMDxe.inf
 
         INF QcomPkg/Drivers/I2CDxe/I2CDxe.inf

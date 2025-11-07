@@ -146,7 +146,7 @@
         INF QcomPkg/Drivers/FontDxe/FontDxe.inf
         #INF MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
         #INF QcomPkg/Drivers/QcomBds/QcomBds.inf
-        INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
+        INF QcomPkg/Drivers/XBL2ndBdsDxe/BdsDxe.inf
         INF QcomPkg/Drivers/TLMMDxe/TLMMDxe.inf
 
         INF QcomPkg/Drivers/I2CDxe/I2CDxe.inf

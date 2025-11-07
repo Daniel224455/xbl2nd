@@ -41,5 +41,8 @@
 #include <Protocol/FirmwareVolume2.h>
 
 VOID ConfirmShutdownOnFailure (VOID);
+EFI_STATUS DisplayPlatformInfo (VOID);
+VOID InitLcdDebugFlag (VOID);
+VOID DisplayPOSTTime (VOID);
 
 #endif // _BDS_PLATFORM_H

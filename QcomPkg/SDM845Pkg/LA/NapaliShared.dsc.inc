@@ -55,7 +55,7 @@
   #
   UefiBootManagerLib|MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf
   PlatformBootManagerLib|MdeModulePkg/Library/PlatformBootManagerLibNull/PlatformBootManagerLibNull.inf
-  
+
   #
   # Qualcomm target independent libraries
   #
@@ -1145,7 +1145,7 @@
   # Bds
   #
   #QcomPkg/Drivers/QcomBds/QcomBds.inf
-  MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
+  QcomPkg/Drivers/XBL2ndBdsDxe/BdsDxe.inf
 
   #QCOM Charger app
   QcomPkg/Application/QcomChargerApp/QcomChargerApp.inf {

@@ -897,7 +897,6 @@ PrintCoreSpeedInfo (VOID)
 /**
   Retrieve platform info and send to the console
 **/
-STATIC
 EFI_STATUS
 DisplayPlatformInfo (VOID)
 {

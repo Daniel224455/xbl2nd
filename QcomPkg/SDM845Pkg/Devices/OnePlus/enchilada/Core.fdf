@@ -365,7 +365,7 @@ FvNameGuid         = 631008B0-B2D1-410A-8B49-2C5C4D8ECC7E
   # BDS
   #
   #INF QcomPkg/Drivers/QcomBds/QcomBds.inf
-  INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
+  INF QcomPkg/Drivers/XBL2ndBdsDxe/BdsDxe.inf
   #
   # QDSS Driver (Debugtrace)
   #
